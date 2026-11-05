@@ -3,3 +3,5 @@ work/
 dist/
 test/
 probe_login.js
+__pycache__/
+*.pyc
