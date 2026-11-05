@@ -64,10 +64,13 @@ def pick_copy(d):
         hook = [where, "Does it cash flow?"]
         reveal = ["Barely.", f"{cf_s}/mo after every expense."]
 
+    max_offer, asking = d.get("maxOffer"), d.get("price")
     if cf is not None and cf < 0 and best_alt[0] and (num(best_alt[1]) or 0) > 0:
-        proof = [f"As a {names.get(best_alt[0], best_alt[0])}: {best_alt[1]}/mo"]
+        proof = [f"As a {names.get(best_alt[0], best_alt[0])}:", f"{best_alt[1]}/mo"]
+    elif cf is not None and cf < 200 and max_offer and asking:
+        proof = [f"Max offer: {max_offer}", f"vs {short_price(asking)} asking"]
     elif d.get("coc") and d.get("cashToClose"):
-        proof = [f"{d['coc']} cash-on-cash", f"{d['cashToClose']} to close"]
+        proof = [f"{d['coc']} cash-on-cash", f"on {d['cashToClose']} to close"]
     else:
         proof = ["Taxes, insurance, rent comps.", "Pulled automatically."]
 
@@ -178,6 +181,10 @@ cov = Image.open(opener).resize((W, H), Image.LANCZOS).convert("RGBA")
 cov.alpha_composite(Image.open(plates[0][0]))
 cov.convert("RGB").save(os.path.join(out_dir, "cover.jpg"), quality=90)
 
+def sentence(lines):
+    t = ' '.join(l.strip() for l in lines).strip()
+    return t if t.endswith(('.', '!', '?')) else t + '.'
+
 city = city_of(data.get("cityLine"))
 city_tag = "#" + re.sub(r"[^a-z]", "", city.lower()) + "realestate" if city else "#realestatedeals"
 specs = " · ".join(x for x in [
@@ -186,7 +193,7 @@ specs = " · ".join(x for x in [
     f"{data['sqft']} sqft" if data.get("sqft") else None] if x)
 caption = f"""{' '.join(hook)}
 
-{specs}. Pasted the Zillow link into DealCaddie: {' '.join(reveal).rstrip('.')}. {' · '.join(proof)}.
+{specs}. Pasted the Zillow link into DealCaddie: {sentence(reveal)} {sentence(proof)}
 
 Taxes, insurance and rent comps pulled automatically — about 10 seconds start to finish.
 
