@@ -76,21 +76,20 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await sleep(700);
   mark('pasted');
 
-  const startUrl = page.url();
-  const nav = page.waitForURL(u => u.toString() !== startUrl, { timeout: 120000, waitUntil: 'domcontentloaded' });
+  // The signed-in flow POSTs back to /analyze, so the URL may not change.
+  // Mark "submitted" at the moment of submit and wait for results to render.
   if (inSheet) {
     await box.press('Enter');
-    // if Enter didn't submit, pick the first suggestion in the sheet
-    const moved = await Promise.race([nav.then(() => true), sleep(4000).then(() => false)]);
-    if (!moved) {
+    mark('submitted');
+    const ok = await page.waitForSelector('text=/Deal ScoreCard/i', { timeout: 5000 }).then(() => true).catch(() => false);
+    if (!ok) {
       const opt = sheet.locator('[role="listbox"] [role="option"], [role="listbox"] li, [role="listbox"] button').first();
       if (await opt.isVisible().catch(() => false)) await opt.click();
     }
   } else {
     await page.locator('button[type="submit"]').first().click();
+    mark('submitted');
   }
-  await nav.catch(() => {});
-  mark('submitted');
   console.log(`submitted via ${inSheet ? 'search sheet' : 'inline form'} → ${page.url()}`);
 
   if (/guest_limit|\/signup/.test(page.url())) {
@@ -100,23 +99,31 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await page.waitForSelector('text=/Deal ScoreCard/i', { timeout: 90000 });
   mark('results_dom');
 
-  // wait for the hero photo (sync prefetch or async retry) — up to 12s, never block on it
+  // wait for the listing photo (sync prefetch or async retry). Ignore our own /static/ assets
+  // and pick the largest real photo near the top of the page. Never block the reel on it.
   const photoUrl = await page.waitForFunction(() => {
-    const big = [...document.querySelectorAll('img')]
-      .filter(i => i.getBoundingClientRect().top < 520 && i.complete && i.naturalWidth >= 400 && !i.src.startsWith('data:'));
-    if (big.length) return big[0].currentSrc || big[0].src;
-    for (const el of document.querySelectorAll('[style*="background-image"], .results-top, [class*="hero"]')) {
-      const m = getComputedStyle(el).backgroundImage.match(/url\(["']?(https?:[^"')]+)/);
-      if (m && el.getBoundingClientRect().top < 520) return m[1];
+    const ok = u => u && /^https?:/.test(u) && !/\/static\//.test(u) && !/logo|icon|badge|avatar/i.test(u);
+    const cands = [];
+    for (const i of document.querySelectorAll('img')) {
+      const r = i.getBoundingClientRect(); const u = i.currentSrc || i.src;
+      if (r.top < 700 && i.complete && i.naturalWidth >= 400 && ok(u)) cands.push([i.naturalWidth * i.naturalHeight, u]);
     }
-    return null;
-  }, null, { timeout: 12000, polling: 400 }).then(h => h.jsonValue()).catch(() => null);
+    for (const el of document.querySelectorAll('*')) {
+      const r = el.getBoundingClientRect(); if (r.top > 700 || r.width < 300) continue;
+      const m = getComputedStyle(el).backgroundImage.match(/url\(["']?(https?:[^"')]+)/);
+      if (m && ok(m[1])) cands.push([r.width * r.height, m[1]]);
+    }
+    cands.sort((a, b) => b[0] - a[0]);
+    return cands.length ? cands[0][1] : null;
+  }, null, { timeout: 20000, polling: 500 }).then(h => h.jsonValue()).catch(() => null);
+  console.log('photo url:', photoUrl);
   await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
   await sleep(1200);
   mark('results');
 
   // ---- 3. scrape the numbers from the rendered page ----
   const text = await page.evaluate(() => document.body.innerText);
+  console.log('----- PAGE TEXT (first 5000 chars) -----\n' + text.slice(0, 5000) + '\n----- END PAGE TEXT -----');
   const grab = (re, i = 1) => { const m = text.match(re); return m ? m[i].trim() : null; };
   const money = s => s ? Number(s.replace(/[^0-9.-]/g, '')) * (s.includes('-') || s.includes('−') ? -1 : 1) : null;
   const strategies = {};
