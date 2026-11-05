@@ -1,0 +1,104 @@
+name: Daily Deal Verdict reel
+
+on:
+  schedule:
+    # Twice a day (UTC). GitHub may start scheduled runs a few minutes late.
+    - cron: "17 13 * * *"   # ~6–7am Denver
+    - cron: "47 21 * * *"   # ~2–3pm Denver
+  workflow_dispatch:
+    inputs:
+      listing:
+        description: "Optional: a Zillow URL or address to run instead of the next one in queue.txt"
+        required: false
+
+permissions:
+  contents: write   # pop the queue + publish the reel as a release
+
+concurrency:
+  group: daily-reel
+  cancel-in-progress: false
+
+jobs:
+  reel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          pip install --quiet pillow
+
+      - name: Pick listing
+        id: pick
+        run: |
+          if [ -n "${{ github.event.inputs.listing }}" ]; then
+            echo "listing=${{ github.event.inputs.listing }}" >> "$GITHUB_OUTPUT"
+            echo "from_queue=false" >> "$GITHUB_OUTPUT"
+          else
+            L=$(grep -v '^\s*$' queue.txt | head -n1)
+            if [ -z "$L" ]; then echo "::error::queue.txt is empty — add more listings"; exit 1; fi
+            echo "listing=$L" >> "$GITHUB_OUTPUT"
+            echo "from_queue=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "slug=reel-$(date -u +%Y%m%d-%H%M)" >> "$GITHUB_OUTPUT"
+
+      - name: Record analysis
+        env:
+          DC_EMAIL: ${{ secrets.DC_EMAIL }}
+          DC_PASSWORD: ${{ secrets.DC_PASSWORD }}
+        run: node scripts/record.js "${{ steps.pick.outputs.listing }}" work
+
+      - name: Assemble reel
+        run: |
+          mkdir -p dist
+          python3 scripts/assemble.py work "dist/${{ steps.pick.outputs.slug }}.mp4"
+          mv dist/cover.jpg "dist/${{ steps.pick.outputs.slug }}-cover.jpg"
+          cat dist/caption.txt
+
+      - name: Publish as a release (caption in the notes, MP4 + cover attached)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITLE=$(python3 -c "import json;m=json.load(open('dist/meta.json'));print(' '.join(m['hook']))")
+          gh release create "${{ steps.pick.outputs.slug }}" \
+            "dist/${{ steps.pick.outputs.slug }}.mp4" \
+            "dist/${{ steps.pick.outputs.slug }}-cover.jpg" \
+            --title "$TITLE" --notes-file dist/caption.txt
+
+      - name: Keep the raw files for 14 days (debugging)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.pick.outputs.slug }}
+          path: |
+            work/*.json
+            work/photo.jpg
+            dist/
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Pop the queue
+        if: always() && steps.pick.outputs.from_queue == 'true'
+        run: |
+          L="${{ steps.pick.outputs.listing }}"
+          RESULT=${{ job.status }}
+          grep -vxF "$L" queue.txt > queue.tmp || true
+          mv queue.tmp queue.txt
+          if [ "$RESULT" = "success" ]; then
+            echo "$(date -u +%F),${{ steps.pick.outputs.slug }},$L" >> done.csv
+          else
+            echo "$(date -u +%F),$L" >> failed.txt
+          fi
+          git config user.name "dealcaddie-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add queue.txt done.csv failed.txt 2>/dev/null || true
+          git commit -m "Reel ${{ steps.pick.outputs.slug }}: $RESULT" || echo "nothing to commit"
+          git push

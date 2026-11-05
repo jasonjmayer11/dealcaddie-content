@@ -1,0 +1,6 @@
+{
+  "name": "dealcaddie-content",
+  "private": true,
+  "description": "Automated Deal Verdict reels for DealCaddie",
+  "dependencies": { "playwright": "1.63.0" }
+}
