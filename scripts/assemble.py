@@ -42,7 +42,11 @@ def city_of(line):
 
 def pick_copy(d):
     price, city = short_price(d.get("price")), city_of(d.get("cityLine"))
-    cf, cf_s = d.get("ltrCashflowNum"), d.get("ltrCashflow") or ""
+    cf_s = d.get("ltrCashflow") or ""
+    try:
+        cf = float(re.sub(r"[^0-9.\-]", "", cf_s.replace("\u2212", "-"))) if cf_s else None
+    except ValueError:
+        cf = d.get("ltrCashflowNum")
     score = d.get("score") or "?"
     score = score[:-2] if score.endswith(".0") else score
     strat = d.get("strategies") or {}

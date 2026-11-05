@@ -151,7 +151,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   const text = seen.join('\n');
   console.log('----- PAGE TEXT (first 9000 chars) -----\n' + text.slice(0, 9000) + '\n----- END PAGE TEXT -----');
   const grab = (re, i = 1) => { const m = text.match(re); return m ? m[i].trim() : null; };
-  const money = s => s ? Number(s.replace(/[^0-9.-]/g, '')) * (s.includes('-') || s.includes('−') ? -1 : 1) : null;
+  const money = s => s ? Number(s.replace(/−/g, '-').replace(/[^0-9.-]/g, '')) : null;
   const strategies = {};
   for (const k of ['LTR', 'MTR', 'STR', 'S8', 'HH', 'BRRRR', 'FLIP']) {
     const v = grab(new RegExp(`\\n${k}\\n([+\\-−]?\\$[0-9,.]+k?)`));
