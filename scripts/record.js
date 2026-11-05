@@ -64,16 +64,34 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
   const input = page.locator('input[name="address"]').first();
   await input.click();
-  await input.fill('');
-  await input.type(listing, { delay: 6 });
   await sleep(500);
+
+  // Signed-in users get a full-screen search sheet (div.dcs-sheet) with its own input;
+  // guests get the inline form. Type into whichever one is live.
+  const sheet = page.locator('.dcs-sheet.on');
+  const inSheet = await sheet.isVisible().catch(() => false);
+  const box = inSheet ? sheet.locator('input[type="text"]').first() : input;
+  await box.fill('');
+  await box.type(listing, { delay: 6 });
+  await sleep(700);
   mark('pasted');
 
-  await Promise.all([
-    page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 120000 }).catch(() => {}),
-    page.locator('button[type="submit"]').first().click(),
-  ]);
+  const startUrl = page.url();
+  const nav = page.waitForURL(u => u.toString() !== startUrl, { timeout: 120000, waitUntil: 'domcontentloaded' });
+  if (inSheet) {
+    await box.press('Enter');
+    // if Enter didn't submit, pick the first suggestion in the sheet
+    const moved = await Promise.race([nav.then(() => true), sleep(4000).then(() => false)]);
+    if (!moved) {
+      const opt = sheet.locator('[role="listbox"] [role="option"], [role="listbox"] li, [role="listbox"] button').first();
+      if (await opt.isVisible().catch(() => false)) await opt.click();
+    }
+  } else {
+    await page.locator('button[type="submit"]').first().click();
+  }
+  await nav.catch(() => {});
   mark('submitted');
+  console.log(`submitted via ${inSheet ? 'search sheet' : 'inline form'} → ${page.url()}`);
 
   if (/guest_limit|\/signup/.test(page.url())) {
     throw new Error(`Hit the guest limit (${page.url()}). Add DC_EMAIL / DC_PASSWORD secrets.`);
