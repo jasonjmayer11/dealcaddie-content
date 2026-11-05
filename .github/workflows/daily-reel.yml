@@ -119,6 +119,7 @@ jobs:
           fi
           git config user.name "dealcaddie-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add queue.txt done.csv failed.txt 2>/dev/null || true
+          git add queue.txt
+          for f in done.csv failed.txt; do [ -f "$f" ] && git add "$f"; done
           git commit -m "Reel ${{ steps.pick.outputs.slug }}: $RESULT" || echo "nothing to commit"
           git push
