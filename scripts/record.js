@@ -121,9 +121,35 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await sleep(1200);
   mark('results');
 
-  // ---- 3. scrape the numbers from the rendered page ----
-  const text = await page.evaluate(() => document.body.innerText);
-  console.log('----- PAGE TEXT (first 5000 chars) -----\n' + text.slice(0, 5000) + '\n----- END PAGE TEXT -----');
+  // ---- 3. walk the section tabs in beats ----
+  // The signed-in app scrolls inside its shell (window.scrollTo does nothing) and renders
+  // sections on demand, so click the section tabs instead and collect text after each one.
+  await sleep(2200);                      // hold on the scorecard + photo
+  const seen = [await page.evaluate(() => document.body.innerText)];
+  for (const [tab, key] of [['Cashflow', 'tab_cashflow'], ['AI Take', 'tab_ai'], ['Max Offer', 'tab_maxoffer']]) {
+    const t = page.getByText(tab, { exact: true }).first();
+    if (await t.isVisible().catch(() => false)) {
+      await t.click().catch(() => {});
+      mark(key);
+      await sleep(2600);
+    } else {
+      // fallback: scroll whatever element actually scrolls
+      await page.evaluate(() => {
+        const s = [...document.querySelectorAll('*')].filter(e => e.scrollHeight > e.clientHeight + 200 &&
+          /auto|scroll/.test(getComputedStyle(e).overflowY)).sort((a, b) => b.scrollHeight - a.scrollHeight)[0]
+          || document.scrollingElement;
+        s.scrollBy({ top: s.clientHeight * 0.8, behavior: 'smooth' });
+      });
+      mark(key);
+      await sleep(2000);
+    }
+    seen.push(await page.evaluate(() => document.body.innerText));
+  }
+  mark('end');
+
+  // ---- 4. scrape the numbers from everything that rendered ----
+  const text = seen.join('\n');
+  console.log('----- PAGE TEXT (first 9000 chars) -----\n' + text.slice(0, 9000) + '\n----- END PAGE TEXT -----');
   const grab = (re, i = 1) => { const m = text.match(re); return m ? m[i].trim() : null; };
   const money = s => s ? Number(s.replace(/[^0-9.-]/g, '')) * (s.includes('-') || s.includes('−') ? -1 : 1) : null;
   const strategies = {};
@@ -133,8 +159,8 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   }
   const data = {
     listing,
-    address: grab(/\n(\d+[^\n]{3,60})\n([A-Za-z .'-]+, [A-Z]{2} \d{5})/, 1),
-    cityLine: grab(/\n(\d+[^\n]{3,60})\n([A-Za-z .'-]+, [A-Z]{2} \d{5})/, 2),
+    address: grab(/\n(\d+[^\n,]{3,60})\n(?:,\n)?([A-Za-z .'-]+, [A-Z]{2} \d{5})/, 1),
+    cityLine: grab(/\n(\d+[^\n,]{3,60})\n(?:,\n)?([A-Za-z .'-]+, [A-Z]{2} \d{5})/, 2),
     price: grab(/\n(\$[0-9]{2,3},[0-9]{3}(?:,[0-9]{3})?)\n/),
     beds: grab(/(\d+)\s*bd/), baths: grab(/(\d+(?:\.\d)?)\s*ba/), sqft: grab(/([0-9,]+)\s*sqft/),
     score: grab(/\n(\d{1,2}\.\d)\n\/10/) || grab(/SCORE\n(\d{1,2}\.\d)/),
@@ -150,15 +176,6 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   data.ltrCashflowNum = money(data.ltrCashflow);
   fs.writeFileSync(path.join(outdir, 'data.json'), JSON.stringify(data, null, 2));
   console.log('scraped', JSON.stringify(data));
-
-  // ---- 4. scroll the analysis in beats ----
-  const H = await page.evaluate(() => document.body.scrollHeight);
-  for (const f of [0.17, 0.34, 0.52, 0.7]) {
-    await page.evaluate(y => window.scrollTo({ top: y, behavior: 'smooth' }), Math.min(H - 960, H * f));
-    await sleep(1700);
-    mark(`scroll_${Math.round(f * 100)}`);
-  }
-  mark('end');
 
   // ---- 5. grab the listing photo bytes for the opener ----
   if (photoUrl) {

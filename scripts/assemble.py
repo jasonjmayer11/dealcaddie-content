@@ -133,7 +133,8 @@ p_start, p_end = max(0, marks["ready"] - 0.2), marks["submitted"] + 0.3
 sh(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{p_start:.2f}", "-to", f"{p_end:.2f}", "-i", raw,
     "-vf", f"setpts=PTS/{SPEED},{scale}", "-an", "-c:v", "libx264", "-preset", "fast", "-crf", "18", seg_paste])
 
-r_start = max(marks["results_dom"] - 0.2, marks["submitted"])
+# start once the page has settled (photo loaded, splash gone), not when the DOM first appears
+r_start = max(marks.get("results", marks["results_dom"]) - 0.4, marks["submitted"])
 sh(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{r_start:.2f}", "-to", f"{marks['end']:.2f}", "-i", raw,
     "-vf", scale, "-an", "-c:v", "libx264", "-preset", "fast", "-crf", "18", seg_res])
 
@@ -145,12 +146,16 @@ d1, d2, d3 = dur(seg_open), dur(seg_paste), dur(seg_res)
 t_res = d1 + d2
 
 # ---------------------------------------------------------------- overlay schedule
+# time each text beat to the tab clicks when we have them
+def rel(k, default):
+    return t_res + (marks[k] - r_start) if k in marks else t_res + default
+t_cash, t_ai = rel("tab_cashflow", 3.4), rel("tab_ai", 6.0)
 plates = [
     (plate(hook, 520, "hook", 74), 0, d1),
     (plate(["One paste.", "Full underwrite."], 1120, "paste", 66), d1, t_res),
-    (plate(reveal, 1140, "reveal", 72), t_res + 0.3, t_res + 4.6),
-    (plate(proof, 1140, "proof", 62), t_res + 4.6, t_res + 8.8),
-    (plate(cta, 1140, "cta", 64), t_res + 8.8, t_res + d3 + 1),
+    (plate(reveal, 1140, "reveal", 72), t_res + 0.2, t_cash),
+    (plate(proof, 1140, "proof", 62), t_cash + 0.3, t_ai + 0.6),
+    (plate(cta, 1140, "cta", 64), t_ai + 0.6, t_res + d3 + 1),
 ]
 
 inputs = ["-i", seg_open, "-i", seg_paste, "-i", seg_res]
