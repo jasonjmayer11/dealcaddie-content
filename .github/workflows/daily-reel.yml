@@ -88,10 +88,18 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TITLE=$(python3 -c "import json;m=json.load(open('dist/meta.json'));print(' '.join(m['hook']))")
-          gh release create "${{ steps.pick.outputs.slug }}" \
-            "dist/${{ steps.pick.outputs.slug }}.mp4" \
-            "dist/${{ steps.pick.outputs.slug }}-cover.jpg" \
-            --title "$TITLE" --notes-file dist/caption.txt
+          TAG="${{ steps.pick.outputs.slug }}"
+          # retry: GitHub's API occasionally returns 5xx
+          for i in 1 2 3 4; do
+            if gh release view "$TAG" >/dev/null 2>&1; then
+              gh release upload "$TAG" "dist/$TAG.mp4" "dist/$TAG-cover.jpg" --clobber && break
+            elif gh release create "$TAG" "dist/$TAG.mp4" "dist/$TAG-cover.jpg" \
+                   --title "$TITLE" --notes-file dist/caption.txt; then
+              break
+            fi
+            [ "$i" = 4 ] && { echo "::error::release failed after 4 tries"; exit 1; }
+            echo "release attempt $i failed; retrying in $((i*20))s"; sleep $((i*20))
+          done
 
       - name: Keep the raw files for 14 days (debugging)
         if: always()
@@ -122,4 +130,8 @@ jobs:
           git add queue.txt
           for f in done.csv failed.txt; do if [ -f "$f" ]; then git add "$f"; fi; done
           git commit -m "Reel ${{ steps.pick.outputs.slug }}: $RESULT" || echo "nothing to commit"
-          git push
+          for i in 1 2 3 4; do
+            git pull --rebase -q origin main && git push && break
+            [ "$i" = 4 ] && { echo "::error::push failed after 4 tries"; exit 1; }
+            echo "push attempt $i failed; retrying in $((i*15))s"; sleep $((i*15))
+          done
