@@ -57,6 +57,13 @@ async function tagCard(page, pattern, minH, maxH = 1100) {
 }
 
 async function shootCard(page, name, pattern, minH, maxH) {
+  await page.evaluate(() => {
+    for (const el of document.querySelectorAll('body *')) {
+      if (el.children.length) continue;
+      const t = (el.textContent || '').trim();
+      if (t.length === 1 && /[\u2139\u2460-\u24FF]/.test(t)) el.style.visibility = 'hidden';
+    }
+  }).catch(() => {});
   const box = await tagCard(page, pattern, minH, maxH);
   if (!box) { console.log(`card ${name}: not found (${pattern})`); return false; }
   await sleep(700);                              // let scroll + lazy content settle
@@ -164,6 +171,17 @@ async function clickTab(page, label) {
   // ---- 5. card stills, collecting page text as each section renders ----
   const seen = [];
   const snap = async n => { seen.push(await page.evaluate(() => document.body.innerText)); await page.screenshot({ path: out(`page_${n}.png`) }); };
+
+  // The app's little circled-i info icons (U+24BE etc.) have no glyph on the runner and render as
+  // empty boxes. Hide those leaf nodes before any capture. Visual only — the page text is unchanged.
+  const hideIcons = () => page.evaluate(() => {
+    for (const el of document.querySelectorAll('body *')) {
+      if (el.children.length) continue;
+      const t = (el.textContent || '').trim();
+      if (t.length === 1 && /[ℹ①-⓿]/.test(t)) el.style.visibility = 'hidden';
+    }
+  }).catch(() => {});
+  await hideIcons();
 
   await snap('1_hero');
   await shootCard(page, 'hero', 'Deal ScoreCard', 300, 900);
