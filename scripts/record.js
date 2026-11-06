@@ -169,11 +169,11 @@ async function clickTab(page, label) {
   await shootCard(page, 'hero', 'Deal ScoreCard', 300, 900);
 
   if (await clickTab(page, 'Cashflow')) await snap('2_cashflow');
-  await shootCard(page, 'strats', 'Cashflow by Strategy', 120, 700);
+  await shootCard(page, 'strats', 'Cashflow by Strategy', 60, 600);
   await shootCard(page, 'ltr', 'Monthly Cash Flow', 160, 900);
 
   if (await clickTab(page, 'Max Offer')) await snap('3_maxoffer');
-  await shootCard(page, 'maxoffer', 'Max Offer Price|Max offer', 140, 900);
+  await shootCard(page, 'maxoffer', 'Max Offer Calculator', 120, 800);
 
   if (await clickTab(page, 'AI Take')) await snap('4_ai');
 

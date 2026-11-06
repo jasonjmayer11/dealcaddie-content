@@ -199,18 +199,40 @@ for yy in range(H):
     c = tuple(int(a + (b - a) * t) for a, b in zip(FOREST, DEEP))
     for xx in range(0, W):
         px[xx, yy] = c
+# cream plate: house mark (from the nav) + DealCaddie wordmark in brand colours
+TURF = (39, 165, 82)
+wf = ImageFont.truetype(FB, 92)
+dm = ImageDraw.Draw(Image.new("RGB", (8, 8)))
+w_deal, w_caddie = dm.textlength("Deal", font=wf), dm.textlength("Caddie", font=wf)
+asc, desc = wf.getmetrics()
+mark = None
 if os.path.exists(P("logo.png")):
-    logo = Image.open(P("logo.png")).convert("RGBA")
-    s = min(620 / logo.width, 180 / logo.height)
-    logo = logo.resize((int(logo.width * s), int(logo.height * s)), Image.LANCZOS)
-    plate_w, plate_h = logo.width + 120, logo.height + 90
-    pl = Image.new("RGBA", (plate_w, plate_h), (0, 0, 0, 0))
-    ImageDraw.Draw(pl).rounded_rectangle([0, 0, plate_w - 1, plate_h - 1], radius=36, fill=CREAM + (255,))
-    pl.alpha_composite(logo, (60, 45))
-    f5 = f5.convert("RGBA"); f5.alpha_composite(pl, (CX - plate_w // 2, 620)); f5 = f5.convert("RGB")
-    ty = 620 + plate_h + 90
-else:
-    ty = 760
+    mark = Image.open(P("logo.png")).convert("RGBA")
+    # the nav behind the logo is white: make near-white pixels transparent
+    px_ = mark.load()
+    for yy in range(mark.height):
+        for xx in range(mark.width):
+            r, g, b, a = px_[xx, yy]
+            if r > 238 and g > 238 and b > 238:
+                px_[xx, yy] = (r, g, b, 0)
+    ms = (asc + desc) * 1.15 / mark.height
+    mark = mark.resize((int(mark.width * ms), int(mark.height * ms)), Image.LANCZOS)
+gap = 24 if mark else 0
+inner_w = (mark.width if mark else 0) + gap + int(w_deal + w_caddie)
+inner_h = max(mark.height if mark else 0, asc + desc)
+plate_w, plate_h = inner_w + 110, inner_h + 80
+pl = Image.new("RGBA", (plate_w, plate_h), (0, 0, 0, 0))
+pd = ImageDraw.Draw(pl)
+pd.rounded_rectangle([0, 0, plate_w - 1, plate_h - 1], radius=40, fill=CREAM + (255,))
+x = 55
+if mark:
+    pl.alpha_composite(mark, (x, (plate_h - mark.height) // 2)); x += mark.width + gap
+ty_word = (plate_h - (asc + desc)) // 2
+pd.text((x, ty_word), "Deal", font=wf, fill=FOREST)
+pd.text((x + w_deal, ty_word), "Caddie", font=wf, fill=TURF)
+plate_top = 640
+f5 = f5.convert("RGBA"); f5.alpha_composite(pl, (CX - plate_w // 2, plate_top)); f5 = f5.convert("RGB")
+ty = plate_top + plate_h + 90
 ty = draw_line(f5, "Run any address free", ty, size=78, plate=False) + 10
 draw_line(f5, "dealcaddie.ai", ty, size=84, plate=False)
 f5.save(P("beat5.png")); frames.append((P("beat5.png"), 2.6, 1.0))
