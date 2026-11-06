@@ -28,8 +28,8 @@ GitHub app → this repo → **Releases**. Each one has the caption ready to cop
 Without them it runs as a guest and stops at the free-analysis limit.
 
 ## Files
-- `scripts/record.js` — browser recording + data scrape (Playwright)
-- `scripts/assemble.py` — copy rules, text plates, ffmpeg edit, caption
+- `scripts/record.js` — runs the analysis, captures high-res stills of each card + scrapes the numbers (Playwright)
+- `scripts/assemble.py` — copy rules, five one-idea beats, slow push-in + crossfades, caption
 - `fonts/` — Poppins (SIL Open Font License)
 
 ## Copy rules (in `assemble.py → pick_copy`)

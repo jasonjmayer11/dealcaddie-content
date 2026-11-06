@@ -1,36 +1,47 @@
 #!/usr/bin/env python3
-"""Assemble a DealCaddie Deal Verdict reel.
+"""Assemble a DealCaddie Deal Verdict reel from card stills.
 
 Usage: python3 scripts/assemble.py <workdir> <out.mp4>
-Reads raw.webm, marks.json, data.json, optional photo.jpg from <workdir>.
-Writes the 1080x1920 MP4, caption.txt and cover.jpg next to it.
+Reads photo.jpg, card_*.png, logo.png and data.json from <workdir>.
+Writes the 1080x1920 MP4, caption.txt, cover.jpg and meta.json next to it.
 
-Layout rules (Instagram Reels / TikTok safe zones at 1080x1920):
-  - nothing important above y=260 (app top bar) or below y=1450 (caption, username, audio)
-  - nothing important right of x=900 (like / comment / share rail)
+Five beats, one idea each, ~3 seconds apiece:
+  1. listing photo           + two-line hook
+  2. property / score card   + "Deal score: 6.9/10"
+  3. cashflow card           + "+$33/mo. Barely."
+  4. max offer / strategies  + "Max offer: $171K"
+  5. branded end card        + "Run any address free · dealcaddie.ai"
+
+Readability rules:
+  - one short line of text per beat (two on the hook), never more than ~6 words
+  - text sits on its own solid plate, under the card, never on top of UI
+  - the background is a dark blur of the card, so the card and the text are the only sharp things
+  - motion is only a slow push-in on each still plus a soft crossfade
+  - everything inside the Instagram/TikTok safe area (y 300–1430, x 60–900)
 """
 import json, os, re, subprocess, sys
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps, ImageEnhance
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FB = os.path.join(ROOT, "fonts", "Poppins-Bold.ttf")
 W, H, FPS = 1080, 1920, 30
-FOREST, CREAM, GOLD = (26, 92, 53), (250, 247, 240), (201, 168, 76)
-SAFE_X0, SAFE_X1 = 60, 900          # usable horizontal band
-SAFE_CX = (SAFE_X0 + SAFE_X1) // 2  # text centred in the band, not the frame
+FOREST, DEEP, CREAM, GOLD = (26, 92, 53), (12, 40, 24), (250, 247, 240), (226, 190, 92)
+X0, X1 = 60, 900                     # usable band; right of 900 is the like/comment rail
+CX = (X0 + X1) // 2
+CARD_TOP, CARD_BOT = 300, 1130       # cards live here
+TEXT_MAX_Y = 1430                    # text plates must end above the caption area
 
 work, out_mp4 = sys.argv[1], sys.argv[2]
 out_dir = os.path.dirname(os.path.abspath(out_mp4))
-marks = json.load(open(os.path.join(work, "marks.json")))
 data = json.load(open(os.path.join(work, "data.json")))
-raw = os.path.join(work, "raw.webm")
+P = lambda f: os.path.join(work, f)
 
 
 def sh(cmd):
     subprocess.run(cmd, check=True)
 
 
-# ---------------------------------------------------------------- copy
+# ------------------------------------------------------------------ copy
 def short_price(p):
     n = int(re.sub(r"[^0-9]", "", p or "0") or 0)
     if n >= 1_000_000:
@@ -40,154 +51,208 @@ def short_price(p):
 def city_of(line):
     return (line or "").split(",")[0].strip()
 
+def num(s):
+    try:
+        return float(re.sub(r"[^0-9.\-]", "", (s or "").replace("−", "-")))
+    except ValueError:
+        return None
+
 def pick_copy(d):
+    """Returns (hook_lines, [(card, line), (card, line), (card, line)])."""
     price, city = short_price(d.get("price")), city_of(d.get("cityLine"))
     cf_s = d.get("ltrCashflow") or ""
-    try:
-        cf = float(re.sub(r"[^0-9.\-]", "", cf_s.replace("\u2212", "-"))) if cf_s else None
-    except ValueError:
-        cf = d.get("ltrCashflowNum")
+    cf = num(cf_s)
     score = d.get("score") or "?"
     score = score[:-2] if score.endswith(".0") else score
     strat = d.get("strategies") or {}
-    def num(s):
-        try: return float(re.sub(r"[^0-9.\-]", "", s.replace("−", "-")))
-        except Exception: return None
-    best_alt = max(((k, v) for k, v in strat.items() if k not in ("LTR", "FLIP") and num(v) is not None),
-                   key=lambda kv: num(kv[1]), default=(None, None))
-    names = {"MTR": "mid-term rental", "STR": "Airbnb", "S8": "Section 8", "HH": "house hack", "BRRRR": "BRRRR"}
+    names = {"MTR": "a mid-term rental", "STR": "an Airbnb", "S8": "Section 8", "HH": "a house hack", "BRRRR": "a BRRRR"}
+    alts = [(k, v) for k, v in strat.items() if k not in ("LTR", "FLIP") and (num(v) or 0) > 0]
+    best_alt = max(alts, key=lambda kv: num(kv[1]), default=None)
     where = f"{price} {city} house." if city else f"This {price} house."
 
     if cf is not None and cf >= 200:
         hook = [f"This {where}" if city else where, "Guess the cashflow."]
-        reveal = [f"{score}/10 deal score.", f"{cf_s}/mo as a rental."]
+        b_cf = f"{cf_s}/mo as a rental."
     elif cf is not None and cf < 0:
         hook = [where, "Looks like a deal. Watch."]
-        reveal = [f"Loses {cf_s.replace('-', '').replace('−', '')}/mo", "as a long-term rental."]
+        b_cf = f"Loses ${abs(int(cf)):,}/mo as a rental."
     else:
         hook = [where, "Does it cash flow?"]
-        reveal = ["Barely.", f"{cf_s}/mo after every expense."]
+        b_cf = f"{cf_s}/mo. Barely."
 
-    max_offer, asking = d.get("maxOffer"), d.get("price")
-    if cf is not None and cf < 0 and best_alt[0] and (num(best_alt[1]) or 0) > 0:
-        proof = [f"As a {names.get(best_alt[0], best_alt[0])}:", f"{best_alt[1]}/mo"]
-    elif cf is not None and cf < 200 and max_offer and asking:
-        proof = [f"Max offer: {max_offer}", f"vs {short_price(asking)} asking"]
-    elif d.get("coc") and d.get("cashToClose"):
-        proof = [f"{d['coc']} cash-on-cash", f"on {d['cashToClose']} to close"]
+    b_score = f"{score}/10 deal score." if score not in ("?",) else "Full deal score."
+
+    mo, asking = d.get("maxOffer"), num(d.get("price"))
+    if cf is not None and cf < 0 and best_alt:
+        b_proof = ("strats", f"As {names.get(best_alt[0], best_alt[0])}: {best_alt[1]}/mo")
+    elif mo and asking:
+        b_proof = ("maxoffer", f"Max offer: {short_price(mo)}" if num(mo) < asking else f"Worth up to {short_price(mo)}")
+    elif d.get("coc"):
+        b_proof = ("ltr", f"{d['coc']} cash-on-cash.")
     else:
-        proof = ["Taxes, insurance, rent comps.", "Pulled automatically."]
+        b_proof = ("strats", "Seven strategies, one tap.")
 
-    cta = ["Run any address free", "dealcaddie.ai"]
-    return hook, reveal, proof, cta
-
-
-hook, reveal, proof, cta = pick_copy(data)
+    return hook, [("hero", b_score), ("ltr", b_cf), b_proof]
 
 
-# ---------------------------------------------------------------- text plates
-def plate(lines, y, name, size=70, gold_last=True):
-    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
+hook, beats = pick_copy(data)
+
+
+# ------------------------------------------------------------------ drawing helpers
+def fit_font(text, max_w, size, min_size=54):
+    d = ImageDraw.Draw(Image.new("RGB", (8, 8)))
     f = ImageFont.truetype(FB, size)
-    max_w = SAFE_X1 - SAFE_X0 - 60
-    while max(d.textlength(l, font=f) for l in lines) > max_w and size > 44:
+    while d.textlength(text, font=f) > max_w and size > min_size:
         size -= 2
         f = ImageFont.truetype(FB, size)
-    pad, gap = 26, 14
-    yy = y
-    for i, ln in enumerate(lines):
-        bb = d.textbbox((0, 0), ln, font=f)
-        tw, th = bb[2] - bb[0], bb[3] - bb[1]
-        x = SAFE_CX - tw // 2
-        d.rounded_rectangle([x - pad, yy - pad, x + tw + pad, yy + th + pad], radius=16, fill=FOREST + (242,))
-        col = GOLD if (gold_last and i == len(lines) - 1 and len(lines) > 1) else CREAM
-        d.text((x, yy - bb[1]), ln, font=f, fill=col)
-        yy += th + pad * 2 + gap
-    p = os.path.join(work, f"plate_{name}.png")
-    img.save(p)
+    return f
+
+def draw_line(img, text, y, size=82, plate=True):
+    """One line on a solid forest plate. Dollar figures, scores and percents in gold."""
+    d = ImageDraw.Draw(img)
+    pad_x, pad_y = 34, 24
+    f = fit_font(text, (X1 - X0) - pad_x * 2, size)
+    asc, desc = f.getmetrics()
+    tw = d.textlength(text, font=f)
+    x = CX - tw / 2
+    if plate:
+        d.rounded_rectangle([x - pad_x, y - pad_y, x + tw + pad_x, y + asc + desc + pad_y - 6],
+                            radius=22, fill=FOREST)
+    # word-by-word so numbers can be gold
+    cx = x
+    for i, word in enumerate(text.split(" ")):
+        token = word + (" " if i < len(text.split(" ")) - 1 else "")
+        col = GOLD if re.search(r"[\$%]|\d+/10", word) else CREAM
+        d.text((cx, y), token, font=f, fill=col)
+        cx += d.textlength(token, font=f)
+    return y + asc + desc + pad_y * 2
+
+def blurred_bg(src):
+    bg = ImageOps.fit(src.convert("RGB"), (W, H), Image.LANCZOS)
+    bg = bg.filter(ImageFilter.GaussianBlur(48))
+    bg = ImageEnhance.Brightness(bg).enhance(0.38)
+    tint = Image.new("RGB", (W, H), DEEP)
+    return Image.blend(bg, tint, 0.55)
+
+def rounded(img, r):
+    m = Image.new("L", img.size, 0)
+    ImageDraw.Draw(m).rounded_rectangle([0, 0, img.width - 1, img.height - 1], radius=r, fill=255)
+    out = img.convert("RGBA"); out.putalpha(m)
+    return out
+
+
+# ------------------------------------------------------------------ frames
+frames = []   # (png_path, seconds, zoom_to)
+
+# 1. photo + hook
+src_photo = P("photo.jpg") if os.path.exists(P("photo.jpg")) else (P("card_hero.png") if os.path.exists(P("card_hero.png")) else None)
+f1 = Image.new("RGB", (W, H), DEEP)
+if src_photo:
+    ph = Image.open(src_photo).convert("RGB")
+    f1 = ImageOps.fit(ph, (W, H), Image.LANCZOS, centering=(0.5, 0.45))
+    # gentle darkening at top/bottom so the plates sit on calm tone
+    shade = Image.new("L", (W, H), 0); sd = ImageDraw.Draw(shade)
+    for y in range(H):
+        a = int(110 * max(0, 1 - abs(y - 640) / 700))
+        sd.line([(0, y), (W, y)], fill=a)
+    f1 = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)), f1, shade)
+y = 520
+for i, line in enumerate(hook):
+    y = draw_line(f1, line, y, size=84 if i == 0 else 78) + 18
+f1.save(P("beat1.png")); frames.append((P("beat1.png"), 2.8, 1.08))
+
+# 2–4. card beats
+def card_beat(idx, card, text):
+    path = P(f"card_{card}.png")
+    if not os.path.exists(path):
+        path = next((P(f) for f in ("card_hero.png", "card_ltr.png", "card_maxoffer.png", "card_strats.png")
+                     if os.path.exists(P(f))), None)
+    if not path:
+        img = Image.new("RGB", (W, H), DEEP)
+        draw_line(img, text, 900, size=88)
+    else:
+        card = Image.open(path).convert("RGB")
+        img = blurred_bg(card)
+        max_w, max_h = X1 - X0, CARD_BOT - CARD_TOP
+        s = min(max_w / card.width, max_h / card.height)
+        cw, ch = int(card.width * s), int(card.height * s)
+        card = rounded(card.resize((cw, ch), Image.LANCZOS), 30)
+        top = CARD_TOP + (max_h - ch) // 2
+        # soft shadow
+        sh_ = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        ImageDraw.Draw(sh_).rounded_rectangle([X0 + 6, top + 18, X0 + 6 + cw, top + 18 + ch], radius=30, fill=(0, 0, 0, 150))
+        img = Image.alpha_composite(img.convert("RGBA"), sh_.filter(ImageFilter.GaussianBlur(26)))
+        img.alpha_composite(card, (CX - cw // 2, top))
+        img = img.convert("RGB")
+        ty = min(top + ch + 70, TEXT_MAX_Y - 130)
+        draw_line(img, text, ty, size=84)
+    p = P(f"beat{idx}.png"); img.save(p)
     return p
 
+for i, (card, text) in enumerate(beats, start=2):
+    frames.append((card_beat(i, card, text), 3.0, 1.035))
 
-# ---------------------------------------------------------------- opener image
-def cover_crop(im, w, h):
-    return ImageOps.fit(im.convert("RGB"), (w, h), Image.LANCZOS, centering=(0.5, 0.45))
-
-photo = os.path.join(work, "photo.jpg")
-opener = os.path.join(work, "opener.jpg")
-if os.path.exists(photo):
-    base = Image.open(photo)
+# 5. end card
+f5 = Image.new("RGB", (W, H)); px = f5.load()
+for yy in range(H):
+    t = yy / (H - 1)
+    c = tuple(int(a + (b - a) * t) for a, b in zip(FOREST, DEEP))
+    for xx in range(0, W):
+        px[xx, yy] = c
+if os.path.exists(P("logo.png")):
+    logo = Image.open(P("logo.png")).convert("RGBA")
+    s = min(620 / logo.width, 180 / logo.height)
+    logo = logo.resize((int(logo.width * s), int(logo.height * s)), Image.LANCZOS)
+    plate_w, plate_h = logo.width + 120, logo.height + 90
+    pl = Image.new("RGBA", (plate_w, plate_h), (0, 0, 0, 0))
+    ImageDraw.Draw(pl).rounded_rectangle([0, 0, plate_w - 1, plate_h - 1], radius=36, fill=CREAM + (255,))
+    pl.alpha_composite(logo, (60, 45))
+    f5 = f5.convert("RGBA"); f5.alpha_composite(pl, (CX - plate_w // 2, 620)); f5 = f5.convert("RGB")
+    ty = 620 + plate_h + 90
 else:
-    # fallback: the hero card from the first results frame
-    tmp = os.path.join(work, "_hero.png")
-    sh(["ffmpeg", "-y", "-loglevel", "error", "-ss", str(marks["results"]), "-i", raw, "-frames:v", "1", tmp])
-    base = Image.open(tmp).crop((0, 60, 540, 520))
-cover_crop(base, W * 2, H * 2).save(opener, quality=92)
+    ty = 760
+ty = draw_line(f5, "Run any address free", ty, size=78, plate=False) + 10
+draw_line(f5, "dealcaddie.ai", ty, size=84, plate=False)
+f5.save(P("beat5.png")); frames.append((P("beat5.png"), 2.6, 1.0))
 
-# ---------------------------------------------------------------- segments
-OPEN_S = 2.4
-SPEED = 1.6
-seg_open = os.path.join(work, "s1.mp4")
-seg_paste = os.path.join(work, "s2.mp4")
-seg_res = os.path.join(work, "s3.mp4")
-scale = f"scale={W}:{H}:flags=lanczos,fps={FPS},format=yuv420p,setsar=1"
 
-sh(["ffmpeg", "-y", "-loglevel", "error", "-loop", "1", "-i", opener, "-t", str(OPEN_S),
-    "-vf", f"zoompan=z='min(zoom+0.0011,1.10)':d={int(OPEN_S*FPS)}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={W}x{H}:fps={FPS},format=yuv420p,setsar=1",
-    "-c:v", "libx264", "-preset", "fast", "-crf", "18", seg_open])
+# ------------------------------------------------------------------ video
+XF = 0.4
+segs = []
+for i, (png, secs, zmax) in enumerate(frames):
+    seg = P(f"seg{i}.mp4")
+    n = int(secs * FPS)
+    big = P(f"big{i}.png")
+    Image.open(png).resize((W * 2, H * 2), Image.LANCZOS).save(big)
+    z = f"1+{zmax - 1:.4f}*on/{n}"
+    sh(["ffmpeg", "-y", "-loglevel", "error", "-loop", "1", "-i", big, "-t", f"{secs:.2f}",
+        "-vf", f"zoompan=z='{z}':d={n}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={W}x{H}:fps={FPS},format=yuv420p,setsar=1",
+        "-c:v", "libx264", "-preset", "fast", "-crf", "17", seg])
+    segs.append((seg, secs))
 
-p_start, p_end = max(0, marks["ready"] - 0.2), marks["submitted"] + 0.3
-sh(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{p_start:.2f}", "-to", f"{p_end:.2f}", "-i", raw,
-    "-vf", f"setpts=PTS/{SPEED},{scale}", "-an", "-c:v", "libx264", "-preset", "fast", "-crf", "18", seg_paste])
-
-# start once the page has settled (photo loaded, splash gone), not when the DOM first appears
-r_start = max(marks.get("results", marks["results_dom"]) - 0.4, marks["submitted"])
-sh(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{r_start:.2f}", "-to", f"{marks['end']:.2f}", "-i", raw,
-    "-vf", scale, "-an", "-c:v", "libx264", "-preset", "fast", "-crf", "18", seg_res])
+inputs, fc, prev, t = [], "", "0:v", segs[0][1]
+for s, _ in segs:
+    inputs += ["-i", s]
+for i in range(1, len(segs)):
+    off = t - XF
+    lbl = f"x{i}"
+    fc += f"[{prev}][{i}:v]xfade=transition=fade:duration={XF}:offset={off:.2f}[{lbl}];"
+    prev, t = lbl, t + segs[i][1] - XF
+sh(["ffmpeg", "-y", "-loglevel", "error", *inputs, "-filter_complex", fc.rstrip(";"), "-map", f"[{prev}]",
+    "-r", str(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "19", "-pix_fmt", "yuv420p",
+    "-movflags", "+faststart", out_mp4])
 
 def dur(p):
     return float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                                           "-of", "csv=p=0", p]).decode().strip())
 
-d1, d2, d3 = dur(seg_open), dur(seg_paste), dur(seg_res)
-t_res = d1 + d2
 
-# ---------------------------------------------------------------- overlay schedule
-# time each text beat to the tab clicks when we have them
-def rel(k, default):
-    return t_res + (marks[k] - r_start) if k in marks else t_res + default
-t_cash, t_ai = rel("tab_cashflow", 3.4), rel("tab_ai", 6.0)
-plates = [
-    (plate(hook, 520, "hook", 74), 0, d1),
-    (plate(["One paste.", "Full underwrite."], 1120, "paste", 66), d1, t_res),
-    (plate(reveal, 1140, "reveal", 72), t_res + 0.2, t_cash),
-    (plate(proof, 1140, "proof", 62), t_cash + 0.3, t_ai + 0.6),
-    (plate(cta, 1140, "cta", 64), t_ai + 0.6, t_res + d3 + 1),
-]
+# ------------------------------------------------------------------ cover + caption
+Image.open(P("beat1.png")).save(os.path.join(out_dir, "cover.jpg"), quality=90)
 
-inputs = ["-i", seg_open, "-i", seg_paste, "-i", seg_res]
-for p, _, _ in plates:
-    inputs += ["-i", p]
-fc = "[0:v][1:v][2:v]concat=n=3:v=1:a=0[base];"
-last = "base"
-for i, (_, a, b) in enumerate(plates):
-    nxt = f"v{i}"
-    fc += f"[{last}][{i+3}:v]overlay=0:0:enable='between(t,{a:.2f},{b:.2f})'[{nxt}];"
-    last = nxt
-fc = fc.rstrip(";")
-
-sh(["ffmpeg", "-y", "-loglevel", "error", *inputs, "-filter_complex", fc, "-map", f"[{last}]",
-    "-r", str(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "19", "-pix_fmt", "yuv420p",
-    "-movflags", "+faststart", out_mp4])
-
-# ---------------------------------------------------------------- cover + caption
-cov = Image.open(opener).resize((W, H), Image.LANCZOS).convert("RGBA")
-cov.alpha_composite(Image.open(plates[0][0]))
-cov.convert("RGB").save(os.path.join(out_dir, "cover.jpg"), quality=90)
-
-def sentence(lines):
-    t = ' '.join(l.strip() for l in lines).strip()
-    return t if t.endswith(('.', '!', '?')) else t + '.'
+def sentence(t):
+    t = t.strip()
+    return t if t.endswith((".", "!", "?")) else t + "."
 
 city = city_of(data.get("cityLine"))
 city_tag = "#" + re.sub(r"[^a-z]", "", city.lower()) + "realestate" if city else "#realestatedeals"
@@ -195,9 +260,10 @@ specs = " · ".join(x for x in [
     f"{data['beds']} bed" if data.get("beds") else None,
     f"{data['baths']} bath" if data.get("baths") else None,
     f"{data['sqft']} sqft" if data.get("sqft") else None] if x)
+body = " ".join(sentence(t) for _, t in beats)
 caption = f"""{' '.join(hook)}
 
-{specs}. Pasted the Zillow link into DealCaddie: {sentence(reveal)} {sentence(proof)}
+{specs + '. ' if specs else ''}Pasted the Zillow link into DealCaddie: {body}
 
 Taxes, insurance and rent comps pulled automatically — about 10 seconds start to finish.
 
@@ -208,7 +274,8 @@ Try it free · dealcaddie.ai
 #realestateinvesting #rentalproperty #cashflow #realestateinvestor {city_tag}
 """
 open(os.path.join(out_dir, "caption.txt"), "w").write(caption)
-json.dump({"hook": hook, "reveal": reveal, "proof": proof, "duration": round(dur(out_mp4), 1),
-           "had_photo": os.path.exists(photo), **data},
+json.dump({"hook": hook, "beats": beats, "duration": round(dur(out_mp4), 1),
+           "had_photo": os.path.exists(P("photo.jpg")), **data},
           open(os.path.join(out_dir, "meta.json"), "w"), indent=2)
-print(f"built {out_mp4} ({dur(out_mp4):.1f}s, photo={'yes' if os.path.exists(photo) else 'fallback'})")
+print(f"built {out_mp4} ({dur(out_mp4):.1f}s, photo={'yes' if os.path.exists(P('photo.jpg')) else 'no'}, "
+      f"cards={sorted(f for f in os.listdir(work) if f.startswith('card_'))})")

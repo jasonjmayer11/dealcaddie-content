@@ -1,13 +1,21 @@
 #!/usr/bin/env node
-// DealCaddie reel recorder.
+// DealCaddie reel capture — stills mode.
 // Usage: node scripts/record.js "<zillow url or address>" <outdir>
 // Env:   DC_EMAIL / DC_PASSWORD  (content account; falls back to guest if unset)
 //
+// Instead of filming the screen (busy, small text, motion we don't control), this runs the
+// analysis once and takes high-resolution screenshots of just the cards the reel talks about.
+// assemble.py then builds calm, one-idea-per-beat frames from them.
+//
 // Produces in <outdir>:
-//   raw.webm     full screen recording (540x960, upscaled later)
-//   marks.json   timestamps (seconds) of each beat, aligned to the video
-//   data.json    numbers scraped from the finished analysis
-//   photo.jpg    the listing's hero photo, if one rendered
+//   photo.jpg        the listing photo (opener)
+//   card_hero.png    property card with the Deal ScoreCard
+//   card_ltr.png     long-term rental cashflow card
+//   card_strats.png  cashflow-by-strategy strip
+//   card_maxoffer.png max offer card
+//   logo.png         the DealCaddie logo from the nav (for the end card)
+//   page_*.png       full-viewport debug shots
+//   data.json        numbers scraped from the finished analysis
 const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
@@ -19,11 +27,56 @@ fs.mkdirSync(outdir, { recursive: true });
 
 const BASE = 'https://www.dealcaddie.ai';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const out = f => path.join(outdir, f);
+
+// Find the card that holds `pattern`: the smallest element whose text matches, then walk up
+// to the first ancestor that is (nearly) full width and at least minH tall. Tag it so a
+// locator can screenshot it. Returns the card's size, or null if nothing matched.
+async function tagCard(page, pattern, minH, maxH = 1100) {
+  return page.evaluate(([src, minH, maxH]) => {
+    document.querySelectorAll('[data-reel]').forEach(e => e.removeAttribute('data-reel'));
+    const re = new RegExp(src, 'i');
+    const hits = [...document.querySelectorAll('body *')]
+      .filter(e => e.offsetParent !== null && re.test(e.textContent || ''))
+      .sort((a, b) => (a.textContent || '').length - (b.textContent || '').length);
+    if (!hits.length) return null;
+    const vw = window.innerWidth;
+    let cur = hits[0];
+    while (cur && cur !== document.body) {
+      const r = cur.getBoundingClientRect();
+      if (r.width >= vw * 0.85 && r.height >= minH) break;
+      cur = cur.parentElement;
+    }
+    if (!cur || cur === document.body) return null;
+    const r = cur.getBoundingClientRect();
+    if (r.height > maxH) return null;           // walked too far up (whole page section)
+    cur.setAttribute('data-reel', '1');
+    cur.scrollIntoView({ block: 'center' });
+    return { w: Math.round(r.width), h: Math.round(r.height) };
+  }, [pattern, minH, maxH]);
+}
+
+async function shootCard(page, name, pattern, minH, maxH) {
+  const box = await tagCard(page, pattern, minH, maxH);
+  if (!box) { console.log(`card ${name}: not found (${pattern})`); return false; }
+  await sleep(700);                              // let scroll + lazy content settle
+  try {
+    await page.locator('[data-reel="1"]').first().screenshot({ path: out(`card_${name}.png`), animations: 'disabled' });
+    console.log(`card ${name}: ${box.w}x${box.h} css px`);
+    return true;
+  } catch (e) { console.log(`card ${name}: screenshot failed — ${e.message}`); return false; }
+}
+
+async function clickTab(page, label) {
+  const t = page.getByText(label, { exact: true }).first();
+  if (await t.isVisible().catch(() => false)) { await t.click().catch(() => {}); await sleep(1500); return true; }
+  return false;
+}
 
 (async () => {
   const browser = await chromium.launch();
 
-  // ---- 1. log in on a separate, unrecorded context, then reuse its cookies ----
+  // ---- 1. log in ----
   let storageState;
   if (process.env.DC_EMAIL && process.env.DC_PASSWORD) {
     const lctx = await browser.newContext();
@@ -44,43 +97,36 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     console.log('no credentials — running as guest (1 free analysis per runner)');
   }
 
-  // ---- 2. recorded session ----
+  // ---- 2. phone-sized, 3x pixel density so card screenshots are crisp at 1080 wide ----
   const ctx = await browser.newContext({
     storageState,
-    viewport: { width: 540, height: 960 },
-    deviceScaleFactor: 1,
+    viewport: { width: 430, height: 932 },
+    deviceScaleFactor: 3,
     isMobile: true, hasTouch: true,
     userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-    recordVideo: { dir: outdir, size: { width: 540, height: 960 } },
   });
   const page = await ctx.newPage();
-  const t0 = Date.now();
-  const marks = {};
-  const mark = k => { marks[k] = (Date.now() - t0) / 1000; };
 
   await page.goto(`${BASE}/analyze`, { waitUntil: 'networkidle', timeout: 60000 });
-  await sleep(600);
-  mark('ready');
+  await sleep(500);
 
+  // logo from the nav, for the end card
+  try {
+    const logo = page.locator('nav img, header img, a[href="/"] img').first();
+    if (await logo.isVisible()) { await logo.screenshot({ path: out('logo.png'), omitBackground: true }); console.log('logo captured'); }
+  } catch (e) { console.log('logo: not captured'); }
+
+  // ---- 3. run the analysis ----
   const input = page.locator('input[name="address"]').first();
   await input.click();
   await sleep(500);
-
-  // Signed-in users get a full-screen search sheet (div.dcs-sheet) with its own input;
-  // guests get the inline form. Type into whichever one is live.
-  const sheet = page.locator('.dcs-sheet.on');
+  const sheet = page.locator('.dcs-sheet.on');          // signed-in full-screen search sheet
   const inSheet = await sheet.isVisible().catch(() => false);
   const box = inSheet ? sheet.locator('input[type="text"]').first() : input;
-  await box.fill('');
-  await box.type(listing, { delay: 6 });
-  await sleep(700);
-  mark('pasted');
-
-  // The signed-in flow POSTs back to /analyze, so the URL may not change.
-  // Mark "submitted" at the moment of submit and wait for results to render.
+  await box.fill(listing);
+  await sleep(400);
   if (inSheet) {
     await box.press('Enter');
-    mark('submitted');
     const ok = await page.waitForSelector('text=/Deal ScoreCard/i', { timeout: 5000 }).then(() => true).catch(() => false);
     if (!ok) {
       const opt = sheet.locator('[role="listbox"] [role="option"], [role="listbox"] li, [role="listbox"] button').first();
@@ -88,19 +134,14 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     }
   } else {
     await page.locator('button[type="submit"]').first().click();
-    mark('submitted');
   }
-  console.log(`submitted via ${inSheet ? 'search sheet' : 'inline form'} → ${page.url()}`);
-
   if (/guest_limit|\/signup/.test(page.url())) {
     throw new Error(`Hit the guest limit (${page.url()}). Add DC_EMAIL / DC_PASSWORD secrets.`);
   }
-
   await page.waitForSelector('text=/Deal ScoreCard/i', { timeout: 90000 });
-  mark('results_dom');
+  console.log(`analysis loaded via ${inSheet ? 'search sheet' : 'inline form'}`);
 
-  // wait for the listing photo (sync prefetch or async retry). Ignore our own /static/ assets
-  // and pick the largest real photo near the top of the page. Never block the reel on it.
+  // ---- 4. listing photo (largest non-/static/ image near the top) ----
   const photoUrl = await page.waitForFunction(() => {
     const ok = u => u && /^https?:/.test(u) && !/\/static\//.test(u) && !/logo|icon|badge|avatar/i.test(u);
     const cands = [];
@@ -118,38 +159,27 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   }, null, { timeout: 20000, polling: 500 }).then(h => h.jsonValue()).catch(() => null);
   console.log('photo url:', photoUrl);
   await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
-  await sleep(1200);
-  mark('results');
+  await sleep(1500);                                     // splash gone, scorecard settled
 
-  // ---- 3. walk the section tabs in beats ----
-  // The signed-in app scrolls inside its shell (window.scrollTo does nothing) and renders
-  // sections on demand, so click the section tabs instead and collect text after each one.
-  await sleep(2200);                      // hold on the scorecard + photo
-  const seen = [await page.evaluate(() => document.body.innerText)];
-  for (const [tab, key] of [['Cashflow', 'tab_cashflow'], ['AI Take', 'tab_ai'], ['Max Offer', 'tab_maxoffer']]) {
-    const t = page.getByText(tab, { exact: true }).first();
-    if (await t.isVisible().catch(() => false)) {
-      await t.click().catch(() => {});
-      mark(key);
-      await sleep(2600);
-    } else {
-      // fallback: scroll whatever element actually scrolls
-      await page.evaluate(() => {
-        const s = [...document.querySelectorAll('*')].filter(e => e.scrollHeight > e.clientHeight + 200 &&
-          /auto|scroll/.test(getComputedStyle(e).overflowY)).sort((a, b) => b.scrollHeight - a.scrollHeight)[0]
-          || document.scrollingElement;
-        s.scrollBy({ top: s.clientHeight * 0.8, behavior: 'smooth' });
-      });
-      mark(key);
-      await sleep(2000);
-    }
-    seen.push(await page.evaluate(() => document.body.innerText));
-  }
-  mark('end');
+  // ---- 5. card stills, collecting page text as each section renders ----
+  const seen = [];
+  const snap = async n => { seen.push(await page.evaluate(() => document.body.innerText)); await page.screenshot({ path: out(`page_${n}.png`) }); };
 
-  // ---- 4. scrape the numbers from everything that rendered ----
+  await snap('1_hero');
+  await shootCard(page, 'hero', 'Deal ScoreCard', 300, 900);
+
+  if (await clickTab(page, 'Cashflow')) await snap('2_cashflow');
+  await shootCard(page, 'strats', 'Cashflow by Strategy', 120, 700);
+  await shootCard(page, 'ltr', 'Monthly Cash Flow', 160, 900);
+
+  if (await clickTab(page, 'Max Offer')) await snap('3_maxoffer');
+  await shootCard(page, 'maxoffer', 'Max Offer Price|Max offer', 140, 900);
+
+  if (await clickTab(page, 'AI Take')) await snap('4_ai');
+
+  // ---- 6. scrape ----
   const text = seen.join('\n');
-  console.log('----- PAGE TEXT (first 9000 chars) -----\n' + text.slice(0, 9000) + '\n----- END PAGE TEXT -----');
+  console.log('----- PAGE TEXT (first 6000 chars) -----\n' + text.slice(0, 6000) + '\n----- END PAGE TEXT -----');
   const grab = (re, i = 1) => { const m = text.match(re); return m ? m[i].trim() : null; };
   const money = s => s ? Number(s.replace(/−/g, '-').replace(/[^0-9.-]/g, '')) : null;
   const strategies = {};
@@ -164,31 +194,28 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     price: grab(/\n(\$[0-9]{2,3},[0-9]{3}(?:,[0-9]{3})?)\n/),
     beds: grab(/(\d+)\s*bd/), baths: grab(/(\d+(?:\.\d)?)\s*ba/), sqft: grab(/([0-9,]+)\s*sqft/),
     score: grab(/\n(\d{1,2}\.\d)\n\/10/) || grab(/SCORE\n(\d{1,2}\.\d)/),
-    ltrCashflow: grab(/MONTHLY CASH FLOW\n([+\-−]?\$[0-9,]+)\/mo/i) || grab(/LTR CF\n([+\-−]?\$[0-9,]+)/),
+    ltrCashflow: grab(/MONTHLY CASH FLOW[\s\S]{0,12}?([+\-−]?\$[0-9,]+)\/mo/i) || grab(/LTR CF\n([+\-−]?\$[0-9,]+)/),
     coc: grab(/COC RETURN[\s\S]{0,16}?(-?[0-9.]+%)/i),
     capRate: grab(/CAP RATE[\s\S]{0,16}?(-?[0-9.]+%)/i),
     cashToClose: grab(/TO CLOSE\n(\$[0-9,]+)/),
     rent: grab(/\nRENT[^\n]*\n(\$[0-9,]+)\/mo/i),
-    maxOffer: grab(/MAX OFFER\n(\$[0-9,]+)/i),
+    maxOffer: grab(/MAX OFFER[^\n$]*\n(\$[0-9,]+)/i),
     strategies,
     photoUrl,
+    cards: fs.readdirSync(outdir).filter(f => f.startsWith('card_')),
   };
   data.ltrCashflowNum = money(data.ltrCashflow);
-  fs.writeFileSync(path.join(outdir, 'data.json'), JSON.stringify(data, null, 2));
+  fs.writeFileSync(out('data.json'), JSON.stringify(data, null, 2));
   console.log('scraped', JSON.stringify(data));
 
-  // ---- 5. grab the listing photo bytes for the opener ----
   if (photoUrl) {
     try {
       const r = await page.request.get(photoUrl, { timeout: 15000 });
-      if (r.ok()) fs.writeFileSync(path.join(outdir, 'photo.jpg'), await r.body());
+      if (r.ok()) fs.writeFileSync(out('photo.jpg'), await r.body());
     } catch (e) { console.log('photo download failed:', e.message); }
   }
 
-  fs.writeFileSync(path.join(outdir, 'marks.json'), JSON.stringify(marks, null, 2));
   await ctx.close();
   await browser.close();
-  const vid = fs.readdirSync(outdir).find(f => f.endsWith('.webm') && f !== 'raw.webm');
-  fs.renameSync(path.join(outdir, vid), path.join(outdir, 'raw.webm'));
   console.log('done', outdir);
 })().catch(e => { console.error('FAILED:', e.message); process.exit(1); });

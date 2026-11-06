@@ -10,6 +10,10 @@ on:
       listing:
         description: "Optional: a Zillow URL or address to run instead of the next one in queue.txt"
         required: false
+      debug:
+        description: "Attach the raw card captures to the release"
+        type: boolean
+        default: false
 
 permissions:
   contents: write   # pop the queue + publish the reel as a release
@@ -95,6 +99,9 @@ jobs:
               gh release upload "$TAG" "dist/$TAG.mp4" "dist/$TAG-cover.jpg" --clobber && break
             elif gh release create "$TAG" "dist/$TAG.mp4" "dist/$TAG-cover.jpg" \
                    --title "$TITLE" --notes-file dist/caption.txt; then
+              if [ "${{ github.event.inputs.debug }}" = "true" ]; then
+                gh release upload "$TAG" work/card_*.png work/page_*.png work/beat*.png work/logo.png --clobber || true
+              fi
               break
             fi
             [ "$i" = 4 ] && { echo "::error::release failed after 4 tries"; exit 1; }
@@ -108,6 +115,7 @@ jobs:
           name: ${{ steps.pick.outputs.slug }}
           path: |
             work/*.json
+            work/*.png
             work/photo.jpg
             dist/
           retention-days: 14
