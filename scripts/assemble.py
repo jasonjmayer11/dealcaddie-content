@@ -1,35 +1,40 @@
 #!/usr/bin/env python3
-"""Assemble a DealCaddie Deal Verdict reel from card stills.
+"""Assemble a DealCaddie Deal Verdict reel — "product" style.
 
 Usage: python3 scripts/assemble.py <workdir> <out.mp4>
-Reads photo.jpg, card_*.png, logo.png and data.json from <workdir>.
+Reads photo.jpg, card_*.png and data.json from <workdir>.
 Writes the 1080x1920 MP4, caption.txt, cover.jpg and meta.json next to it.
 
-Five beats, one idea each, ~3 seconds apiece:
-  1. listing photo           + two-line hook
-  2. property / score card   + "Deal score: 6.9/10"
-  3. cashflow card           + "+$33/mo. Barely."
-  4. max offer / strategies  + "Max offer: $171K"
-  5. branded end card        + "Run any address free · dealcaddie.ai"
+Design language (borrowed from Zillow / Airbnb / fintech product social):
+  - one calm canvas (warm off-white), real brand logo, Inter type, no text boxes
+  - every beat = small caps eyebrow + one big number + one quiet sub line + the real UI card as proof
+  - everything centred on x=540 and inside the Reels safe area (y 290–1420)
+  - motion is eased: elements rise + fade in on a stagger, numbers count up, card settles, slow drift
+  - frames are rendered one by one in PIL and piped to ffmpeg (no zoompan jitter)
 
-Readability rules:
-  - one short line of text per beat (two on the hook), never more than ~6 words
-  - text sits on its own solid plate, under the card, never on top of UI
-  - the background is a dark blur of the card, so the card and the text are the only sharp things
-  - motion is only a slow push-in on each still plus a soft crossfade
-  - everything inside the Instagram/TikTok safe area (y 300–1430, x 60–900)
+Beats (~2.8s each):
+  1. listing photo, full bleed: city · price · hook question
+  2. DEAL SCORE        6.9/10      + property card
+  3. CASH FLOW         +$33/mo     + cash-flow card
+  4. MAX OFFER $171K  (or the strategy that works, or CoC)  + its card
+  5. logo + "Analyze any rental in seconds." + dealcaddie.ai button
 """
-import json, os, re, subprocess, sys
-from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps, ImageEnhance
+import json, math, os, re, subprocess, sys
+from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FB = os.path.join(ROOT, "fonts", "Poppins-Bold.ttf")
+FONT = lambda n: os.path.join(ROOT, "fonts", n)
+F_NUM, F_HEAD = FONT("InterDisplay-Bold.otf"), FONT("InterDisplay-SemiBold.otf")
+F_SEMI, F_MED = FONT("Inter-SemiBold.otf"), FONT("Inter-Medium.otf")
+LOGO, LOGO_W = os.path.join(ROOT, "assets", "logo.png"), os.path.join(ROOT, "assets", "logo-white.png")
+
 W, H, FPS = 1080, 1920, 30
-FOREST, DEEP, CREAM, GOLD = (26, 92, 53), (12, 40, 24), (250, 247, 240), (226, 190, 92)
-X0, X1 = 60, 900                     # usable band; right of 900 is the like/comment rail
-CX = (X0 + X1) // 2
-CARD_TOP, CARD_BOT = 300, 1130       # cards live here
-TEXT_MAX_Y = 1430                    # text plates must end above the caption area
+CX = W // 2
+BG_TOP, BG_BOT = (248, 246, 241), (239, 236, 228)
+INK, MUTED = (14, 33, 23), (112, 120, 114)
+FOREST = (3, 62, 36)
+GREEN, RED, AMBER = (3, 144, 58), (196, 58, 52), (183, 137, 30)
+WHITE = (255, 255, 255)
 
 work, out_mp4 = sys.argv[1], sys.argv[2]
 out_dir = os.path.dirname(os.path.abspath(out_mp4))
@@ -37,102 +42,174 @@ data = json.load(open(os.path.join(work, "data.json")))
 P = lambda f: os.path.join(work, f)
 
 
-def sh(cmd):
-    subprocess.run(cmd, check=True)
-
-
-# ------------------------------------------------------------------ copy
-def short_price(p):
-    n = int(re.sub(r"[^0-9]", "", p or "0") or 0)
-    if n >= 1_000_000:
-        return f"${n/1e6:.2f}M".replace(".00M", "M")
-    return f"${round(n/1000)}K" if n else "this"
-
-def city_of(line):
-    return (line or "").split(",")[0].strip()
-
+# ------------------------------------------------------------------ numbers + copy
 def num(s):
     try:
         return float(re.sub(r"[^0-9.\-]", "", (s or "").replace("−", "-")))
     except ValueError:
         return None
 
+def short_price(v):
+    n = num(v) if isinstance(v, str) else v
+    if not n:
+        return None
+    if n >= 1_000_000:
+        return f"${n/1e6:.2f}M".replace(".00M", "M")
+    return f"${round(n/1000)}K"
+
+def pretty_money(s):
+    """'+$33' -> '+$33', '-$99' -> '−$99' (true minus sign)."""
+    return (s or "").replace("-", "−")
+
+def score_color(v):
+    if v is None: return INK
+    return GREEN if v >= 7 else AMBER if v >= 5 else RED
+
 def pick_copy(d):
-    """Returns (hook_lines, [(card, line), (card, line), (card, line)])."""
-    price, city = short_price(d.get("price")), city_of(d.get("cityLine"))
+    city_line = d.get("cityLine") or ""
+    city = city_line.split(",")[0].strip()
+    place = re.sub(r"\s*\d{5}(-\d{4})?$", "", city_line).strip()          # "Indianapolis, IN"
+    price_full = d.get("price") or ""
     cf_s = d.get("ltrCashflow") or ""
     cf = num(cf_s)
-    score = d.get("score") or "?"
-    score = score[:-2] if score.endswith(".0") else score
-    strat = d.get("strategies") or {}
-    names = {"MTR": "a mid-term rental", "STR": "an Airbnb", "S8": "Section 8", "HH": "a house hack", "BRRRR": "a BRRRR"}
-    alts = [(k, v) for k, v in strat.items() if k not in ("LTR", "FLIP") and (num(v) or 0) > 0]
-    best_alt = max(alts, key=lambda kv: num(kv[1]), default=None)
-    where = f"{price} {city} house." if city else f"This {price} house."
+    score = d.get("score")
+    score_s = (score[:-2] if score and score.endswith(".0") else score) or None
+    asking = num(price_full)
 
     if cf is not None and cf >= 200:
-        hook = [f"This {where}" if city else where, "Guess the cashflow."]
-        b_cf = f"{cf_s}/mo as a rental."
+        q, cf_sub = "Guess the cash flow.", "After mortgage, taxes, insurance and reserves."
     elif cf is not None and cf < 0:
-        hook = [where, "Looks like a deal. Watch."]
-        b_cf = f"Loses ${abs(int(cf)):,}/mo as a rental."
+        q, cf_sub = "Looks like a deal. Is it?", "After mortgage, taxes, insurance and reserves."
     else:
-        hook = [where, "Does it cash flow?"]
-        b_cf = f"{cf_s}/mo. Barely."
+        q, cf_sub = "Does it cash flow?", "Positive, but thin after every expense."
 
-    b_score = f"{score}/10 deal score." if score not in ("?",) else "Full deal score."
+    hook = {"kind": "photo", "eyebrow": place.upper() or "ACTIVE LISTING",
+            "value": price_full or "This house", "sub": q}
 
-    mo, asking = d.get("maxOffer"), num(d.get("price"))
+    beats = []
+    if score_s:
+        beats.append({"kind": "stat", "eyebrow": "DEAL SCORE", "value": score_s, "unit": "/10",
+                      "color": score_color(num(score_s)), "sub": "Cash flow, price and market in one number.",
+                      "card": "hero", "crop": 0.70, "say": f"{score_s}/10 deal score."})
+    if cf is not None:
+        beats.append({"kind": "stat", "eyebrow": "CASH FLOW · LONG-TERM RENTAL", "value": pretty_money(cf_s),
+                      "unit": "/mo", "color": GREEN if cf > 0 else RED, "sub": cf_sub, "card": "ltr",
+                      "say": (f"{cf_s}/mo as a rental." if cf >= 200 else
+                              f"Loses ${abs(int(cf)):,}/mo as a rental." if cf < 0 else f"{cf_s}/mo. Barely.")})
+
+    strat = d.get("strategies") or {}
+    names = {"MTR": "mid-term rental", "STR": "Airbnb", "S8": "Section 8", "HH": "house hack", "BRRRR": "BRRRR"}
+    alts = [(k, v) for k, v in strat.items() if k not in ("LTR", "FLIP") and (num(v) or 0) > 0]
+    best_alt = max(alts, key=lambda kv: num(kv[1]), default=None)
+    mo = num(d.get("maxOffer"))
     if cf is not None and cf < 0 and best_alt:
-        b_proof = ("strats", f"As {names.get(best_alt[0], best_alt[0])}: {best_alt[1]}/mo")
+        nm = names.get(best_alt[0], best_alt[0])
+        beats.append({"kind": "stat", "eyebrow": f"AS A {nm.upper()}", "value": pretty_money(best_alt[1]), "unit": "/mo",
+                      "color": GREEN, "sub": "Same house. Different strategy.", "card": "strats",
+                      "say": f"As a {nm}: {best_alt[1]}/mo."})
     elif mo and asking:
-        b_proof = ("maxoffer", f"Max offer: {short_price(mo)}" if num(mo) < asking else f"Worth up to {short_price(mo)}")
+        diff = abs(asking - mo)
+        if mo < asking:
+            sub = f"{short_price(diff)} under asking to hit your target return."
+            say = f"Max offer: {short_price(mo)}."
+        else:
+            sub = f"Still hits the target return {short_price(diff)} over asking."
+            say = f"Worth up to {short_price(mo)}."
+        beats.append({"kind": "stat", "eyebrow": "MAX OFFER", "value": short_price(mo), "unit": "",
+                      "color": INK, "sub": sub, "card": "maxoffer", "say": say})
     elif d.get("coc"):
-        b_proof = ("ltr", f"{d['coc']} cash-on-cash.")
-    else:
-        b_proof = ("strats", "Seven strategies, one tap.")
+        beats.append({"kind": "stat", "eyebrow": "CASH-ON-CASH RETURN", "value": d["coc"], "unit": "",
+                      "color": INK, "sub": "What the cash you put in earns each year.", "card": "ltr",
+                      "say": f"{d['coc']} cash-on-cash."})
 
-    return hook, [("hero", b_score), ("ltr", b_cf), b_proof]
-
-
-hook, beats = pick_copy(data)
+    title = [f"{short_price(price_full) or 'This'} {city} house." if city else "This house.", q]
+    return hook, beats, title
 
 
-# ------------------------------------------------------------------ drawing helpers
-def fit_font(text, max_w, size, min_size=54):
-    d = ImageDraw.Draw(Image.new("RGB", (8, 8)))
-    f = ImageFont.truetype(FB, size)
-    while d.textlength(text, font=f) > max_w and size > min_size:
-        size -= 2
-        f = ImageFont.truetype(FB, size)
-    return f
+hook, beats, title = pick_copy(data)
 
-def draw_line(img, text, y, size=82, plate=True):
-    """One line on a solid forest plate. Dollar figures, scores and percents in gold."""
-    d = ImageDraw.Draw(img)
-    pad_x, pad_y = 34, 24
-    f = fit_font(text, (X1 - X0) - pad_x * 2, size)
+
+# ------------------------------------------------------------------ drawing primitives
+_fonts = {}
+def font(path, size):
+    k = (path, size)
+    if k not in _fonts:
+        _fonts[k] = ImageFont.truetype(path, size)
+    return _fonts[k]
+
+def text_layer(text, path, size, fill, tracking=0.0, alpha=255):
+    """Tight RGBA layer for one line of text. tracking is in em (0.12 = 12% letter spacing)."""
+    f = font(path, size)
     asc, desc = f.getmetrics()
-    tw = d.textlength(text, font=f)
-    x = CX - tw / 2
-    if plate:
-        d.rounded_rectangle([x - pad_x, y - pad_y, x + tw + pad_x, y + asc + desc + pad_y - 6],
-                            radius=22, fill=FOREST)
-    # word-by-word so numbers can be gold
-    cx = x
-    for i, word in enumerate(text.split(" ")):
-        token = word + (" " if i < len(text.split(" ")) - 1 else "")
-        col = GOLD if re.search(r"[\$%]|\d+/10", word) else CREAM
-        d.text((cx, y), token, font=f, fill=col)
-        cx += d.textlength(token, font=f)
-    return y + asc + desc + pad_y * 2
+    track = tracking * size
+    width = 0
+    for i, ch in enumerate(text):
+        width += f.getlength(ch) + (track if i < len(text) - 1 else 0)
+    if not tracking:
+        width = f.getlength(text)
+    img = Image.new("RGBA", (int(math.ceil(width)) + 4, asc + desc), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    if tracking:
+        x = 0
+        for ch in text:
+            d.text((x, 0), ch, font=f, fill=fill + (alpha,))
+            x += f.getlength(ch) + track
+    else:
+        d.text((0, 0), text, font=f, fill=fill + (alpha,))
+    return img
 
-def blurred_bg(src):
-    bg = ImageOps.fit(src.convert("RGB"), (W, H), Image.LANCZOS)
-    bg = bg.filter(ImageFilter.GaussianBlur(48))
-    bg = ImageEnhance.Brightness(bg).enhance(0.38)
-    tint = Image.new("RGB", (W, H), DEEP)
-    return Image.blend(bg, tint, 0.55)
+def wrap(text, path, size, max_w):
+    f = font(path, size)
+    words, lines, cur = text.split(), [], ""
+    for w in words:
+        t = (cur + " " + w).strip()
+        if f.getlength(t) <= max_w or not cur:
+            cur = t
+        else:
+            lines.append(cur); cur = w
+    if cur:
+        lines.append(cur)
+    if len(lines) == 2:
+        best = None
+        for i in range(1, len(words)):
+            a, b = " ".join(words[:i]), " ".join(words[i:])
+            wa, wb = f.getlength(a), f.getlength(b)
+            if max(wa, wb) <= max_w and (best is None or abs(wa - wb) < best[0]):
+                best = (abs(wa - wb), [a, b])
+        if best: lines = best[1]
+    return lines
+
+def fit_size(text, path, size, max_w, min_size):
+    while size > min_size and font(path, size).getlength(text) > max_w:
+        size -= 4
+    return size
+
+def stack(layers, gap):
+    """Vertically stack centred layers into one."""
+    w = max(l.width for l in layers)
+    h = sum(l.height for l in layers) + gap * (len(layers) - 1)
+    out = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    y = 0
+    for l in layers:
+        out.alpha_composite(l, ((w - l.width) // 2, y)); y += l.height + gap
+    return out
+
+def value_layer(value, unit, color, size, on_dark=False):
+    """Big number + smaller unit ('/10', '/mo') sitting on the same baseline."""
+    fn = font(F_NUM, size)
+    asc, desc = fn.getmetrics()
+    num_l = text_layer(value, F_NUM, size, color, tracking=-0.035)
+    if not unit:
+        return num_l
+    us = int(size * 0.34)
+    fu = font(F_HEAD, us)
+    u_l = text_layer(unit, F_HEAD, us, WHITE if on_dark else MUTED)
+    gap = int(size * 0.04)
+    out = Image.new("RGBA", (num_l.width + gap + u_l.width, num_l.height), (0, 0, 0, 0))
+    out.alpha_composite(num_l, (0, 0))
+    base = asc                                     # baseline of the big number
+    out.alpha_composite(u_l, (num_l.width + gap, base - fu.getmetrics()[0]))
+    return out
 
 def rounded(img, r):
     m = Image.new("L", img.size, 0)
@@ -140,129 +217,214 @@ def rounded(img, r):
     out = img.convert("RGBA"); out.putalpha(m)
     return out
 
-
-# ------------------------------------------------------------------ frames
-frames = []   # (png_path, seconds, zoom_to)
-
-# 1. photo + hook
-src_photo = P("photo.jpg") if os.path.exists(P("photo.jpg")) else (P("card_hero.png") if os.path.exists(P("card_hero.png")) else None)
-f1 = Image.new("RGB", (W, H), DEEP)
-if src_photo:
-    ph = Image.open(src_photo).convert("RGB")
-    f1 = ImageOps.fit(ph, (W, H), Image.LANCZOS, centering=(0.5, 0.45))
-    # gentle darkening at top/bottom so the plates sit on calm tone
-    shade = Image.new("L", (W, H), 0); sd = ImageDraw.Draw(shade)
-    for y in range(H):
-        a = int(110 * max(0, 1 - abs(y - 640) / 700))
-        sd.line([(0, y), (W, y)], fill=a)
-    f1 = Image.composite(Image.new("RGB", (W, H), (0, 0, 0)), f1, shade)
-y = 520
-for i, line in enumerate(hook):
-    y = draw_line(f1, line, y, size=84 if i == 0 else 78) + 18
-f1.save(P("beat1.png")); frames.append((P("beat1.png"), 2.8, 1.08))
-
-# 2–4. card beats
-def card_beat(idx, card, text):
-    path = P(f"card_{card}.png")
+def card_layer(name, max_w, max_h, crop=None):
+    path = P(f"card_{name}.png")
     if not os.path.exists(path):
-        path = next((P(f) for f in ("card_hero.png", "card_ltr.png", "card_maxoffer.png", "card_strats.png")
-                     if os.path.exists(P(f))), None)
-    if not path:
-        img = Image.new("RGB", (W, H), DEEP)
-        draw_line(img, text, 900, size=88)
-    else:
-        card = Image.open(path).convert("RGB")
-        img = blurred_bg(card)
-        max_w, max_h = X1 - X0, CARD_BOT - CARD_TOP
-        s = min(max_w / card.width, max_h / card.height)
-        cw, ch = int(card.width * s), int(card.height * s)
-        card = rounded(card.resize((cw, ch), Image.LANCZOS), 30)
-        top = CARD_TOP + (max_h - ch) // 2
-        # soft shadow
-        sh_ = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-        ImageDraw.Draw(sh_).rounded_rectangle([X0 + 6, top + 18, X0 + 6 + cw, top + 18 + ch], radius=30, fill=(0, 0, 0, 150))
-        img = Image.alpha_composite(img.convert("RGBA"), sh_.filter(ImageFilter.GaussianBlur(26)))
-        img.alpha_composite(card, (CX - cw // 2, top))
-        img = img.convert("RGB")
-        ty = min(top + ch + 70, TEXT_MAX_Y - 130)
-        draw_line(img, text, ty, size=84)
-    p = P(f"beat{idx}.png"); img.save(p)
-    return p
+        return None
+    c = Image.open(path).convert("RGB")
+    if crop:
+        c = c.crop((0, 0, c.width, int(c.height * crop)))
+    s = min(max_w / c.width, max_h / c.height)
+    c = c.resize((int(c.width * s), int(c.height * s)), Image.LANCZOS)
+    c = rounded(c, 34)
+    # hairline border + soft, wide shadow (the "floating UI" look)
+    ImageDraw.Draw(c).rounded_rectangle([0, 0, c.width - 1, c.height - 1], radius=34, outline=(0, 0, 0, 22), width=2)
+    pad = 90
+    out = Image.new("RGBA", (c.width + pad * 2, c.height + pad * 2), (0, 0, 0, 0))
+    sh = Image.new("RGBA", out.size, (0, 0, 0, 0))
+    ImageDraw.Draw(sh).rounded_rectangle([pad, pad + 26, pad + c.width, pad + c.height + 26], radius=34, fill=(20, 40, 28, 70))
+    out.alpha_composite(sh.filter(ImageFilter.GaussianBlur(34)))
+    out.alpha_composite(c, (pad, pad))
+    return out, pad
 
-for i, (card, text) in enumerate(beats, start=2):
-    frames.append((card_beat(i, card, text), 3.0, 1.035))
+def gradient_bg():
+    col = Image.new("RGB", (1, H))
+    for y in range(H):
+        t = y / (H - 1)
+        col.putpixel((0, y), tuple(int(a + (b - a) * t) for a, b in zip(BG_TOP, BG_BOT)))
+    return col.resize((W, H))
 
-# 5. end card
-f5 = Image.new("RGB", (W, H)); px = f5.load()
-for yy in range(H):
-    t = yy / (H - 1)
-    c = tuple(int(a + (b - a) * t) for a, b in zip(FOREST, DEEP))
-    for xx in range(0, W):
-        px[xx, yy] = c
-# cream plate: house mark (from the nav) + DealCaddie wordmark in brand colours
-TURF = (39, 165, 82)
-wf = ImageFont.truetype(FB, 92)
-dm = ImageDraw.Draw(Image.new("RGB", (8, 8)))
-w_deal, w_caddie = dm.textlength("Deal", font=wf), dm.textlength("Caddie", font=wf)
-asc, desc = wf.getmetrics()
-mark = None
-if os.path.exists(P("logo.png")):
-    mark = Image.open(P("logo.png")).convert("RGBA")
-    # the nav behind the logo is white: make near-white pixels transparent
-    px_ = mark.load()
-    for yy in range(mark.height):
-        for xx in range(mark.width):
-            r, g, b, a = px_[xx, yy]
-            if r > 238 and g > 238 and b > 238:
-                px_[xx, yy] = (r, g, b, 0)
-    ms = (asc + desc) * 1.15 / mark.height
-    mark = mark.resize((int(mark.width * ms), int(mark.height * ms)), Image.LANCZOS)
-gap = 24 if mark else 0
-inner_w = (mark.width if mark else 0) + gap + int(w_deal + w_caddie)
-inner_h = max(mark.height if mark else 0, asc + desc)
-plate_w, plate_h = inner_w + 110, inner_h + 80
-pl = Image.new("RGBA", (plate_w, plate_h), (0, 0, 0, 0))
-pd = ImageDraw.Draw(pl)
-pd.rounded_rectangle([0, 0, plate_w - 1, plate_h - 1], radius=40, fill=CREAM + (255,))
-x = 55
-if mark:
-    pl.alpha_composite(mark, (x, (plate_h - mark.height) // 2)); x += mark.width + gap
-ty_word = (plate_h - (asc + desc)) // 2
-pd.text((x, ty_word), "Deal", font=wf, fill=FOREST)
-pd.text((x + w_deal, ty_word), "Caddie", font=wf, fill=TURF)
-plate_top = 640
-f5 = f5.convert("RGBA"); f5.alpha_composite(pl, (CX - plate_w // 2, plate_top)); f5 = f5.convert("RGB")
-ty = plate_top + plate_h + 90
-ty = draw_line(f5, "Run any address free", ty, size=78, plate=False) + 10
-draw_line(f5, "dealcaddie.ai", ty, size=84, plate=False)
-f5.save(P("beat5.png")); frames.append((P("beat5.png"), 2.6, 1.0))
+def logo_layer(width, white=False):
+    p = LOGO_W if white else LOGO
+    if not os.path.exists(p):
+        return text_layer("DealCaddie", F_NUM, int(width / 5.2), WHITE if white else FOREST)
+    l = Image.open(p).convert("RGBA")
+    return l.resize((width, int(l.height * width / l.width)), Image.LANCZOS)
 
 
-# ------------------------------------------------------------------ video
-XF = 0.4
-segs = []
-for i, (png, secs, zmax) in enumerate(frames):
-    seg = P(f"seg{i}.mp4")
-    n = int(secs * FPS)
-    big = P(f"big{i}.png")
-    Image.open(png).resize((W * 2, H * 2), Image.LANCZOS).save(big)
-    z = f"1+{zmax - 1:.4f}*on/{n}"
-    sh(["ffmpeg", "-y", "-loglevel", "error", "-loop", "1", "-i", big, "-t", f"{secs:.2f}",
-        "-vf", f"zoompan=z='{z}':d={n}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={W}x{H}:fps={FPS},format=yuv420p,setsar=1",
-        "-c:v", "libx264", "-preset", "fast", "-crf", "17", seg])
-    segs.append((seg, secs))
+# ------------------------------------------------------------------ easing + compositing
+def ease_out(t):  # cubic
+    t = max(0.0, min(1.0, t)); return 1 - (1 - t) ** 3
 
-inputs, fc, prev, t = [], "", "0:v", segs[0][1]
-for s, _ in segs:
-    inputs += ["-i", s]
-for i in range(1, len(segs)):
-    off = t - XF
-    lbl = f"x{i}"
-    fc += f"[{prev}][{i}:v]xfade=transition=fade:duration={XF}:offset={off:.2f}[{lbl}];"
-    prev, t = lbl, t + segs[i][1] - XF
-sh(["ffmpeg", "-y", "-loglevel", "error", *inputs, "-filter_complex", fc.rstrip(";"), "-map", f"[{prev}]",
-    "-r", str(FPS), "-c:v", "libx264", "-preset", "medium", "-crf", "19", "-pix_fmt", "yuv420p",
-    "-movflags", "+faststart", out_mp4])
+def ease_in_out(t):
+    t = max(0.0, min(1.0, t)); return 3 * t * t - 2 * t * t * t
+
+def with_alpha(layer, a):
+    if a >= 0.999: return layer
+    l = layer.copy()
+    l.putalpha(l.getchannel("A").point(lambda v: int(v * a)))
+    return l
+
+def place(frame, layer, cx, y, alpha=1.0, scale=1.0):
+    if alpha <= 0.003: return
+    if abs(scale - 1) > 0.001:
+        layer = layer.resize((max(1, int(layer.width * scale)), max(1, int(layer.height * scale))), Image.BICUBIC)
+    frame.alpha_composite(with_alpha(layer, alpha), (int(cx - layer.width / 2), int(y)))
+
+def enter(t, delay, dur=0.55, rise=34):
+    p = ease_out((t - delay) / dur)
+    return p, (1 - p) * rise
+
+def count_value(target, p):
+    """Format the target string at progress p (0..1), keeping its prefix/suffix/commas/decimals."""
+    m = re.match(r"^([^0-9]*)([0-9][0-9,]*)(\.[0-9]+)?(.*)$", target)
+    if not m or p >= 1: return target
+    pre, ints, dec, suf = m.groups()
+    v = float(ints.replace(",", "") + (dec or ""))
+    cur = v * ease_out(p)
+    nd = len(dec) - 1 if dec else 0
+    s = f"{cur:,.{nd}f}" if "," in ints else f"{cur:.{nd}f}"
+    return f"{pre}{s}{suf}"
+
+
+# ------------------------------------------------------------------ beat renderers
+BG = gradient_bg()
+TOP_LOGO = logo_layer(260)
+TOP_Y = 300                    # top logo (just under the platform's top bar)
+EXIT = 0.28                    # seconds of fade-out at the end of a beat
+
+def render_photo_beat(spec, dur):
+    src = P("photo.jpg") if os.path.exists(P("photo.jpg")) else None
+    base = None
+    if src:
+        ph = Image.open(src).convert("RGB")
+        base = ImageOps.fit(ph, (int(W * 1.08), int(H * 1.08)), Image.LANCZOS, centering=(0.5, 0.42))
+    # scrims: light at top for the logo, deep at the bottom for the type
+    scrim = Image.new("RGBA", (W, H), (0, 0, 0, 0)); sd = ImageDraw.Draw(scrim)
+    for y in range(H):
+        a = 0
+        if y < 520: a = int(120 * (1 - y / 520) ** 1.6)
+        if y > 760: a = max(a, int(215 * ease_in_out((y - 760) / 760)))
+        sd.line([(0, y), (W, y)], fill=(6, 18, 11, a))
+    eb = text_layer(spec["eyebrow"], F_SEMI, 34, WHITE, tracking=0.16, alpha=215)
+    vs = fit_size(spec["value"], F_NUM, 196, 860, 120)
+    val = text_layer(spec["value"], F_NUM, vs, WHITE, tracking=-0.035)
+    sub = text_layer(spec["sub"], F_HEAD, 66, WHITE)
+    logo = logo_layer(260, white=True)
+
+    def frame(t):
+        if base is not None:
+            z = 1.0 + 0.06 * (t / dur)                       # slow push-in
+            cw, ch = int(W * 1.08 / z * (1 / 1.0)), int(H * 1.08 / z)
+            cw, ch = min(cw, base.width), min(ch, base.height)
+            x0, y0 = (base.width - cw) // 2, (base.height - ch) // 2
+            f = base.crop((x0, y0, x0 + cw, y0 + ch)).resize((W, H), Image.BILINEAR).convert("RGBA")
+        else:
+            f = Image.new("RGBA", (W, H), FOREST + (255,))
+        f.alpha_composite(scrim)
+        place(f, logo, CX, TOP_Y, ease_out(t / 0.5))
+        y = 1000
+        for i, (l, gap) in enumerate([(eb, 18), (val, 22), (sub, 0)]):
+            p, dy = enter(t, 0.15 + i * 0.12)
+            place(f, l, CX, y + dy, p)
+            y += l.height + gap
+        # exit: dissolve to the canvas the next beat starts on
+        k = ease_in_out((t - (dur - EXIT - 0.1)) / (EXIT + 0.1))
+        if k > 0:
+            f = Image.blend(f.convert("RGB"), BG, k).convert("RGBA")
+        return f.convert("RGB")
+    return frame
+
+def render_stat_beat(spec, dur):
+    eb = text_layer(spec["eyebrow"], F_SEMI, 32, MUTED, tracking=0.16)
+    value = spec["value"]
+    vs = fit_size(value, F_NUM, 210, 760, 120)
+    sub_lines = wrap(spec["sub"], F_MED, 42, 820)
+    sub = stack([text_layer(s, F_MED, 42, (62, 74, 66)) for s in sub_lines], 8)
+    card = card_layer(spec["card"], 860, 560 if len(sub_lines) == 1 else 520, spec.get("crop"))
+    # vertical rhythm
+    y_eb = 440
+    y_val = y_eb + eb.height + 6
+    val_h = value_layer(value, spec["unit"], spec["color"], vs).height
+    y_sub = y_val + val_h + 6
+    y_card_area = y_sub + sub.height + 40
+    card_top = None
+    if card:
+        cl, pad = card
+        area_h = 1415 - y_card_area
+        card_top = y_card_area + max(0, (area_h - (cl.height - 2 * pad)) // 2) - pad
+
+    finished_val = value_layer(value, spec["unit"], spec["color"], vs)
+
+    def frame(t):
+        f = BG.copy().convert("RGBA")
+        place(f, TOP_LOGO, CX, TOP_Y)
+        out_a = 1 - ease_in_out((t - (dur - EXIT)) / EXIT)
+        out_dy = -18 * (1 - out_a)
+        p, dy = enter(t, 0.0)
+        place(f, eb, CX, y_eb + dy + out_dy, p * out_a)
+        p, dy = enter(t, 0.08)
+        cp = min(1.0, max(0.0, (t - 0.08) / 0.9))
+        vl = finished_val if cp >= 1 else value_layer(count_value(value, cp), spec["unit"], spec["color"], vs)
+        place(f, vl, CX, y_val + dy + out_dy, p * out_a)
+        p, dy = enter(t, 0.20)
+        place(f, sub, CX, y_sub + dy + out_dy, p * out_a)
+        if card:
+            cl, pad = card
+            p, dy = enter(t, 0.30, dur=0.75, rise=70)
+            drift = 1.0 + 0.012 * ease_in_out(t / dur)
+            sc = (0.965 + 0.035 * p) * drift
+            h_scaled = cl.height * sc
+            place(f, cl, CX, card_top + dy + out_dy + (cl.height - h_scaled) / 2, p * out_a, sc)
+        return f.convert("RGB")
+    return frame
+
+def render_end_beat(dur):
+    logo = logo_layer(720)
+    line = text_layer("Analyze any rental in seconds.", F_HEAD, 54, INK)
+    sub = text_layer("Rent comps, taxes and insurance — pulled for you.", F_MED, 36, MUTED)
+    label = text_layer("Try it free  ·  dealcaddie.ai", F_SEMI, 44, WHITE)
+    bw, bh = label.width + 120, 112
+    btn = Image.new("RGBA", (bw + 80, bh + 80), (0, 0, 0, 0))
+    sh = Image.new("RGBA", btn.size, (0, 0, 0, 0))
+    ImageDraw.Draw(sh).rounded_rectangle([40, 56, 40 + bw, 56 + bh], radius=bh // 2, fill=(3, 62, 36, 90))
+    btn.alpha_composite(sh.filter(ImageFilter.GaussianBlur(18)))
+    ImageDraw.Draw(btn).rounded_rectangle([40, 40, 40 + bw, 40 + bh], radius=bh // 2, fill=FOREST + (255,))
+    fl = font(F_SEMI, 44)
+    btn.alpha_composite(label, (40 + (bw - label.width) // 2, 40 + (bh - label.height) // 2 + 2))
+
+    def frame(t):
+        f = BG.copy().convert("RGBA")
+        p, dy = enter(t, 0.0, dur=0.7, rise=24)
+        place(f, logo, CX, 700 + dy, p, 0.97 + 0.03 * p)
+        p, dy = enter(t, 0.25); place(f, line, CX, 900 + dy, p)
+        p, dy = enter(t, 0.35); place(f, sub, CX, 984 + dy, p)
+        p, dy = enter(t, 0.50); place(f, btn, CX, 1080 + dy, p)
+        return f.convert("RGB")
+    return frame
+
+
+# ------------------------------------------------------------------ timeline + encode
+timeline = [(render_photo_beat(hook, 2.8), 2.8)]
+for b in beats:
+    timeline.append((render_stat_beat(b, 2.8), 2.8))
+timeline.append((render_end_beat(2.6), 2.6))
+
+enc = subprocess.Popen(
+    ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
+     "-i", "-", "-c:v", "libx264", "-preset", "medium", "-crf", "17", "-pix_fmt", "yuv420p",
+     "-movflags", "+faststart", out_mp4], stdin=subprocess.PIPE)
+for bi, (fn, dur) in enumerate(timeline, start=1):
+    n = int(round(dur * FPS))
+    for i in range(n):
+        t = i / FPS
+        img = fn(t)
+        enc.stdin.write(img.tobytes())
+        if i == int(1.6 * FPS):                     # a settled frame of each beat, for review + the cover
+            img.save(P(f"beat{bi}.png"))
+enc.stdin.close()
+if enc.wait() != 0:
+    sys.exit("ffmpeg failed")
 
 def dur(p):
     return float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration",
@@ -270,20 +432,16 @@ def dur(p):
 
 
 # ------------------------------------------------------------------ cover + caption
-Image.open(P("beat1.png")).save(os.path.join(out_dir, "cover.jpg"), quality=90)
+Image.open(P("beat1.png")).save(os.path.join(out_dir, "cover.jpg"), quality=92)
 
-def sentence(t):
-    t = t.strip()
-    return t if t.endswith((".", "!", "?")) else t + "."
-
-city = city_of(data.get("cityLine"))
+city = (data.get("cityLine") or "").split(",")[0].strip()
 city_tag = "#" + re.sub(r"[^a-z]", "", city.lower()) + "realestate" if city else "#realestatedeals"
 specs = " · ".join(x for x in [
     f"{data['beds']} bed" if data.get("beds") else None,
     f"{data['baths']} bath" if data.get("baths") else None,
     f"{data['sqft']} sqft" if data.get("sqft") else None] if x)
-body = " ".join(sentence(t) for _, t in beats)
-caption = f"""{' '.join(hook)}
+body = " ".join(b["say"] for b in beats)
+caption = f"""{' '.join(title)}
 
 {specs + '. ' if specs else ''}Pasted the Zillow link into DealCaddie: {body}
 
@@ -296,8 +454,8 @@ Try it free · dealcaddie.ai
 #realestateinvesting #rentalproperty #cashflow #realestateinvestor {city_tag}
 """
 open(os.path.join(out_dir, "caption.txt"), "w").write(caption)
-json.dump({"hook": hook, "beats": beats, "duration": round(dur(out_mp4), 1),
-           "had_photo": os.path.exists(P("photo.jpg")), **data},
+json.dump({"hook": title, "beats": [{k: v for k, v in b.items() if k != "color"} for b in beats],
+           "duration": round(dur(out_mp4), 1), "had_photo": os.path.exists(P("photo.jpg")), **data},
           open(os.path.join(out_dir, "meta.json"), "w"), indent=2)
 print(f"built {out_mp4} ({dur(out_mp4):.1f}s, photo={'yes' if os.path.exists(P('photo.jpg')) else 'no'}, "
       f"cards={sorted(f for f in os.listdir(work) if f.startswith('card_'))})")
