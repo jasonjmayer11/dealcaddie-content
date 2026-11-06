@@ -12,7 +12,7 @@ Design language (borrowed from Zillow / Airbnb / fintech product social):
   - motion is eased: elements rise + fade in on a stagger, numbers count up, card settles, slow drift
   - frames are rendered one by one in PIL and piped to ffmpeg (no zoompan jitter)
 
-Beats (~2.8s each):
+Beats (~3.8s each — enough time to read every number):
   1. listing photo, full bleed: city · price · hook question
   2. DEAL SCORE        6.9/10      + property card
   3. CASH FLOW         +$33/mo     + cash-flow card
@@ -405,10 +405,10 @@ def render_end_beat(dur):
 
 
 # ------------------------------------------------------------------ timeline + encode
-timeline = [(render_photo_beat(hook, 2.8), 2.8)]
+timeline = [(render_photo_beat(hook, 3.8), 3.8)]
 for b in beats:
-    timeline.append((render_stat_beat(b, 2.8), 2.8))
-timeline.append((render_end_beat(2.6), 2.6))
+    timeline.append((render_stat_beat(b, 3.8), 3.8))
+timeline.append((render_end_beat(3.6), 3.6))
 
 enc = subprocess.Popen(
     ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
