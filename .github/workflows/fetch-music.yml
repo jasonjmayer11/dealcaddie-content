@@ -1,0 +1,27 @@
+name: Fetch music candidates (one-off)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ffmpeg
+        run: |
+          curl -fsSL --retry 3 -o /tmp/ffmpeg.tar.xz https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz
+          mkdir -p /tmp/ffmpeg && tar -xf /tmp/ffmpeg.tar.xz -C /tmp/ffmpeg --strip-components=1
+          echo "/tmp/ffmpeg/bin" >> "$GITHUB_PATH"
+      - run: python3 scripts/fetch_music.py candidates
+      - name: Publish candidates
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd candidates && zip -qr ../music-candidates.zip . && cd ..
+          ls -la music-candidates.zip
+          gh release create "music-candidates-$(date -u +%Y%m%d-%H%M)" music-candidates.zip candidates/index.json --prerelease --title "Music candidates (CC0, FreePD)" --notes "One-off download for picking the reel music rotation. Safe to delete."
