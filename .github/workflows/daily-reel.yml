@@ -131,6 +131,10 @@ jobs:
             echo ""
             echo "▶️ [Watch the video]($URL/download/$TAG.mp4) · [Release page]($URL)"
             echo ""
+            echo "**Cover / thumbnail** (used on Instagram, Facebook and YouTube)"
+            echo ""
+            echo "<img src=\"https://github.com/${{ github.repository }}/releases/download/$TAG/$TAG-cover.jpg\" width=\"270\">"
+            echo ""
             echo "**Caption**"
             echo '```'
             cat dist/caption.txt
@@ -194,7 +198,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="${{ needs.reel.outputs.slug }}"
-          gh release download "$TAG" -p "$TAG.mp4" -D post
+          gh release download "$TAG" -p "$TAG.mp4" -p "$TAG-cover.jpg" -D post
           gh release view "$TAG" --json body --jq .body > post/caption.txt
           gh release view "$TAG" --json name --jq .name > post/title.txt
       - name: Post via Upload-Post
@@ -205,4 +209,4 @@ jobs:
           IDEMPOTENCY_KEY: ${{ needs.reel.outputs.slug }}
         run: |
           pip install --quiet requests
-          python3 scripts/post_social.py "post/${{ needs.reel.outputs.slug }}.mp4" "$(cat post/title.txt)" post/caption.txt
+          python3 scripts/post_social.py "post/${{ needs.reel.outputs.slug }}.mp4" "$(cat post/title.txt)" post/caption.txt "post/${{ needs.reel.outputs.slug }}-cover.jpg"

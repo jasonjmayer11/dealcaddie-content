@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Post an approved reel to social via Upload-Post (https://docs.upload-post.com).
 
-Usage: python3 scripts/post_social.py <video.mp4> <title> <caption_file>
+Usage: python3 scripts/post_social.py <video.mp4> <title> <caption_file> [cover.jpg]
 Env:   UPLOAD_POST_API_KEY   (secret)
        UPLOAD_POST_USER      profile name in Upload-Post (default: dealcaddie)
        POST_PLATFORMS        comma list (default: instagram,facebook,youtube; add tiktok on a paid plan)
@@ -11,6 +11,7 @@ import json, os, sys, time
 import requests
 
 video, title, caption_file = sys.argv[1], sys.argv[2], sys.argv[3]
+cover = sys.argv[4] if len(sys.argv) > 4 and os.path.exists(sys.argv[4]) else None
 caption = open(caption_file, encoding="utf-8").read().strip()
 key = os.environ.get("UPLOAD_POST_API_KEY")
 if not key:
@@ -38,11 +39,16 @@ fields = [("user", user)] + [("platform[]", p) for p in platforms] + [
     ("request_id", idem),
 ]
 print(f"posting {os.path.basename(video)} to {platforms} as '{user}'")
-with open(video, "rb") as fh:
-    r = requests.post("https://api.upload-post.com/api/upload",
-                      headers={"Authorization": f"Apikey {key}", "Idempotency-Key": idem},
-                      data=fields, files={"video": (os.path.basename(video), fh, "video/mp4")},
-                      timeout=300)
+files = [("video", (os.path.basename(video), open(video, "rb"), "video/mp4"))]
+if cover:
+    # our own cover (the price/specs frame) instead of the platform picking frame 0
+    for field in ("cover_image", "facebook_thumbnail", "thumbnail"):     # Instagram, Facebook, YouTube
+        files.append((field, (os.path.basename(cover), open(cover, "rb"), "image/jpeg")))
+    fields.append(("cover_timestamp", "1600"))                           # TikTok: frame at 1.6s
+    print("cover:", cover)
+r = requests.post("https://api.upload-post.com/api/upload",
+                  headers={"Authorization": f"Apikey {key}", "Idempotency-Key": idem},
+                  data=fields, files=files, timeout=300)
 print("HTTP", r.status_code)
 try:
     body = r.json()
