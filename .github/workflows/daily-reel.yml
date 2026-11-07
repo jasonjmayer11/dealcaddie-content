@@ -84,7 +84,12 @@ jobs:
           echo "slug=reel-$(date -u +%Y%m%d-%H%M)" >> "$GITHUB_OUTPUT"
           A="${{ github.event.inputs.audience }}"
           if [ -z "$A" ] || [ "$A" = "auto" ]; then
-            if [ "$(date -u +%H)" -ge 17 ]; then A=agent; else A=investor; fi
+            # use WHICH schedule fired, not the clock: GitHub can start the morning run hours late
+            case "${{ github.event.schedule }}" in
+              "17 13 * * *") A=investor ;;
+              "47 21 * * *") A=agent ;;
+              *) if [ "$(date -u +%H)" -ge 17 ]; then A=agent; else A=investor; fi ;;
+            esac
           fi
           echo "audience=$A" >> "$GITHUB_OUTPUT"
           echo "audience: $A"
