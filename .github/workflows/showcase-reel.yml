@@ -1,0 +1,103 @@
+name: Feature Showcase reel
+
+# Phone-mockup feature reels (5 features + pricing card), rotating templates:
+# investor-core, agent-core, investor-edge, agent-workflow. No app run needed.
+on:
+  schedule:
+    - cron: "37 18 * * 2,4,6"     # Tue / Thu / Sat ~11:37am Denver (winter)
+  workflow_dispatch:
+    inputs:
+      template:
+        description: "auto, investor-core, agent-core, investor-edge, agent-workflow"
+        type: choice
+        options: [auto, investor-core, agent-core, investor-edge, agent-workflow]
+        default: auto
+
+permissions:
+  contents: write
+
+jobs:
+  reel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      slug: ${{ steps.build.outputs.slug }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          curl -fsSL --retry 3 -o /tmp/ffmpeg.tar.xz \
+            https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz
+          mkdir -p /tmp/ffmpeg && tar -xf /tmp/ffmpeg.tar.xz -C /tmp/ffmpeg --strip-components=1
+          echo "/tmp/ffmpeg/bin" >> "$GITHUB_PATH"
+          pip install --quiet pillow numpy
+      - name: Build
+        id: build
+        env:
+          INVESTOR_PRICE: ${{ vars.INVESTOR_PRICE }}
+          AGENT_PRICE: ${{ vars.AGENT_PRICE }}
+        run: |
+          T="${{ github.event.inputs.template }}"; [ -z "$T" ] && T=auto
+          mkdir -p dist
+          python3 scripts/assemble_showcase.py "$T" dist/out.mp4
+          NAME=$(python3 -c "import json;print(json.load(open('dist/meta.json'))['template'])")
+          SLUG="showcase-$NAME-$(date -u +%Y%m%d-%H%M)"
+          mv dist/out.mp4 "dist/$SLUG.mp4"; mv dist/cover.jpg "dist/$SLUG-cover.jpg"
+          echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
+          cat dist/caption.txt
+      - name: Publish as a release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.build.outputs.slug }}"
+          TITLE=$(python3 -c "import json;print(json.load(open('dist/meta.json'))['hook'][0])")
+          for i in 1 2 3 4; do
+            gh release create "$TAG" "dist/$TAG.mp4" "dist/$TAG-cover.jpg" --title "$TITLE" --notes-file dist/caption.txt && break
+            [ "$i" = 4 ] && exit 1; sleep $((i*20))
+          done
+          URL="https://github.com/${{ github.repository }}/releases/tag/$TAG"
+          {
+            echo "## 📱 $TAG"
+            echo "**Ready for review.** Watch it, then approve the *post* job below to publish."
+            echo ""
+            echo "▶️ [Watch the video](https://github.com/${{ github.repository }}/releases/download/$TAG/$TAG.mp4) · [Release page]($URL)"
+            echo ""
+            echo "<img src=\"https://github.com/${{ github.repository }}/releases/download/$TAG/$TAG-cover.jpg\" width=\"270\">"
+            echo ""
+            echo '```'; cat dist/caption.txt; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  post:
+    needs: reel
+    if: needs.reel.result == 'success' && vars.POSTING_ENABLED == 'on'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: social
+      url: https://github.com/${{ github.repository }}/releases/tag/${{ needs.reel.outputs.slug }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch the approved reel
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ needs.reel.outputs.slug }}"
+          gh release download "$TAG" -p "$TAG.mp4" -p "$TAG-cover.jpg" -D post
+          gh release view "$TAG" --json body --jq .body > post/caption.txt
+          gh release view "$TAG" --json name --jq .name > post/title.txt
+      - name: Post via Upload-Post
+        env:
+          UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
+          UPLOAD_POST_USER: ${{ vars.UPLOAD_POST_USER }}
+          POST_PLATFORMS: ${{ vars.POST_PLATFORMS }}
+          IDEMPOTENCY_KEY: ${{ needs.reel.outputs.slug }}
+        run: |
+          pip install --quiet requests
+          TAG="${{ needs.reel.outputs.slug }}"
+          python3 scripts/post_social.py "post/$TAG.mp4" "$(cat post/title.txt)" post/caption.txt "post/$TAG-cover.jpg"

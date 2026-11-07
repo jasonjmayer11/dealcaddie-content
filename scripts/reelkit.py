@@ -431,3 +431,83 @@ def encode(timeline, out_mp4, still_at=1.6):
 def duration(p):
     return float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                                           "-of", "csv=p=0", p]).decode().strip())
+
+
+# ------------------------------------------------------------------ feature showcase (phone mockups)
+def device_layer(path, max_w, max_h, radius=0, shadow=True):
+    """Real app screenshot (already phone-framed, or a wide desktop/PDF shot) with a soft floor shadow."""
+    im = Image.open(path).convert("RGBA")
+    s = min(max_w / im.width, max_h / im.height)
+    im = im.resize((int(im.width * s), int(im.height * s)), Image.LANCZOS)
+    if radius:
+        m = Image.new("L", im.size, 0)
+        ImageDraw.Draw(m).rounded_rectangle([0, 0, im.width - 1, im.height - 1], radius=radius, fill=255)
+        im.putalpha(Image.composite(im.getchannel("A"), Image.new("L", im.size, 0), m))
+    pad = 110
+    out = Image.new("RGBA", (im.width + pad * 2, im.height + pad * 2), (0, 0, 0, 0))
+    if shadow:
+        sh = Image.new("RGBA", out.size, (0, 0, 0, 0))
+        a = im.getchannel("A").point(lambda v: 90 if v > 20 else 0)
+        sh.paste((18, 40, 26, 255), (pad + 10, pad + 34), a)
+        out.alpha_composite(sh.filter(ImageFilter.GaussianBlur(38)))
+    out.alpha_composite(im, (pad, pad))
+    return out, pad
+
+def render_showcase_beat(spec, dur, index=None, total=None):
+    """Carousel-style feature beat: eyebrow + headline + sub on top, the real app screen below.
+    The device slides in from the right and leaves to the left, so beats read like swiping a carousel.
+    spec: eyebrow, headline, sub, image (path), wide (bool)"""
+    num_txt = f"{index:02d} / {total:02d}   ·   " if index else ""
+    eb = text_layer(num_txt + spec["eyebrow"], F_SEMI, 30, (3, 144, 58), tracking=0.16)
+    head = headline_layer(spec["headline"], size=80, max_w=900)
+    sub_lines = wrap(spec.get("sub", ""), F_MED, 38, 880) if spec.get("sub") else []
+    sub = stack([text_layer(s, F_MED, 38, (62, 74, 66)) for s in sub_lines], 6) if sub_lines else None
+    y_eb = 400
+    y_head = y_eb + eb.height + 14
+    y_sub = y_head + head.height + 12
+    top = (y_sub + (sub.height if sub else 0)) + 36
+    wide = spec.get("wide")
+    dev, pad = device_layer(spec["image"], 1000 if wide else 620, (1880 - top) if not wide else 820,
+                            radius=26 if wide else 0)
+    dev_y = top - pad + (40 if wide else 0)
+    SLIDE = 620
+
+    def frame(t):
+        f = BG.copy().convert("RGBA")
+        place(f, TOP_LOGO, CX, TOP_Y)
+        out_k = ease_in_out((t - (dur - 0.42)) / 0.42)          # 0 → 1 during the exit
+        txt_a = 1 - out_k
+        p, dy = enter(t, 0.05); place(f, eb, CX, y_eb + dy, p * txt_a)
+        p, dy = enter(t, 0.12); place(f, head, CX, y_head + dy, p * txt_a)
+        if sub:
+            p, dy = enter(t, 0.20); place(f, sub, CX, y_sub + dy, p * txt_a)
+        pin = ease_out(t / 0.7)
+        dx = SLIDE * (1 - pin) - SLIDE * out_k
+        drift = 1.0 + 0.015 * ease_in_out(t / dur)
+        a = min(1.0, t / 0.25) * (1 - 0.6 * out_k)
+        lw = dev.width * drift
+        place(f, dev, CX + dx, dev_y - (dev.height * (drift - 1)) / 2, a, drift)
+        return f.convert("RGB")
+    return frame
+
+def render_showcase_intro(title, sub, image, dur):
+    """Opener: big promise + fanned phones."""
+    head = headline_layer(title, size=96, max_w=920)
+    s = text_layer(sub, F_MED, 40, (62, 74, 66)) if sub else None
+    dev, pad = device_layer(image, 1000, 980, shadow=False)
+    y_head = 400
+    y_sub = y_head + head.height + 18
+    dev_y = 1890 - dev.height + pad - 40
+
+    def frame(t):
+        f = BG.copy().convert("RGBA")
+        place(f, TOP_LOGO, CX, TOP_Y)
+        out_a = 1 - ease_in_out((t - (dur - EXIT)) / EXIT)
+        p, dy = enter(t, 0.0, dur=0.6); place(f, head, CX, y_head + dy, p * out_a)
+        if s:
+            p, dy = enter(t, 0.15); place(f, s, CX, y_sub + dy, p * out_a)
+        p, dy = enter(t, 0.25, dur=0.8, rise=120)
+        drift = 1.0 + 0.02 * ease_in_out(t / dur)
+        place(f, dev, CX, dev_y + dy, p * out_a, drift)
+        return f.convert("RGB")
+    return frame
