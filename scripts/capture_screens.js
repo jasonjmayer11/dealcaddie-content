@@ -57,6 +57,17 @@ async function deals(page) {
 
   // Pipeline
   await page.goto(`${BASE}/dashboard`, { waitUntil: 'networkidle' }); await sleep(3500);
+  // screenshot only: hide one-off promo/onboarding banners so the deal cards show
+  await page.evaluate(() => {
+    for (const el of document.querySelectorAll('body *')) {
+      const t = (el.innerText || '');
+      if (/Compare your deals side by side/i.test(t) && el.getBoundingClientRect().height < 400 && el.children.length) {
+        let box = el; while (box.parentElement && box.parentElement.getBoundingClientRect().height < 400) box = box.parentElement;
+        box.style.display = 'none'; break;
+      }
+    }
+  });
+  await sleep(600);
   await page.screenshot({ path: out('pipeline_raw.png') });
   fs.writeFileSync(out('pipeline.txt'), await page.evaluate(() => document.body.innerText));
   // Compare (needs 2+ ids)

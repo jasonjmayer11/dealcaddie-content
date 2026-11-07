@@ -73,7 +73,7 @@ def pick_copy(d):
                       "sub": "Your answer, ready in 10 seconds." if AGENT else "Cash flow, price and market in one number.",
                       "card": "hero", "crop": 0.70, "say": f"{score_s}/10 deal score.",
                       # bigger property card: tighter header, smaller number, card up to 860x720
-                      "y_eb": 360, "value_size": 160, "card_max_h": 720})
+                      "y_eb": 376, "value_size": 160, "card_max_h": 710})
     strat_all = d.get("strategies") or {}
     NAMES = [("LTR", "Long-term rental"), ("MTR", "Mid-term rental"), ("STR", "Short-term · Airbnb"),
              ("S8", "Section 8"), ("HH", "House hack"), ("BRRRR", "BRRRR"), ("FLIP", "Fix & flip · profit")]
@@ -92,7 +92,7 @@ def pick_copy(d):
         head = (f"Cash flows on {npos} of {len(rows)} strategies." if npos else "Negative on every strategy.")
         sub = ("Send your client every option in one link." if AGENT else "Every strategy, after mortgage, taxes and insurance.")
         beats.append({"kind": "list", "eyebrow": "CASH FLOW BY STRATEGY", "headline": head, "headline_size": 78,
-                      "sub": sub, "rows": rows, "y_eb": 380, "dur": 5.6,
+                      "sub": sub, "rows": rows, "y_eb": 392, "dur": 5.6,
                       "say": (f"{cf_s}/mo as a rental." if cf >= 200 else
                               f"Loses ${abs(int(cf)):,}/mo as a rental." if cf < 0 else f"{cf_s}/mo. Barely.")
                              + (f" Best play: {best['label'].lower()} at {best['value']}." if best and best.get('best') and best['_k'] != 'LTR' else "")})

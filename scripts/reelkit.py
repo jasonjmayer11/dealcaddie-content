@@ -212,8 +212,8 @@ def count_value(target, p):
 
 # ------------------------------------------------------------------ beat renderers
 BG = gradient_bg()
-TOP_LOGO = logo_layer(260)
-TOP_Y = 300                    # top logo (just under the platform's top bar)
+TOP_LOGO = logo_layer(360)        # bigger brand mark, top centre
+TOP_Y = 290                    # top logo (just under the platform's top bar)
 EXIT = 0.28                    # seconds of fade-out at the end of a beat
 
 def render_photo_beat(spec, dur):
@@ -234,7 +234,7 @@ def render_photo_beat(spec, dur):
     val = text_layer(spec["value"], F_NUM, vs, WHITE, tracking=-0.035)
     sub = text_layer(spec["sub"], F_HEAD, fit_size(spec["sub"], F_HEAD, 66, 900, 44), WHITE)
     specs = text_layer(spec["specs"], F_MED, 42, WHITE, alpha=230) if spec.get("specs") else None
-    logo = logo_layer(260, white=True)
+    logo = logo_layer(360, white=True)
 
     def frame(t):
         if base is not None:
@@ -462,7 +462,7 @@ def render_showcase_beat(spec, dur, index=None, total=None):
     head = headline_layer(spec["headline"], size=80, max_w=900)
     sub_lines = wrap(spec.get("sub", ""), F_MED, 38, 880) if spec.get("sub") else []
     sub = stack([text_layer(s, F_MED, 38, (62, 74, 66)) for s in sub_lines], 6) if sub_lines else None
-    y_eb = 400
+    y_eb = 412
     y_head = y_eb + eb.height + 14
     y_sub = y_head + head.height + 12
     top = (y_sub + (sub.height if sub else 0)) + 36
@@ -515,7 +515,7 @@ def render_showcase_intro(title, sub, image, dur):
         dev = fan.resize((int(fan.width * sc), int(fan.height * sc)), Image.LANCZOS); pad = 0
     else:
         dev, pad = device_layer(image, 1000, 980, shadow=False)
-    y_head = 400
+    y_head = 410
     y_sub = y_head + head.height + 18
     dev_y = 1890 - dev.height + pad - 40
 
