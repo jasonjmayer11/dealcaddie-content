@@ -83,7 +83,7 @@ if has("card_scen.png") and d.get("scenSaving"):
     sub = f"less cash to close at {b} down vs {a}." if a and b else "less cash to close with Option B."
     timeline.append((render_stat_beat({"eyebrow": "FINANCING SCENARIOS", "value": f"${d['scenSaving']}", "unit": "",
                                        "color": GREEN, "sub": sub, "card": "scen", "crop": d.get("scenCrop"),
-                                       "card_max_h": 600}, 3.8), 3.8))
+                                       "card_max_h": 700}, 3.8), 3.8))
     says.append(f"{b} down instead of {a}: ${d['scenSaving']} less cash to close." if a and b else "")
 
 # ---- 5. max offer ----
@@ -98,7 +98,7 @@ if has("card_maxoffer.png") and d.get("maxOffer"):
 if has("card_share.png"):
     timeline.append((render_stat_beat({"eyebrow": "SHARE", "headline": "Send the whole deal in one link.",
                                        "sub": "Your partner opens it on their phone. No login.",
-                                       "card": "share", "crop": 0.66, "card_max_h": 640}, 3.8), 3.8))
+                                       "card": "share", "crop": 0.66, "card_max_h": 720}, 3.8), 3.8))
     says.append("Shared the whole thing in one link.")
 
 timeline.append((render_end_beat(3.6, line="Every strategy. One analysis.",

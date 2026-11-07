@@ -111,8 +111,13 @@ async function clickTab(page, label) {
       const r = i.getBoundingClientRect(); const u = i.currentSrc || i.src;
       if (r.top < 700 && i.complete && i.naturalWidth >= 400 && ok(u)) c.push([i.naturalWidth * i.naturalHeight, u]);
     }
+    for (const el of document.querySelectorAll('*')) {
+      const r = el.getBoundingClientRect(); if (r.top > 700 || r.width < 300) continue;
+      const m = getComputedStyle(el).backgroundImage.match(/url\(["']?(https?:[^"')]+)/);
+      if (m && ok(m[1])) c.push([r.width * r.height, m[1]]);
+    }
     c.sort((a, b) => b[0] - a[0]); return c.length ? c[0][1] : null;
-  }, null, { timeout: 20000, polling: 500 }).then(h => h.jsonValue()).catch(() => null);
+  }, null, { timeout: 25000, polling: 500 }).then(h => h.jsonValue()).catch(() => null);
   await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
   await sleep(2500);
 
@@ -135,7 +140,9 @@ async function clickTab(page, label) {
       const row = [...card.querySelectorAll('*')].filter(e => /^Cash to\s*close$/i.test((e.textContent || '').trim()))[0];
       if (!row) return null;
       let tr = row; for (let k = 0; k < 4 && tr.parentElement && tr.getBoundingClientRect().width < cr.width * 0.8; k++) tr = tr.parentElement;
-      return Math.min(1, (tr.getBoundingClientRect().bottom - cr.top + 14) / cr.height);
+      const hdr = [...card.querySelectorAll('*')].filter(e => /^YOURS$/i.test((e.textContent || '').trim()))[0];
+      const top = hdr ? Math.max(0, (hdr.getBoundingClientRect().top - cr.top - 16) / cr.height) : 0;
+      return [top, Math.min(1, (tr.getBoundingClientRect().bottom - cr.top + 14) / cr.height)];
     });
   }
 

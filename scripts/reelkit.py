@@ -144,8 +144,9 @@ def card_layer(name, max_w, max_h, crop=None):
     if not os.path.exists(path):
         return None
     c = Image.open(path).convert("RGB")
-    if crop:
-        c = c.crop((0, 0, c.width, int(c.height * crop)))
+    if crop:                                   # bottom fraction, or (top, bottom) fractions
+        t, b = (crop if isinstance(crop, (list, tuple)) else (0, crop))
+        c = c.crop((0, int(c.height * t), c.width, int(c.height * b)))
     s = min(max_w / c.width, max_h / c.height)
     c = c.resize((int(c.width * s), int(c.height * s)), Image.LANCZOS)
     c = rounded(c, 34)
