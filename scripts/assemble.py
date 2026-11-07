@@ -83,8 +83,13 @@ def pick_copy(d):
     else:
         q, cf_sub = "Does it cash flow?", "Positive, but thin after every expense."
 
+    plural = lambda n, w: f"{n} {w}" + ("" if str(n) in ("1", "1.0") else "s")
+    specs = "  ·  ".join(x for x in [
+        plural(d["beds"], "bed") if d.get("beds") else None,
+        plural(d["baths"], "bath") if d.get("baths") else None,
+        f"{d['sqft']} sq ft" if d.get("sqft") else None] if x)
     hook = {"kind": "photo", "eyebrow": place.upper() or "ACTIVE LISTING",
-            "value": price_full or "This house", "sub": q}
+            "value": price_full or "This house", "specs": specs, "sub": q}
 
     beats = []
     if score_s:
@@ -310,6 +315,7 @@ def render_photo_beat(spec, dur):
     vs = fit_size(spec["value"], F_NUM, 196, 860, 120)
     val = text_layer(spec["value"], F_NUM, vs, WHITE, tracking=-0.035)
     sub = text_layer(spec["sub"], F_HEAD, 66, WHITE)
+    specs = text_layer(spec["specs"], F_MED, 42, WHITE, alpha=230) if spec.get("specs") else None
     logo = logo_layer(260, white=True)
 
     def frame(t):
@@ -323,8 +329,9 @@ def render_photo_beat(spec, dur):
             f = Image.new("RGBA", (W, H), FOREST + (255,))
         f.alpha_composite(scrim)
         place(f, logo, CX, TOP_Y, ease_out(t / 0.5))
-        y = 1000
-        for i, (l, gap) in enumerate([(eb, 18), (val, 22), (sub, 0)]):
+        rows = [(eb, 18), (val, 10)] + ([(specs, 40)] if specs else []) + [(sub, 0)]
+        y = 1420 - sum(l.height + g for l, g in rows)         # bottom-anchored inside the safe zone
+        for i, (l, gap) in enumerate(rows):
             p, dy = enter(t, 0.15 + i * 0.12)
             place(f, l, CX, y + dy, p)
             y += l.height + gap
