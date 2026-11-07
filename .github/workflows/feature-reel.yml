@@ -1,0 +1,75 @@
+name: Feature tour reel (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      listing:
+        description: "Zillow URL to analyze (pick one that cash flows on several strategies)"
+        required: true
+      kind:
+        description: "Which video"
+        type: choice
+        options: [investor]
+        default: investor
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-reel          # never overlap with the daily run (same content account)
+  cancel-in-progress: false
+
+jobs:
+  reel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install chromium
+          curl -fsSL --retry 3 -o /tmp/ffmpeg.tar.xz \
+            https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz
+          mkdir -p /tmp/ffmpeg && tar -xf /tmp/ffmpeg.tar.xz -C /tmp/ffmpeg --strip-components=1
+          echo "/tmp/ffmpeg/bin" >> "$GITHUB_PATH"
+          pip install --quiet pillow
+      - name: Record
+        env:
+          DC_EMAIL: ${{ secrets.DC_EMAIL }}
+          DC_PASSWORD: ${{ secrets.DC_PASSWORD }}
+        run: node scripts/record_features.js "${{ github.event.inputs.listing }}" work
+      - name: Assemble
+        id: build
+        run: |
+          SLUG="feature-${{ github.event.inputs.kind }}-$(date -u +%Y%m%d-%H%M)"
+          echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
+          mkdir -p dist
+          python3 scripts/assemble_features.py work "dist/$SLUG.mp4"
+          mv dist/cover.jpg "dist/$SLUG-cover.jpg"
+          cat dist/caption.txt
+      - name: Publish as a release (with the raw captures for review)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.build.outputs.slug }}"
+          [ -z "$TAG" ] && TAG="feature-failed-$(date -u +%Y%m%d-%H%M)"
+          cd work && zip -qr ../captures.zip . && cd ..
+          FILES="captures.zip"
+          [ -f "dist/$TAG.mp4" ] && FILES="dist/$TAG.mp4 dist/$TAG-cover.jpg $FILES"
+          NOTES=dist/caption.txt; [ -f "$NOTES" ] || { echo "build failed — see captures.zip" > /tmp/n.txt; NOTES=/tmp/n.txt; }
+          for i in 1 2 3 4; do
+            gh release create "$TAG" $FILES --prerelease --title "$TAG" --notes-file "$NOTES" && break
+            [ "$i" = 4 ] && exit 1; sleep $((i*20))
+          done
