@@ -18,14 +18,18 @@ on:
 permissions:
   contents: write   # pop the queue + publish the reel as a release
 
-concurrency:
-  group: daily-reel
-  cancel-in-progress: false
-
 jobs:
   reel:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    # concurrency lives on the build job (not the workflow) so a reel waiting for your
+    # approval never blocks or cancels the next scheduled build
+    concurrency:
+      group: daily-reel
+      cancel-in-progress: false
+    outputs:
+      slug: ${{ steps.pick.outputs.slug }}
+      ok: ${{ steps.gate.outputs.ok }}
     steps:
       - uses: actions/checkout@v4
 
@@ -108,6 +112,31 @@ jobs:
             echo "release attempt $i failed; retrying in $((i*20))s"; sleep $((i*20))
           done
 
+      - name: Quality gate + review summary
+        id: gate
+        run: |
+          TAG="${{ steps.pick.outputs.slug }}"
+          OK=$(python3 - <<'PY'
+          import json
+          m = json.load(open("dist/meta.json"))
+          ok = bool(m.get("had_photo")) and bool(m.get("price")) and bool(m.get("score")) and m.get("ltrCashflow") is not None
+          print("true" if ok else "false")
+          PY
+          )
+          echo "ok=$OK" >> "$GITHUB_OUTPUT"
+          URL="https://github.com/${{ github.repository }}/releases/tag/$TAG"
+          {
+            echo "## 🎬 $TAG"
+            if [ "$OK" = "true" ]; then echo "**Ready for review.** Watch it, then approve the *post* job below to publish."; else echo "**⚠️ Failed the quality gate** (missing photo, price, score or cash flow) — it will NOT be offered for posting."; fi
+            echo ""
+            echo "▶️ [Watch the video]($URL/download/$TAG.mp4) · [Release page]($URL)"
+            echo ""
+            echo "**Caption**"
+            echo '```'
+            cat dist/caption.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Keep the raw files for 14 days (debugging)
         if: always()
         uses: actions/upload-artifact@v4
@@ -143,3 +172,37 @@ jobs:
             [ "$i" = 4 ] && { echo "::error::push failed after 4 tries"; exit 1; }
             echo "push attempt $i failed; retrying in $((i*15))s"; sleep $((i*15))
           done
+
+  # Waits for Jason's approval (environment "social" has him as a required reviewer),
+  # then posts the reel through Upload-Post. Reject or ignore it and nothing is posted.
+  post:
+    needs: reel
+    # off until Jason sets repo variable POSTING_ENABLED=on (only after the 'social' environment has him as required reviewer)
+    if: needs.reel.result == 'success' && needs.reel.outputs.ok == 'true' && vars.POSTING_ENABLED == 'on'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: social
+      url: https://github.com/${{ github.repository }}/releases/tag/${{ needs.reel.outputs.slug }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch the approved reel
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ needs.reel.outputs.slug }}"
+          gh release download "$TAG" -p "$TAG.mp4" -D post
+          gh release view "$TAG" --json body --jq .body > post/caption.txt
+          gh release view "$TAG" --json name --jq .name > post/title.txt
+      - name: Post via Upload-Post
+        env:
+          UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
+          UPLOAD_POST_USER: ${{ vars.UPLOAD_POST_USER }}
+          POST_PLATFORMS: ${{ vars.POST_PLATFORMS }}
+          IDEMPOTENCY_KEY: ${{ needs.reel.outputs.slug }}
+        run: |
+          pip install --quiet requests
+          python3 scripts/post_social.py "post/${{ needs.reel.outputs.slug }}.mp4" "$(cat post/title.txt)" post/caption.txt
