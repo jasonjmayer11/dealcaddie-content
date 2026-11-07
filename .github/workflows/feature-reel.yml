@@ -43,7 +43,7 @@ jobs:
             https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz
           mkdir -p /tmp/ffmpeg && tar -xf /tmp/ffmpeg.tar.xz -C /tmp/ffmpeg --strip-components=1
           echo "/tmp/ffmpeg/bin" >> "$GITHUB_PATH"
-          pip install --quiet pillow
+          pip install --quiet pillow numpy
       - name: Record
         env:
           DC_EMAIL: ${{ secrets.DC_EMAIL }}

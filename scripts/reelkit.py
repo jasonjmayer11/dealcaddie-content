@@ -408,7 +408,9 @@ def encode(timeline, out_mp4, still_at=1.6):
         ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
          "-i", "-", "-c:v", "libx264", "-preset", "medium", "-crf", "17", "-pix_fmt", "yuv420p",
          "-movflags", "+faststart", out_mp4], stdin=subprocess.PIPE)
+    starts, t0 = [], 0.0
     for bi, (fn, dur) in enumerate(timeline, start=1):
+        starts.append(t0); t0 += int(round(dur * FPS)) / FPS
         n = int(round(dur * FPS))
         for i in range(n):
             img = fn(i / FPS)
@@ -418,6 +420,13 @@ def encode(timeline, out_mp4, still_at=1.6):
     enc.stdin.close()
     if enc.wait() != 0:
         sys.exit("ffmpeg failed")
+    # music + whooshes + end chime (original tracks in music/, see make_music.py)
+    try:
+        from soundtrack import add_soundtrack
+        return add_soundtrack(out_mp4, starts, t0)
+    except Exception as e:                       # never lose a reel over audio
+        print("soundtrack skipped:", e)
+        return None
 
 def duration(p):
     return float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration",
