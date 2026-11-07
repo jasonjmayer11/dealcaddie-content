@@ -14,7 +14,7 @@ def _decode(path):
     raw = subprocess.check_output(["ffmpeg", "-loglevel", "error", "-i", path, "-f", "f32le", "-ac", "2", "-ar", str(SR), "-"])
     return np.frombuffer(raw, dtype=np.float32).reshape(-1, 2).copy()
 
-def pick_track():
+def pick_track(variant=0):
     tracks = sorted(glob.glob(os.path.join(ROOT, "music", "dc-*.m4a")))
     want = os.environ.get("MUSIC_TRACK", "").strip()
     if want.lower() == "none" or not tracks:
@@ -22,9 +22,12 @@ def pick_track():
     if want:
         hit = [t for t in tracks if os.path.basename(t).startswith(want)]
         if hit: return hit[0]
+    # 3 positions a day (investor reel, agent reel, showcase/feature) x 15 tracks: no repeats within
+    # a day and the whole library cycles every 5 days. Variant comes from the caller (MUSIC_VARIANT).
     now = datetime.datetime.utcnow()
-    slot = (now - datetime.datetime(2026, 1, 1)).days * 2 + (1 if now.hour >= 17 else 0)
-    return tracks[slot % len(tracks)]
+    days = (now - datetime.datetime(2026, 1, 1)).days
+    v = int(os.environ.get("MUSIC_VARIANT", variant) or 0)
+    return tracks[(days * 3 + v) * 7 % len(tracks)]        # x7 (coprime to 15) so neighbours differ in mood
 
 def add_soundtrack(mp4, beat_starts, duration):
     track = pick_track()

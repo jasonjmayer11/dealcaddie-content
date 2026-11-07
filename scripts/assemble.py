@@ -32,6 +32,7 @@ data = json.load(open(os.path.join(work, "data.json")))
 AUDIENCE = (os.environ.get("AUDIENCE") or "investor").lower()   # "investor" (AM slot) or "agent" (PM slot)
 AGENT = AUDIENCE == "agent"
 AGENT_PRICE = os.environ.get("AGENT_PRICE") or "$39.99/mo"
+os.environ.setdefault("MUSIC_VARIANT", "1" if AGENT else "0")
 
 
 def pick_copy(d):
@@ -70,8 +71,32 @@ def pick_copy(d):
         beats.append({"kind": "stat", "eyebrow": "DEAL SCORE", "value": score_s, "unit": "/10",
                       "color": score_color(num(score_s)),
                       "sub": "Your answer, ready in 10 seconds." if AGENT else "Cash flow, price and market in one number.",
-                      "card": "hero", "crop": 0.70, "say": f"{score_s}/10 deal score."})
-    if cf is not None:
+                      "card": "hero", "crop": 0.70, "say": f"{score_s}/10 deal score.",
+                      # bigger property card: tighter header, smaller number, card up to 860x720
+                      "y_eb": 360, "value_size": 160, "card_max_h": 720})
+    strat_all = d.get("strategies") or {}
+    NAMES = [("LTR", "Long-term rental"), ("MTR", "Mid-term rental"), ("STR", "Short-term · Airbnb"),
+             ("S8", "Section 8"), ("HH", "House hack"), ("BRRRR", "BRRRR"), ("FLIP", "Fix & flip · profit")]
+    rows = []
+    for k, label in NAMES:
+        v = strat_all.get(k)
+        if not v: continue
+        n = num(v.replace("k", "000").replace("K", "000"))
+        rows.append({"label": label, "value": pretty_money(v.replace("k", "K")) + ("" if k == "FLIP" else "/mo"),
+                     "color": GREEN if (n or 0) > 0 else RED, "_n": n, "_k": k})
+    if cf is not None and len(rows) >= 4:
+        monthly = [r for r in rows if r["_k"] != "FLIP"]
+        best = max(monthly, key=lambda r: r["_n"] if r["_n"] is not None else -1e9) if monthly else None
+        if best and (best["_n"] or 0) > 0: best["best"] = True
+        npos = sum(1 for r in rows if (r["_n"] or 0) > 0)
+        head = (f"Cash flows on {npos} of {len(rows)} strategies." if npos else "Negative on every strategy.")
+        sub = ("Send your client every option in one link." if AGENT else "Every strategy, after mortgage, taxes and insurance.")
+        beats.append({"kind": "list", "eyebrow": "CASH FLOW BY STRATEGY", "headline": head, "headline_size": 78,
+                      "sub": sub, "rows": rows, "y_eb": 380, "dur": 5.6,
+                      "say": (f"{cf_s}/mo as a rental." if cf >= 200 else
+                              f"Loses ${abs(int(cf)):,}/mo as a rental." if cf < 0 else f"{cf_s}/mo. Barely.")
+                             + (f" Best play: {best['label'].lower()} at {best['value']}." if best and best.get('best') and best['_k'] != 'LTR' else "")})
+    elif cf is not None:
         beats.append({"kind": "stat", "eyebrow": "CASH FLOW · LONG-TERM RENTAL", "value": pretty_money(cf_s),
                       "unit": "/mo", "color": GREEN if cf > 0 else RED, "sub": cf_sub, "card": "ltr",
                       "say": (f"{cf_s}/mo as a rental." if cf >= 200 else
@@ -114,7 +139,10 @@ hook, beats, title = pick_copy(data)
 
 timeline = [(render_photo_beat(hook, 3.8), 3.8)]
 for b in beats:
-    timeline.append((render_stat_beat(b, 3.8), 3.8))
+    if b.get("kind") == "list":
+        timeline.append((render_list_beat(b, b.get("dur", 5.6)), b.get("dur", 5.6)))
+    else:
+        timeline.append((render_stat_beat(b, 3.8), 3.8))
 if AGENT:
     timeline.append((render_end_beat(3.6, line="Built for agents with investor clients.",
                                      sub=f"Agent plans from {AGENT_PRICE}  ·  branded client links"), 3.6))
@@ -158,7 +186,7 @@ Try it free · dealcaddie.ai
 #realestateinvesting #rentalproperty #cashflow #realestateinvestor {city_tag}
 """
 open(os.path.join(out_dir, "caption.txt"), "w").write(caption)
-json.dump({"audience": AUDIENCE, "hook": title, "beats": [{k: v for k, v in b.items() if k != "color"} for b in beats],
+json.dump({"audience": AUDIENCE, "hook": title, "beats": [{k: v for k, v in b.items() if k not in ("color", "rows")} for b in beats],
            "duration": round(dur(out_mp4), 1), "had_photo": os.path.exists(P("photo.jpg")), **data},
           open(os.path.join(out_dir, "meta.json"), "w"), indent=2)
 print(f"built {out_mp4} ({dur(out_mp4):.1f}s, photo={'yes' if os.path.exists(P('photo.jpg')) else 'no'}, "

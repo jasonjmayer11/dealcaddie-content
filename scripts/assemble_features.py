@@ -21,6 +21,7 @@ import reelkit as rk
 
 work, out_mp4 = sys.argv[1], sys.argv[2]
 rk.init(work)
+os.environ.setdefault("MUSIC_VARIANT", "2")
 out_dir = os.path.dirname(os.path.abspath(out_mp4))
 d = json.load(open(os.path.join(work, "data.json")))
 has = lambda f: os.path.exists(P(f))

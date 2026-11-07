@@ -270,13 +270,13 @@ def render_stat_beat(spec, dur):
     eb = text_layer(spec["eyebrow"], F_SEMI, 32, MUTED, tracking=0.16)
     value = spec.get("value")
     head = headline_layer(spec["headline"]) if spec.get("headline") else None
-    vs = fit_size(value, F_NUM, 210, 760, 120) if value else 0
+    vs = fit_size(value, F_NUM, spec.get("value_size", 210), 760, 120) if value else 0
     sub_lines = wrap(spec["sub"], F_MED, 42, 820) if spec.get("sub") else []
     sub = stack([text_layer(s, F_MED, 42, (62, 74, 66)) for s in sub_lines], 8) if sub_lines else Image.new("RGBA", (1, 1))
     max_h = spec.get("card_max_h") or (560 if len(sub_lines) <= 1 else 520)
-    card = card_layer(spec["card"], 860, max_h, spec.get("crop")) if spec.get("card") else None
+    card = card_layer(spec["card"], spec.get("card_max_w", 860), max_h, spec.get("crop")) if spec.get("card") else None
     # vertical rhythm
-    y_eb = 440
+    y_eb = spec.get("y_eb", 440)
     y_val = y_eb + eb.height + (16 if head else 6)
     val_h = head.height if head else value_layer(value, spec["unit"], spec["color"], vs).height
     y_sub = y_val + val_h + 6
@@ -338,16 +338,16 @@ def render_end_beat(dur, line="Analyze any rental in seconds.", sub="Rent comps,
 
 
 
-def render_list_beat(spec, dur):
+def render_list_beat(spec, dur):  # noqa: C901
     """eyebrow + headline + sub, then a white panel of rows that slide in one by one with counted values.
     spec: eyebrow, headline, sub, rows=[{label, note, value, color, best}]"""
     eb = text_layer(spec["eyebrow"], F_SEMI, 32, MUTED, tracking=0.16)
-    head = headline_layer(spec["headline"])
+    head = headline_layer(spec["headline"], size=spec.get("headline_size", 92))
     sub = text_layer(spec["sub"], F_MED, 40, (62, 74, 66)) if spec.get("sub") else None
     rows = spec["rows"]
     pw, rh, pad = 860, 92 if len(rows) > 5 else 108, 22
     ph = pad * 2 + rh * len(rows)
-    y_eb = 440
+    y_eb = spec.get("y_eb", 440)
     y_head = y_eb + eb.height + 16
     y_sub = y_head + head.height + 10
     y_panel = (y_sub + (sub.height if sub else 0)) + 40
@@ -490,11 +490,31 @@ def render_showcase_beat(spec, dur, index=None, total=None):
         return f.convert("RGB")
     return frame
 
+def fan_layer(paths, phone_h=900, angle=8, spread=300):
+    """Three clean phone shots fanned like the homepage hero: centre upright, sides tilted and tucked behind."""
+    def one(path, h, ang):
+        lay, pad = device_layer(path, 10_000, h)
+        return lay.rotate(ang, resample=Image.BICUBIC, expand=True)
+    left, right = one(paths[0], int(phone_h * 0.86), angle), one(paths[2], int(phone_h * 0.86), -angle)
+    mid = one(paths[1], phone_h, 0)
+    W = mid.width + 2 * spread + 200; H = max(mid.height, left.height) + 60
+    out = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    cx = W // 2
+    out.alpha_composite(left, (cx - spread - left.width // 2, H - left.height - 10))
+    out.alpha_composite(right, (cx + spread - right.width // 2, H - right.height - 10))
+    out.alpha_composite(mid, (cx - mid.width // 2, H - mid.height))
+    return out
+
 def render_showcase_intro(title, sub, image, dur):
-    """Opener: big promise + fanned phones."""
+    """Opener: big promise + three phones fanned out (image = list of 3 shot paths, or one composite)."""
     head = headline_layer(title, size=96, max_w=920)
     s = text_layer(sub, F_MED, 40, (62, 74, 66)) if sub else None
-    dev, pad = device_layer(image, 1000, 980, shadow=False)
+    if isinstance(image, (list, tuple)):
+        fan = fan_layer(image)
+        sc = min(1240 / fan.width, 1180 / fan.height)
+        dev = fan.resize((int(fan.width * sc), int(fan.height * sc)), Image.LANCZOS); pad = 0
+    else:
+        dev, pad = device_layer(image, 1000, 980, shadow=False)
     y_head = 400
     y_sub = y_head + head.height + 18
     dev_y = 1890 - dev.height + pad - 40

@@ -22,7 +22,7 @@ def F(img, eyebrow, headline, sub, wide=False):
 TEMPLATES = {
     "investor-core": {
         "audience": "investor",
-        "intro": ("Paste a Zillow link. Get the whole analysis.", "5 things DealCaddie does in seconds", "hero_phones"),
+        "intro": ("Paste a Zillow link. Get the whole analysis.", "5 things DealCaddie does in seconds", ["pipeline", "analysis", "maxoffer"]),
         "features": [
             F("analysis", "THE VERDICT", "Deal score + Buy, Watch or Pass", "Taxes, insurance and rent fill in for you."),
             F("strategies", "7 STRATEGIES", "Every strategy, side by side", "Long-term, mid-term, Airbnb, Section 8, house hack, BRRRR, flip."),
@@ -34,7 +34,7 @@ TEMPLATES = {
     },
     "agent-core": {
         "audience": "agent",
-        "intro": ("Built for agents with investor clients.", "Your whole investor workflow in one app", "hero_phones_deals"),
+        "intro": ("Built for agents with investor clients.", "Your whole investor workflow in one app", ["portal", "deals", "lead"]),
         "features": [
             F("deals_minneapolis", "DEALS MAP", "Search a market by cash flow", "Set a client's buy box. Every pin is already underwritten.", wide=True),
             F("portal", "CLIENT PORTAL", "A private portal for every client", "They rank deals, react and request showings."),
@@ -46,7 +46,7 @@ TEMPLATES = {
     },
     "investor-edge": {
         "audience": "investor",
-        "intro": ("Your spreadsheet can't do this.", "5 more reasons investors switch", "hero_phones"),
+        "intro": ("Your spreadsheet can't do this.", "5 more reasons investors switch", ["aitake", "analysis", "comps"]),
         "features": [
             F("aitake", "CADDIE'S TAKE", "A second opinion on every deal", "The call in plain English, plus red flags to ask about."),
             F("comps", "COMPARABLE SALES", "Recent sales + a suggested offer", "Asking vs. comp average, $/sq ft, days on market."),
@@ -58,7 +58,7 @@ TEMPLATES = {
     },
     "agent-workflow": {
         "audience": "agent",
-        "intro": ("From listing to showing in one link.", "How agents run investor clients on DealCaddie", "hero_phones_deals"),
+        "intro": ("From listing to showing in one link.", "How agents run investor clients on DealCaddie", ["rank", "buybox", "contact"]),
         "features": [
             F("buybox", "BUY BOX ALERTS", "Deals find your clients", "New matches come to you first. Send the good ones."),
             F("rank", "RANKED SHORTLIST", "Clients rank their favorites", "Their order syncs back to your Clients tab."),
@@ -88,7 +88,9 @@ rk.init(work)
 agent = T["audience"] == "agent"
 price_line = f"Agent plans from {AGENT_PRICE}" if agent else f"Investor plans from {INVESTOR_PRICE}"
 title, sub, hero = T["intro"]
-timeline = [(render_showcase_intro(title, sub, S(hero), 3.0), 3.0)]
+os.environ.setdefault("MUSIC_VARIANT", "2")
+hero_img = [S(h) for h in hero] if isinstance(hero, list) else S(hero)
+timeline = [(render_showcase_intro(title, sub, hero_img, 3.0), 3.0)]
 feats = T["features"]
 for i, f in enumerate(feats, 1):
     timeline.append((render_showcase_beat(f, 3.6, i, len(feats)), 3.6))
