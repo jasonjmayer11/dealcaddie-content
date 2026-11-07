@@ -15,10 +15,17 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const out = f => path.join(outdir, f);
 const log = [];
 const note = s => { console.log(s); log.push(s); };
+async function ev(page, fn, arg) {
+  for (let k = 0; k < 4; k++) {
+    try { return await page.evaluate(fn, arg); }
+    catch (e) { if (!/context was destroyed|navigation/i.test(e.message)) throw e; note('nav during evaluate, retry'); await page.waitForLoadState('networkidle', { timeout: 20000 }).catch(() => {}); await sleep(1500); }
+  }
+  return null;
+}
 
 async function scrollShots(page, prefix, max = 10) {
   // the signed-in shell scrolls inside an element, not the window: find the tallest scroller
-  const sel = await page.evaluate(() => {
+  const sel = await ev(page, () => {
     let best = null, bh = 0;
     for (const el of document.querySelectorAll('body *')) {
       const cs = getComputedStyle(el);
@@ -31,7 +38,7 @@ async function scrollShots(page, prefix, max = 10) {
   });
   for (let i = 0; i < max; i++) {
     await page.screenshot({ path: out(`${prefix}_${String(i).padStart(2, '0')}.png`) });
-    const more = await page.evaluate(() => {
+    const more = await ev(page, () => {
       const el = document.querySelector('[data-probe-scroll]') || document.scrollingElement;
       const before = el.scrollTop; el.scrollTop += el.clientHeight * 0.85;
       return el.scrollTop > before + 5;
@@ -39,7 +46,7 @@ async function scrollShots(page, prefix, max = 10) {
     if (!more) break;
     await sleep(900);
   }
-  await page.evaluate(() => { const el = document.querySelector('[data-probe-scroll]'); if (el) el.scrollTop = 0; });
+  await ev(page, () => { const el = document.querySelector('[data-probe-scroll]'); if (el) el.scrollTop = 0; });
 }
 
 (async () => {
@@ -66,7 +73,7 @@ async function scrollShots(page, prefix, max = 10) {
       const name = p.replace(/\//g, '_').replace(/^_/, '') || 'home';
       note(`PAGE ${p} -> ${page.url()} status=${r && r.status()}`);
       await scrollShots(page, `pg_${name}`, 6);
-      fs.writeFileSync(out(`pg_${name}.txt`), await page.evaluate(() => document.body.innerText));
+      fs.writeFileSync(out(`pg_${name}.txt`), await ev(page, () => document.body.innerText));
     } catch (e) { note(`PAGE ${p} failed: ${e.message}`); }
   }
 
@@ -82,10 +89,11 @@ async function scrollShots(page, prefix, max = 10) {
   await page.waitForSelector('text=/Deal ScoreCard/i', { timeout: 90000 });
   await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
   await sleep(2500);
+  page.on('framenavigated', f => { if (f === page.mainFrame()) note('NAVIGATED ' + f.url()); });
   note('analysis loaded ' + page.url());
 
   // tab labels: short buttons in a horizontal strip near the top of the results
-  const tabs = await page.evaluate(() => {
+  const tabs = await ev(page, () => {
     const seen = new Set(), outL = [];
     for (const el of document.querySelectorAll('button, a, [role="tab"]')) {
       const t = (el.innerText || '').trim();
@@ -97,7 +105,7 @@ async function scrollShots(page, prefix, max = 10) {
     return outL;
   });
   note('TABS ' + JSON.stringify(tabs));
-  fs.writeFileSync(out('an_00_text.txt'), await page.evaluate(() => document.body.innerText));
+  fs.writeFileSync(out('an_00_text.txt'), await ev(page, () => document.body.innerText));
   await scrollShots(page, 'an_00_overview', 12);
 
   let i = 1;
@@ -106,7 +114,7 @@ async function scrollShots(page, prefix, max = 10) {
     if (!(await el.isVisible().catch(() => false))) continue;
     await el.click().catch(() => {}); await sleep(1800);
     const slug = `an_${String(i).padStart(2, '0')}_${t.replace(/[^a-z0-9]+/gi, '').slice(0, 14)}`;
-    fs.writeFileSync(out(`${slug}.txt`), await page.evaluate(() => document.body.innerText));
+    fs.writeFileSync(out(`${slug}.txt`), await ev(page, () => document.body.innerText));
     await scrollShots(page, slug, 6);
     i++;
   }
