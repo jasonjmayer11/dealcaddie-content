@@ -390,8 +390,50 @@ def g_acoustic(root, prog, bpm, seed):
     mix = reverb(gt + gl, 1.3, seed, 0.2) + bs + drums
     return master(mix, drive=1.3)
 
+def marimba(freq, length):
+    n = int((length + 0.5) * SR); t = t_of(n)
+    s = np.sin(2 * np.pi * freq * t) * np.exp(-t * 7) + 0.35 * np.sin(2 * np.pi * freq * 3.93 * t) * np.exp(-t * 22)
+    return (s * env(n, 0.002, 0, 1, 0.1)).astype(np.float32)
+
+def g_tropical(root, prog, bpm, seed):
+    beat = 60 / bpm; bar = 4 * beat; s16 = beat / 4
+    drums, mr, pl, bs, pd = (np.zeros((N, 2), np.float32) for _ in range(5))
+    kicks = []
+    arp = [0, 2, 1, 2, 3, 2, 1, 2, 0, 2, 1, 3, 2, 1, 0, 1]
+    for b in range(int(LEN / bar) + 1):
+        t0 = b * bar; ch = chord(root, MAJOR, prog[b % len(prog)], 4)
+        put(pd, pad([hz(m) for m in ch[:3]], bar, "tri", 2400, 0.5, 5), t0, 0.10)
+        for k, idx in enumerate(arp):
+            if b >= 1 or k % 2 == 0:
+                put(mr, marimba(hz(ch[idx] + 12), 0.25), t0 + k * s16, 0.16, pan=0.35 if k % 2 else -0.35)
+        for q in range(4):
+            put(pl, pluck_ks(hz(ch[1] + 12), 0.15, 0.7, seed + q) * 0.7, t0 + q * beat + beat / 2, 0.16, 0.2)
+            if b >= 1:
+                put(drums, kick(0.9, 0.3, 52, 120, 0.1), t0 + q * beat, 0.6); kicks.append(t0 + q * beat)
+            if q in (1, 3) and b >= 1: put(drums, clap(seed + b + q), t0 + q * beat, 0.28)
+        put(bs, bass(hz(ch[0] - 24), beat * 0.9), t0, 0.42)
+        put(bs, bass(hz(ch[0] - 24), beat * 0.4), t0 + 1.5 * beat, 0.32)
+        put(bs, bass(hz(ch[2] - 24), beat * 0.9), t0 + 2.5 * beat, 0.36)
+        for k in range(16): put(drums, shaker(seed + k), t0 + k * s16, 0.16 if k % 2 else 0.09, -0.3)
+        if b % 2: put(drums, rim(seed + b), t0 + 3.25 * beat, 0.3, 0.25)
+    d = duck_curve(kicks, 0.35)[:, None]
+    mix = reverb(mr + pl + pd, 1.4, seed, 0.25) * d + bs * d + drums
+    return master(mix, drive=1.35)
+
 GENRES = {"lofi": g_lofi, "house": g_house, "cinematic": g_cinematic, "trap": g_trap,
-          "funk": g_funk, "synthwave": g_synthwave, "acoustic": g_acoustic}
+          "funk": g_funk, "synthwave": g_synthwave, "acoustic": g_acoustic, "tropical": g_tropical}
+
+# replacement candidates for the tracks Jason vetoed (5, 6, 7, 8, 10) — styled on the ones he kept
+CANDIDATES = [
+    ("house",     62, [0, 3, 5, 4], 122),   # like 01/09
+    ("funk",      57, [0, 4, 0, 3], 115),   # like 04/12
+    ("lofi",      60, [1, 4, 0, 5], 88),    # like 02/15 (the faster lo-fi)
+    ("synthwave", 62, [0, 6, 5, 6], 98),    # like 13
+    ("acoustic",  62, [3, 0, 4, 5], 106),   # like 11
+    ("cinematic", 62, [0, 4, 5, 3], 74),    # like 03
+    ("trap",      60, [0, 3, 5, 4], 132),   # like 14
+    ("tropical",  60, [0, 4, 5, 3], 108),   # new genre: tropical house
+]
 
 # 15 tracks, ordered so neighbours in the rotation are always different genres
 TRACKS = [
@@ -434,6 +476,15 @@ def sfx():
 
 if __name__ == "__main__":
     import sys
+    if sys.argv[1:2] == ["candidates"]:
+        cd = os.path.join(ROOT, "music", "candidates"); os.makedirs(cd, exist_ok=True)
+        for i, (g, root, prog, bpm) in enumerate(CANDIDATES, 1):
+            x = GENRES[g](root, prog, bpm, seed=500 + i)
+            tmp = f"/tmp/cand-{i:02d}.wav"; write_wav(tmp, x)
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", tmp, "-af", "loudnorm=I=-16:TP=-1.5:LRA=9",
+                            "-c:a", "aac", "-b:a", "160k", os.path.join(cd, f"cand-{i:02d}-{g}.m4a")], check=True)
+            os.remove(tmp); print(f"cand-{i:02d} {g} {bpm}")
+        sys.exit(0)
     only = set(sys.argv[1:])
     out = os.path.join(ROOT, "music"); os.makedirs(out, exist_ok=True)
     for i, (g, root, prog, bpm) in enumerate(TRACKS, 1):
