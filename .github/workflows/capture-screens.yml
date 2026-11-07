@@ -1,0 +1,37 @@
+name: Capture app screens (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: daily-reel
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+      - run: npm ci && npx playwright install chromium
+      - name: Capture
+        env:
+          DC_EMAIL: ${{ secrets.DC_EMAIL }}
+          DC_PASSWORD: ${{ secrets.DC_PASSWORD }}
+        run: node scripts/capture_screens.js screens
+      - name: Publish
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd screens && zip -qr ../screens.zip . && cd ..
+          gh release create "screens-$(date -u +%Y%m%d-%H%M)" screens.zip --prerelease --title "App screens (capture)" --notes "Fresh app screenshots for the Feature Showcase. Safe to delete."
