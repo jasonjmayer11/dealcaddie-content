@@ -34,11 +34,11 @@ TEMPLATES = {
     },
     "agent-core": {
         "audience": "agent",
-        "intro": ("Built for agents with investor clients.", "Your whole investor workflow in one app", ["portal_new", "deals", "lead"]),
+        "intro": ("Built for agents with investor clients.", "Your whole investor workflow in one app", ["portal_new", "deals", "branded"]),
         "features": [
             F("deals_minneapolis", "DEALS MAP", "Search a market by cash flow", "Set a client's buy box. Every pin is already underwritten.", wide=True),
             F("portal_new", "CLIENT PORTAL", "A private portal for every client", "They rank deals, react and request showings."),
-            F("lead", "BRANDED LINKS", "Every share is a lead", "Your name, headshot, brokerage and logo on every link."),
+            F("branded", "BRANDED LINKS", "Every share is a lead", "Your name, headshot, brokerage and logo on every link."),
             F("offerplan", "OFFER PLAN", "An offer plan in one tap", "Opening, target and walk-away, plus what the seller nets.", wide=True),
             F("scenarios", "FINANCING SCENARIOS", "Show them the seller credit", "Side-by-side financing your client can edit."),
         ],
@@ -58,11 +58,11 @@ TEMPLATES = {
     },
     "agent-workflow": {
         "audience": "agent",
-        "intro": ("From listing to showing in one link.", "How agents run investor clients on DealCaddie", ["rank", "buybox", "contact"]),
+        "intro": ("From listing to showing in one link.", "How agents run investor clients on DealCaddie", ["rank", "buybox", "lead"]),
         "features": [
             F("buybox", "BUY BOX ALERTS", "Deals find your clients", "New matches come to you first. Send the good ones."),
             F("rank", "RANKED SHORTLIST", "Clients rank their favorites", "Their order syncs back to your Clients tab."),
-            F("contact", "SHOWING REQUESTS", "Know who to show first", "Clients request a showing right from the deal."),
+            F("lead", "SHOWING REQUESTS", "Know who to show first", "Clients request a showing right from the deal."),
             F("share", "CUSTOM SHARE LINKS", "Choose exactly what they see", "Strategies, scenarios and Caddie's verdict, toggled per link."),
             F("packet", "PDF PACKETS", "The packet that closes the meeting", "A ranked shortlist with your name on every page.", wide=True),
         ],
