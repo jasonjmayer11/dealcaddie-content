@@ -32,8 +32,8 @@ const out = f => path.join(outdir, f);
 // Find the card that holds `pattern`: the smallest element whose text matches, then walk up
 // to the first ancestor that is (nearly) full width and at least minH tall. Tag it so a
 // locator can screenshot it. Returns the card's size, or null if nothing matched.
-async function tagCard(page, pattern, minH, maxH = 1100) {
-  return page.evaluate(([src, minH, maxH]) => {
+async function tagCard(page, pattern, minH, maxH = 1100, minW = 0.85) {
+  return page.evaluate(([src, minH, maxH, minW]) => {
     document.querySelectorAll('[data-reel]').forEach(e => e.removeAttribute('data-reel'));
     const re = new RegExp(src, 'i');
     const hits = [...document.querySelectorAll('body *')]
@@ -44,7 +44,7 @@ async function tagCard(page, pattern, minH, maxH = 1100) {
     let cur = hits[0];
     while (cur && cur !== document.body) {
       const r = cur.getBoundingClientRect();
-      if (r.width >= vw * 0.85 && r.height >= minH) break;
+      if (r.width >= vw * minW && r.height >= minH) break;
       cur = cur.parentElement;
     }
     if (!cur || cur === document.body) return null;
@@ -53,10 +53,10 @@ async function tagCard(page, pattern, minH, maxH = 1100) {
     cur.setAttribute('data-reel', '1');
     cur.scrollIntoView({ block: 'center' });
     return { w: Math.round(r.width), h: Math.round(r.height) };
-  }, [pattern, minH, maxH]);
+  }, [pattern, minH, maxH, minW]);
 }
 
-async function shootCard(page, name, pattern, minH, maxH) {
+async function shootCard(page, name, pattern, minH, maxH, minW) {
   await page.evaluate(() => {
     for (const el of document.querySelectorAll('body *')) {
       if (el.children.length) continue;
@@ -64,7 +64,7 @@ async function shootCard(page, name, pattern, minH, maxH) {
       if (t.length === 1 && /[\u2139\u2460-\u24FF]/.test(t)) el.style.visibility = 'hidden';
     }
   }).catch(() => {});
-  const box = await tagCard(page, pattern, minH, maxH);
+  const box = await tagCard(page, pattern, minH, maxH, minW);
   if (!box) { console.log(`card ${name}: not found (${pattern})`); return false; }
   await sleep(700);                              // let scroll + lazy content settle
   try {
@@ -190,8 +190,10 @@ async function clickTab(page, label) {
   await shootCard(page, 'strats', 'Cashflow by Strategy', 60, 600);
   await shootCard(page, 'ltr', 'Monthly Cash Flow', 160, 900);
 
-  if (await clickTab(page, 'Max Offer')) await snap('3_maxoffer');
-  await shootCard(page, 'maxoffer', 'Max Offer Calculator', 120, 800);
+  // the tab was renamed "Max Offer" -> "Offer"; try both
+  if ((await clickTab(page, 'Offer')) || (await clickTab(page, 'Max Offer'))) await snap('3_maxoffer');
+  if (!(await shootCard(page, 'maxoffer', 'MAX OFFER PRICE', 150, 700, 0.6)))
+    await shootCard(page, 'maxoffer', 'Max Offer Calculator', 120, 800);
 
   if (await clickTab(page, 'AI Take')) await snap('4_ai');
 
@@ -217,7 +219,7 @@ async function clickTab(page, label) {
     capRate: grab(/CAP RATE[\s\S]{0,16}?(-?[0-9.]+%)/i),
     cashToClose: grab(/TO CLOSE\n(\$[0-9,]+)/),
     rent: grab(/\nRENT[^\n]*\n(\$[0-9,]+)\/mo/i),
-    maxOffer: grab(/MAX OFFER[^\n$]*\n(\$[0-9,]+)/i),
+    maxOffer: grab(/MAX OFFER PRICE\n(\$[0-9,]+)/i) || grab(/MAX OFFER[^\n$]*\n(\$[0-9,]+)/i),
     strategies,
     photoUrl,
     cards: fs.readdirSync(outdir).filter(f => f.startsWith('card_')),

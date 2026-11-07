@@ -29,6 +29,9 @@ work, out_mp4 = sys.argv[1], sys.argv[2]
 rk.init(work)
 out_dir = os.path.dirname(os.path.abspath(out_mp4))
 data = json.load(open(os.path.join(work, "data.json")))
+AUDIENCE = (os.environ.get("AUDIENCE") or "investor").lower()   # "investor" (AM slot) or "agent" (PM slot)
+AGENT = AUDIENCE == "agent"
+AGENT_PRICE = os.environ.get("AGENT_PRICE") or "$39.99/mo"
 
 
 def pick_copy(d):
@@ -48,6 +51,11 @@ def pick_copy(d):
         q, cf_sub = "Looks like a deal. Is it?", "After mortgage, taxes, insurance and reserves."
     else:
         q, cf_sub = "Does it cash flow?", "Positive, but thin after every expense."
+    if AGENT:
+        q = "Your client asks: is it a deal?"
+        cf_sub = ("Rent, taxes and insurance already pulled." if cf is not None and cf >= 200 else
+                  "Thin. Your client should know before they offer." if cf is not None and cf >= 0 else
+                  "Your client would lose money as a long-term rental.")
 
     plural = lambda n, w: f"{n} {w}" + ("" if str(n) in ("1", "1.0") else "s")
     specs = "  ·  ".join(x for x in [
@@ -60,7 +68,8 @@ def pick_copy(d):
     beats = []
     if score_s:
         beats.append({"kind": "stat", "eyebrow": "DEAL SCORE", "value": score_s, "unit": "/10",
-                      "color": score_color(num(score_s)), "sub": "Cash flow, price and market in one number.",
+                      "color": score_color(num(score_s)),
+                      "sub": "Your answer, ready in 10 seconds." if AGENT else "Cash flow, price and market in one number.",
                       "card": "hero", "crop": 0.70, "say": f"{score_s}/10 deal score."})
     if cf is not None:
         beats.append({"kind": "stat", "eyebrow": "CASH FLOW · LONG-TERM RENTAL", "value": pretty_money(cf_s),
@@ -81,19 +90,22 @@ def pick_copy(d):
     elif mo and asking:
         diff = abs(asking - mo)
         if mo < asking:
-            sub = f"{short_price(diff)} under asking to hit your target return."
+            sub = (f"{short_price(diff)} under asking: your client's opening number." if AGENT
+                   else f"{short_price(diff)} under asking to hit your target return.")
             say = f"Max offer: {short_price(mo)}."
         else:
-            sub = f"Still hits the target return {short_price(diff)} over asking."
+            sub = (f"Room to go {short_price(diff)} over asking and still hit target." if AGENT
+                   else f"Still hits the target return {short_price(diff)} over asking.")
             say = f"Worth up to {short_price(mo)}."
         beats.append({"kind": "stat", "eyebrow": "MAX OFFER", "value": short_price(mo), "unit": "",
                       "color": INK, "sub": sub, "card": "maxoffer", "say": say})
     elif d.get("coc"):
         beats.append({"kind": "stat", "eyebrow": "CASH-ON-CASH RETURN", "value": d["coc"], "unit": "",
-                      "color": INK, "sub": "What the cash you put in earns each year.", "card": "ltr",
+                      "color": INK, "sub": "What the cash you put in earns each year.", "card": None,
                       "say": f"{d['coc']} cash-on-cash."})
 
-    title = [f"{short_price(price_full) or 'This'} {city} house." if city else "This house.", q]
+    noun = "listing" if AGENT else "house"
+    title = [f"{short_price(price_full) or 'This'} {city} {noun}." if city else f"This {noun}.", q]
     return hook, beats, title
 
 
@@ -103,7 +115,11 @@ hook, beats, title = pick_copy(data)
 timeline = [(render_photo_beat(hook, 3.8), 3.8)]
 for b in beats:
     timeline.append((render_stat_beat(b, 3.8), 3.8))
-timeline.append((render_end_beat(3.6), 3.6))
+if AGENT:
+    timeline.append((render_end_beat(3.6, line="Built for agents with investor clients.",
+                                     sub=f"Agent plans from {AGENT_PRICE}  ·  branded client links"), 3.6))
+else:
+    timeline.append((render_end_beat(3.6), 3.6))
 encode(timeline, out_mp4)
 dur = duration
 
@@ -117,7 +133,19 @@ specs = " · ".join(x for x in [
     f"{data['baths']} bath" if data.get("baths") else None,
     f"{data['sqft']} sqft" if data.get("sqft") else None] if x)
 body = " ".join(b["say"] for b in beats)
-caption = f"""{' '.join(title)}
+if AGENT:
+    caption = f"""{' '.join(title)}
+
+{specs + '. ' if specs else ''}Your investor client sends you a listing. Paste the link into DealCaddie and reply with real numbers: {body}
+
+Send it as one branded link with your name, photo and brokerage on it. Clients get a private portal to rank deals and request showings, plus comps, financing scenarios side by side and a one-tap Offer Plan.
+
+Agent plans start at {AGENT_PRICE} → dealcaddie.ai
+
+#realestateagent #realtor #investorfriendly #realestateinvesting {city_tag}
+"""
+else:
+    caption = f"""{' '.join(title)}
 
 {specs + '. ' if specs else ''}Pasted the Zillow link into DealCaddie: {body}
 
@@ -130,7 +158,7 @@ Try it free · dealcaddie.ai
 #realestateinvesting #rentalproperty #cashflow #realestateinvestor {city_tag}
 """
 open(os.path.join(out_dir, "caption.txt"), "w").write(caption)
-json.dump({"hook": title, "beats": [{k: v for k, v in b.items() if k != "color"} for b in beats],
+json.dump({"audience": AUDIENCE, "hook": title, "beats": [{k: v for k, v in b.items() if k != "color"} for b in beats],
            "duration": round(dur(out_mp4), 1), "had_photo": os.path.exists(P("photo.jpg")), **data},
           open(os.path.join(out_dir, "meta.json"), "w"), indent=2)
 print(f"built {out_mp4} ({dur(out_mp4):.1f}s, photo={'yes' if os.path.exists(P('photo.jpg')) else 'no'}, "

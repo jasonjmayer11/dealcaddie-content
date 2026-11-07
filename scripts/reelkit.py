@@ -232,7 +232,7 @@ def render_photo_beat(spec, dur):
     eb = text_layer(spec["eyebrow"], F_SEMI, 34, WHITE, tracking=0.16, alpha=215)
     vs = fit_size(spec["value"], F_NUM, 196, 860, 120)
     val = text_layer(spec["value"], F_NUM, vs, WHITE, tracking=-0.035)
-    sub = text_layer(spec["sub"], F_HEAD, 66, WHITE)
+    sub = text_layer(spec["sub"], F_HEAD, fit_size(spec["sub"], F_HEAD, 66, 900, 44), WHITE)
     specs = text_layer(spec["specs"], F_MED, 42, WHITE, alpha=230) if spec.get("specs") else None
     logo = logo_layer(260, white=True)
 
@@ -314,8 +314,8 @@ def render_stat_beat(spec, dur):
 
 def render_end_beat(dur, line="Analyze any rental in seconds.", sub="Rent comps, taxes and insurance — pulled for you."):
     logo = logo_layer(720)
-    line = text_layer(line, F_HEAD, 54, INK)
-    sub = text_layer(sub, F_MED, 36, MUTED)
+    line = text_layer(line, F_HEAD, fit_size(line, F_HEAD, 54, 900, 38), INK)
+    sub = text_layer(sub, F_MED, fit_size(sub, F_MED, 36, 900, 28), MUTED)
     label = text_layer("Try it free  ·  dealcaddie.ai", F_SEMI, 44, WHITE)
     bw, bh = label.width + 120, 112
     btn = Image.new("RGBA", (bw + 80, bh + 80), (0, 0, 0, 0))
