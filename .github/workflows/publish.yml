@@ -17,6 +17,12 @@ on:
       title:
         description: "Optional title override"
         required: false
+      music:
+        description: "Optional: swap the soundtrack to this track (e.g. dc-07)"
+        required: false
+      beats:
+        description: "Beat start times for the swap, comma list (last = end card)"
+        required: false
 
 permissions:
   contents: read
@@ -39,6 +45,14 @@ jobs:
           gh release view "$TAG" --json body --jq .body > post/caption.txt
           gh release view "$TAG" --json name --jq .name > post/title.txt
           if [ -n "${{ github.event.inputs.title }}" ]; then printf '%s' "${{ github.event.inputs.title }}" > post/title.txt; fi
+      - name: Swap soundtrack
+        if: github.event.inputs.music != ''
+        env:
+          MUSIC_TRACK: ${{ github.event.inputs.music }}
+        run: |
+          pip install --quiet numpy
+          TAG="${{ github.event.inputs.tag }}"
+          python3 scripts/rescore.py "post/$TAG.mp4" "${{ github.event.inputs.beats }}"
       - name: Post via Upload-Post
         env:
           UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
