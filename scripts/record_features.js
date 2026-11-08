@@ -159,8 +159,8 @@ async function clickTab(page, label) {
   });
   let maxOfferCard = null;
   await sleep(1500);
-  if ((await shootCard(page, 'maxoffer', 'MAX OFFER PRICE', 150, 700, 0.6)) ||
-      (await shootCard(page, 'maxoffer', 'vs\\s*asking', 100, 500, 0.55))) {
+  if ((await shootCard(page, 'maxoffer', 'MAX OFFER PRICE', 70, 420, 0.6)) ||
+      (await shootCard(page, 'maxoffer', 'vs\\s*asking', 60, 420, 0.55))) {
     const t = await page.locator('[data-reel="1"]').first().innerText().catch(() => '');
     const m = t.match(/MAX OFFER[A-Z ]*\s*\n?\s*(\$[0-9,]{5,})/i) || t.match(/(\$[0-9]{2,3},[0-9]{3})/);
     maxOfferCard = m ? m[1] : null; console.log('max offer on card:', maxOfferCard);
