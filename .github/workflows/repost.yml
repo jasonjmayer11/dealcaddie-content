@@ -12,6 +12,9 @@ on:
         description: "Comma list, e.g. tiktok  or  instagram,facebook,youtube,tiktok"
         required: true
         default: tiktok
+      title:
+        description: "Optional title override (YouTube title / post title). Blank = the release title."
+        required: false
       schedule_at:
         description: "Optional publish time, ISO-8601 UTC (e.g. 2026-11-08T15:00:00Z). Blank = post right after approval."
         required: false
@@ -39,6 +42,7 @@ jobs:
           gh release download "$TAG" -p "$TAG.mp4" -p "$TAG-cover.jpg" -D post
           gh release view "$TAG" --json body --jq .body > post/caption.txt
           gh release view "$TAG" --json name --jq .name > post/title.txt
+          if [ -n "${{ github.event.inputs.title }}" ]; then printf '%s' "${{ github.event.inputs.title }}" > post/title.txt; fi
       - name: Post via Upload-Post
         env:
           UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}

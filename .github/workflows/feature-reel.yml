@@ -72,7 +72,8 @@ jobs:
           [ -f "dist/$TAG.mp4" ] && FILES="dist/$TAG.mp4 dist/$TAG-cover.jpg $FILES"
           NOTES=dist/caption.txt; [ -f "$NOTES" ] || { echo "build failed — see captures.zip" > /tmp/n.txt; NOTES=/tmp/n.txt; }
           for i in 1 2 3 4; do
-            gh release create "$TAG" $FILES --prerelease --title "$TAG" --notes-file "$NOTES" && break
+            TITLE=$(python3 -c "import json;print(' '.join(json.load(open('dist/meta.json'))['hook']))" 2>/dev/null || echo "$TAG")
+            gh release create "$TAG" $FILES --prerelease --title "$TITLE" --notes-file "$NOTES" && break
             [ "$i" = 4 ] && exit 1; sleep $((i*20))
           done
 
