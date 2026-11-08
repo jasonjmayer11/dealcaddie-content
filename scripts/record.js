@@ -199,9 +199,7 @@ async function clickTab(page, label) {
     const t = await page.locator('[data-reel="1"]').first().innerText().catch(() => '');
     const m = t.match(/MAX OFFER[A-Z ]*\s*\n?\s*(\$[0-9,]{5,})/i) || t.match(/(\$[0-9]{2,3},[0-9]{3})/);
     maxOfferCard = m ? m[1] : null; console.log('max offer on card:', maxOfferCard);
-  } else {
-    await shootCard(page, 'maxoffer', 'Max Offer Calculator', 120, 800);
-  }
+  }  // no green card found -> the max-offer slide shows the big number without a card (never the tiny calculator)
 
   if (await clickTab(page, 'AI Take')) await snap('4_ai');
 
