@@ -32,6 +32,7 @@ fields = [("user", user)] + [("platform[]", p) for p in platforms] + [
     ("facebook_title", short),
     ("facebook_description", caption),
     ("tiktok_title", caption[:2200]),
+    ("brand_organic_toggle", "true"),     # TikTok: disclose "promoting my own business" (unlabeled self-promo gets removed)
     # YouTube: short title, full caption in the description, public Short, not for kids
     ("youtube_title", (short + " #shorts")[:100]),
     ("youtube_description", caption[:4900]),
