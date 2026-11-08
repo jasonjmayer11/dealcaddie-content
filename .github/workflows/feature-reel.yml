@@ -15,14 +15,14 @@ on:
 permissions:
   contents: write
 
-concurrency:
-  group: daily-reel          # never overlap with the daily run (same content account)
-  cancel-in-progress: false
-
 jobs:
   reel:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    # lock only the build (same content account as the daily run) — never the approval wait
+    concurrency:
+      group: daily-reel
+      cancel-in-progress: false
     outputs:
       slug: ${{ steps.build.outputs.slug }}
     steps:
