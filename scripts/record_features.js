@@ -157,7 +157,13 @@ async function clickTab(page, label) {
     }
     return null;
   });
-  await shootCard(page, 'maxoffer', 'MAX OFFER PRICE', 150, 700, 0.6);
+  let maxOfferCard = null;
+  await sleep(1500);
+  if (await shootCard(page, 'maxoffer', 'MAX OFFER PRICE', 150, 700, 0.6)) {
+    const t = await page.locator('[data-reel="1"]').first().innerText().catch(() => '');
+    const m = t.match(/MAX OFFER PRICE\s*\n?\s*(\$[0-9,]{5,})/i) || t.match(/(\$[0-9]{2,3},[0-9]{3})/);
+    maxOfferCard = m ? m[1] : null; console.log('max offer on card:', maxOfferCard);
+  }
   await shootCard(page, 'offerplan', 'Offer Plan & Negotiator', 120, 700, 0.8);
 
   if (await clickTab(page, 'Comps')) await snap('5_comps');
@@ -226,7 +232,7 @@ async function clickTab(page, label) {
     scenDownA: grab(/\nDown\t([0-9.]+%)\n/),
     scenDownB: grab(/\nDown\t[0-9.]+%\n[^\n]*\n\t([0-9.]+%)/),
     scenCrop,
-    maxOffer: grab(/MAX OFFER PRICE\n(\$[0-9,]+)/i),
+    maxOffer: maxOfferCard || grab(/MAX OFFER PRICE\n(\$[0-9,]+)/i),
     maxOfferTarget,
     shareUrl,
     photoUrl,

@@ -192,8 +192,15 @@ async function clickTab(page, label) {
 
   // the tab was renamed "Max Offer" -> "Offer"; try both
   if ((await clickTab(page, 'Offer')) || (await clickTab(page, 'Max Offer'))) await snap('3_maxoffer');
-  if (!(await shootCard(page, 'maxoffer', 'MAX OFFER PRICE', 150, 700, 0.6)))
+  let maxOfferCard = null;
+  await sleep(1500);
+  if (await shootCard(page, 'maxoffer', 'MAX OFFER PRICE', 150, 700, 0.6)) {
+    const t = await page.locator('[data-reel="1"]').first().innerText().catch(() => '');
+    const m = t.match(/MAX OFFER PRICE\s*\n?\s*(\$[0-9,]{5,})/i) || t.match(/(\$[0-9]{2,3},[0-9]{3})/);
+    maxOfferCard = m ? m[1] : null; console.log('max offer on card:', maxOfferCard);
+  } else {
     await shootCard(page, 'maxoffer', 'Max Offer Calculator', 120, 800);
+  }
 
   if (await clickTab(page, 'AI Take')) await snap('4_ai');
 
@@ -219,7 +226,7 @@ async function clickTab(page, label) {
     capRate: grab(/CAP RATE[\s\S]{0,16}?(-?[0-9.]+%)/i),
     cashToClose: grab(/TO CLOSE\n(\$[0-9,]+)/),
     rent: grab(/\nRENT[^\n]*\n(\$[0-9,]+)\/mo/i),
-    maxOffer: grab(/MAX OFFER PRICE\n(\$[0-9,]+)/i) || grab(/MAX OFFER[^\n$]*\n(\$[0-9,]+)/i),
+    maxOffer: maxOfferCard || grab(/MAX OFFER PRICE\n(\$[0-9,]+)/i) || grab(/MAX OFFER[^\n$]*\n(\$[0-9,]+)/i),
     strategies,
     photoUrl,
     cards: fs.readdirSync(outdir).filter(f => f.startsWith('card_')),
