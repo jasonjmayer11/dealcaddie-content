@@ -39,6 +39,10 @@ fields = [("user", user)] + [("platform[]", p) for p in platforms] + [
     ("selfDeclaredMadeForKids", "false"),
     ("request_id", idem),
 ]
+sched = (os.environ.get("SCHEDULE_AT") or "").strip()
+if sched:
+    fields.append(("scheduled_date", sched))            # ISO-8601, e.g. 2026-11-08T15:00:00Z
+    print("scheduled for", sched)
 print(f"posting {os.path.basename(video)} to {platforms} as '{user}'")
 files = [("video", (os.path.basename(video), open(video, "rb"), "video/mp4"))]
 if cover:

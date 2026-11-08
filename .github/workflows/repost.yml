@@ -12,6 +12,9 @@ on:
         description: "Comma list, e.g. tiktok  or  instagram,facebook,youtube,tiktok"
         required: true
         default: tiktok
+      schedule_at:
+        description: "Optional publish time, ISO-8601 UTC (e.g. 2026-11-08T15:00:00Z). Blank = post right after approval."
+        required: false
 
 permissions:
   contents: read
@@ -42,6 +45,7 @@ jobs:
           UPLOAD_POST_USER: ${{ vars.UPLOAD_POST_USER }}
           POST_PLATFORMS: ${{ github.event.inputs.platforms }}
           IDEMPOTENCY_KEY: ${{ github.event.inputs.tag }}-${{ github.event.inputs.platforms }}
+          SCHEDULE_AT: ${{ github.event.inputs.schedule_at }}
         run: |
           pip install --quiet requests
           TAG="${{ github.event.inputs.tag }}"
