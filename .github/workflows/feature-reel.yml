@@ -23,6 +23,8 @@ jobs:
   reel:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    outputs:
+      slug: ${{ steps.build.outputs.slug }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -73,3 +75,35 @@ jobs:
             gh release create "$TAG" $FILES --prerelease --title "$TAG" --notes-file "$NOTES" && break
             [ "$i" = 4 ] && exit 1; sleep $((i*20))
           done
+
+  post:
+    needs: reel
+    if: needs.reel.result == 'success' && needs.reel.outputs.slug != '' && vars.POSTING_ENABLED == 'on'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: social
+      url: https://github.com/${{ github.repository }}/releases/tag/${{ needs.reel.outputs.slug }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch the approved reel
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ needs.reel.outputs.slug }}"
+          gh release download "$TAG" -p "$TAG.mp4" -p "$TAG-cover.jpg" -D post
+          gh release view "$TAG" --json body --jq .body > post/caption.txt
+          gh release view "$TAG" --json name --jq .name > post/title.txt
+      - name: Post via Upload-Post
+        env:
+          UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
+          UPLOAD_POST_USER: ${{ vars.UPLOAD_POST_USER }}
+          POST_PLATFORMS: ${{ vars.POST_PLATFORMS }}
+          IDEMPOTENCY_KEY: ${{ needs.reel.outputs.slug }}
+        run: |
+          pip install --quiet requests
+          TAG="${{ needs.reel.outputs.slug }}"
+          python3 scripts/post_social.py "post/$TAG.mp4" "$(cat post/title.txt)" post/caption.txt "post/$TAG-cover.jpg"
