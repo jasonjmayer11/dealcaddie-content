@@ -79,7 +79,7 @@ jobs:
 
   post:
     needs: reel
-    if: needs.reel.result == 'success' && needs.reel.outputs.slug != '' && vars.POSTING_ENABLED == 'on'
+    if: needs.reel.result == 'success' && needs.reel.outputs.slug != '' && vars.APPROVAL_MODE == 'github' && vars.POSTING_ENABLED == 'on'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:

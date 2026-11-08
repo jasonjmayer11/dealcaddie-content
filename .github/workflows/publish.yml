@@ -1,0 +1,52 @@
+name: Publish reel (approved in chat)
+
+# Started by Claude only after Jason says "approved" in chat. No GitHub approval step:
+# the chat approval IS the approval. Builds never post on their own anymore.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag of the reel"
+        required: true
+      platforms:
+        description: "Comma list (blank = repo variable POST_PLATFORMS)"
+        required: false
+      schedule_at:
+        description: "Optional publish time, ISO-8601 UTC. Blank = now."
+        required: false
+      title:
+        description: "Optional title override"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch the reel
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ github.event.inputs.tag }}"
+          gh release download "$TAG" -p "$TAG.mp4" -p "$TAG-cover.jpg" -D post
+          gh release view "$TAG" --json body --jq .body > post/caption.txt
+          gh release view "$TAG" --json name --jq .name > post/title.txt
+          if [ -n "${{ github.event.inputs.title }}" ]; then printf '%s' "${{ github.event.inputs.title }}" > post/title.txt; fi
+      - name: Post via Upload-Post
+        env:
+          UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
+          UPLOAD_POST_USER: ${{ vars.UPLOAD_POST_USER }}
+          POST_PLATFORMS: ${{ github.event.inputs.platforms || vars.POST_PLATFORMS }}
+          IDEMPOTENCY_KEY: ${{ github.event.inputs.tag }}
+          SCHEDULE_AT: ${{ github.event.inputs.schedule_at }}
+        run: |
+          pip install --quiet requests
+          TAG="${{ github.event.inputs.tag }}"
+          python3 scripts/post_social.py "post/$TAG.mp4" "$(cat post/title.txt)" post/caption.txt "post/$TAG-cover.jpg"
