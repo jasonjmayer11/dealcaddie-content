@@ -51,6 +51,7 @@ jobs:
           MUSIC_TRACK: ${{ github.event.inputs.music }}
         run: |
           pip install --quiet numpy
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
           TAG="${{ github.event.inputs.tag }}"
           python3 scripts/rescore.py "post/$TAG.mp4" "${{ github.event.inputs.beats }}"
       - name: Post via Upload-Post
