@@ -107,7 +107,8 @@ def pick_copy(d):
     alts = [(k, v) for k, v in strat.items() if k not in ("LTR", "FLIP") and (num(v) or 0) > 0]
     best_alt = max(alts, key=lambda kv: num(kv[1]), default=None)
     mo = num(d.get("maxOffer"))
-    if cf is not None and cf < 0 and best_alt:
+    has_list = cf is not None and len(rows) >= 4          # the list beat already shows the best strategy
+    if cf is not None and cf < 0 and best_alt and not has_list:
         nm = names.get(best_alt[0], best_alt[0])
         beats.append({"kind": "stat", "eyebrow": f"AS A {nm.upper()}", "value": pretty_money(best_alt[1]), "unit": "/mo",
                       "color": GREEN, "sub": "Same house. Different strategy.", "card": "strats",
