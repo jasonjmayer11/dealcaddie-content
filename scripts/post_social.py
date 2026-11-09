@@ -7,7 +7,7 @@ Env:   UPLOAD_POST_API_KEY   (secret)
        POST_PLATFORMS        comma list (default: instagram,facebook,youtube; add tiktok on a paid plan)
        IDEMPOTENCY_KEY       reel slug, so a retried job never double-posts
 """
-import json, os, sys, time
+import json, os, re, sys, time
 import requests
 
 video, title, caption_file = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -21,6 +21,14 @@ platforms = [p.strip() for p in (os.environ.get("POST_PLATFORMS") or "instagram,
 idem = os.environ.get("IDEMPOTENCY_KEY") or os.path.basename(video)
 
 short = title[:90]
+
+def tracked(text, source, medium):
+    """Swap the bare 'dealcaddie.ai' for a clickable UTM link (YouTube/Facebook make links clickable;
+    Instagram/TikTok captions don't, so those rely on the UTM'd bio link). Shows up in Plausible
+    → Sources/Campaigns and on the signup row (first-touch attribution in the app)."""
+    url = f"https://www.dealcaddie.ai/?utm_source={source}&utm_medium={medium}&utm_campaign=reels&utm_content={idem}"
+    out, n = re.subn(r"(?<![\w/.#@])dealcaddie\.ai(?![\w/])", url, text, count=1)
+    return out if n else text + "\n\n" + url
 fields = [("user", user)] + [("platform[]", p) for p in platforms] + [
     ("title", short),
     ("description", caption),
@@ -30,12 +38,12 @@ fields = [("user", user)] + [("platform[]", p) for p in platforms] + [
     ("audio_name", "DealCaddie · Deal Verdict"),          # label instead of "Original audio"
     ("share_to_feed", "true"),
     ("facebook_title", short),
-    ("facebook_description", caption),
+    ("facebook_description", tracked(caption, "facebook", "reel")),
     ("tiktok_title", caption[:2200]),
     ("brand_organic_toggle", "true"),     # TikTok: disclose "promoting my own business" (unlabeled self-promo gets removed)
     # YouTube: short title, full caption in the description, public Short, not for kids
     ("youtube_title", (short + " #shorts")[:100]),
-    ("youtube_description", caption[:4900]),
+    ("youtube_description", tracked(caption, "youtube", "shorts")[:4900]),
     ("privacyStatus", "public"),
     ("selfDeclaredMadeForKids", "false"),
     ("request_id", idem),
