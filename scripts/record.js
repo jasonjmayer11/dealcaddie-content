@@ -258,7 +258,8 @@ async function clickTab(page, label) {
     strategies,
     strRestricted: /STR Restricted Market/i.test(text),
     auto, rehab,
-    propType: ((auto.units || []).length >= 2 ? ({2: 'duplex', 3: 'triplex', 4: 'fourplex'}[auto.units.length] || `${auto.units.length}-unit`) : null) || grab(/\b(duplex|triplex|fourplex|quadplex)\b/i) || ((grab(/\b([2-4])[ -]?units?\b/i) || '') ? `${grab(/\b([2-4])[ -]?units?\b/i)}-unit` : null) || (/multi[- ]?family/i.test(text) ? 'multifamily' : null),   // the app's local-rules badge (str_regulations.py)
+    // only the app's own unit grid decides — page help text mentions duplex/multi-family on every listing
+    propType: (auto.units || []).length >= 2 ? ({2: 'duplex', 3: 'triplex', 4: 'fourplex'}[auto.units.length] || `${auto.units.length}-unit`) : null,
     photoUrl,
     cards: fs.readdirSync(outdir).filter(f => f.startsWith('card_')),
   };
