@@ -318,10 +318,11 @@ def render_stat_beat(spec, dur):
         return f.convert("RGB")
     return frame
 
-def render_end_beat(dur, line="Analyze any rental in seconds.", sub="Rent comps, taxes and insurance — pulled for you."):
+def render_end_beat(dur, line="Every number. In seconds.", sub="We read the greens. You take the shot.", extra=None):
     logo = logo_layer(720)
-    line = text_layer(line, F_HEAD, fit_size(line, F_HEAD, 54, 900, 38), INK)
-    sub = text_layer(sub, F_MED, fit_size(sub, F_MED, 36, 900, 28), MUTED)
+    line = text_layer(line, F_HEAD, fit_size(line, F_HEAD, 62, 900, 38), INK)
+    sub = text_layer(sub, F_MED, fit_size(sub, F_MED, 38, 900, 28), (122, 95, 23))     # gold-brown tagline
+    extra = text_layer(extra, F_MED, fit_size(extra, F_MED, 32, 900, 24), MUTED) if extra else None
     label = text_layer("Try it free  ·  dealcaddie.ai", F_SEMI, 44, WHITE)
     bw, bh = label.width + 120, 112
     btn = Image.new("RGBA", (bw + 80, bh + 80), (0, 0, 0, 0))
@@ -337,8 +338,10 @@ def render_end_beat(dur, line="Analyze any rental in seconds.", sub="Rent comps,
         p, dy = enter(t, 0.0, dur=0.7, rise=24)
         place(f, logo, CX, 700 + dy, p, 0.97 + 0.03 * p)
         p, dy = enter(t, 0.25); place(f, line, CX, 900 + dy, p)
-        p, dy = enter(t, 0.35); place(f, sub, CX, 984 + dy, p)
-        p, dy = enter(t, 0.50); place(f, btn, CX, 1080 + dy, p)
+        p, dy = enter(t, 0.35); place(f, sub, CX, 990 + dy, p)
+        if extra is not None:
+            p, dy = enter(t, 0.42); place(f, extra, CX, 1052 + dy, p)
+        p, dy = enter(t, 0.50); place(f, btn, CX, (1140 if extra is not None else 1080) + dy, p)
         return f.convert("RGB")
     return frame
 

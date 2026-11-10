@@ -88,7 +88,7 @@ def pick_copy(d):
                 [{"label": "Rent", "note": "RentCast estimate", "value": money(auto["ltrRent"]) + "/mo", "color": GREEN}])
     exp_rows = rent_row + [r for r in [
         {"label": "Property tax", "note": (auto.get("taxSrc") or "public records")[:40], "value": money(auto.get("tax")) + "/mo", "color": INK} if auto.get("tax") else None,
-        {"label": "Insurance", "note": (auto.get("insSrc") or "regional average")[:40], "value": money(auto.get("ins")) + "/mo", "color": INK} if auto.get("ins") else None] if r]
+        {"label": "Insurance", "note": ("market estimate" if auto.get("insAdjusted") else (auto.get("insSrc") or "regional average"))[:40], "value": money(auto.get("ins")) + "/mo", "color": INK} if auto.get("ins") else None] if r]
     if len(exp_rows) >= 2:
         beats.append({"kind": "list", "eyebrow": "FILLED IN FOR YOU", "headline": "Rent, taxes and insurance. No lookups." if rent_row else "Taxes and insurance. No lookups.",
                       "headline_size": 78, "sub": "Every number sourced, every number editable.",
@@ -108,7 +108,8 @@ def pick_copy(d):
         beats.append({"kind": "stat", "eyebrow": "DEAL SCORE", "value": score_s, "unit": "/10",
                       "color": score_color(num(score_s)),
                       "sub": "Your answer, ready in 10 seconds." if AGENT else "Cash flow, price and market in one number.",
-                      "card": "hero", "crop": 0.70, "say": f"{score_s}/10 deal score.",
+                      "card": None if d.get("strRestricted") else "hero", "crop": 0.70,   # app card would say "Best · STR" on a restricted market
+                      "say": f"{score_s}/10 deal score.",
                       # bigger property card: tighter header, smaller number, card up to 860x720
                       "y_eb": 376, "value_size": 160, "card_max_h": 710})
     strat_all = d.get("strategies") or {}
@@ -157,7 +158,7 @@ def pick_copy(d):
         beats.append({"kind": "stat", "eyebrow": f"AS A {nm.upper()}", "value": pretty_money(best_alt[1]), "unit": "/mo",
                       "color": GREEN, "sub": f"Same {pt or 'house'}. Different strategy.", "card": "strats",
                       "say": f"As a {nm}: {best_alt[1]}/mo."})
-    elif mo and asking:
+    elif mo and asking and mo <= asking * 1.25:            # a max offer far above asking reads as unbelievable — skip it
         diff = abs(asking - mo)
         if mo < asking:
             sub = (f"{short_price(diff)} under asking: your client's opening number." if AGENT
@@ -190,8 +191,7 @@ for b in beats:
     else:
         timeline.append((render_stat_beat(b, 3.8), 3.8))
 if AGENT:
-    timeline.append((render_end_beat(3.6, line="Built for agents with investor clients.",
-                                     sub=f"Agent plans from {AGENT_PRICE}  ·  branded client links"), 3.6))
+    timeline.append((render_end_beat(3.8, extra=f"Agent plans from {AGENT_PRICE}  ·  branded client links"), 3.8))
 else:
     timeline.append((render_end_beat(3.6), 3.6))
 encode(timeline, out_mp4)

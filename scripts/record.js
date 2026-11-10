@@ -168,6 +168,25 @@ async function clickTab(page, label) {
   await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
   await sleep(1500);                                     // splash gone, scorecard settled
 
+  // ---- 4b. sanity-check insurance before anything is captured. Some listings carry a tiny
+  // "listing estimate" ($60-70/mo on a $200K triplex). If it is below ~0.5% of price a year
+  // (or $50/unit/mo), type a market figure into the app's own field — exactly what a careful
+  // investor would do — so every strategy, the score and the cards recalculate with it.
+  const insFix = await page.evaluate(() => {
+    const num = id => +String((document.getElementById(id) || {}).value || '').replace(/[^0-9.]/g, '') || 0;
+    const price = num('fin-price'), ins = num('fin-ins');
+    const units = Math.max(1, document.querySelectorAll('[id^="mf-unit-box-"]').length);
+    if (!price || !ins) return null;
+    const floor = Math.max(0.005 * price / 12, 50 * units);
+    if (ins >= floor) return null;
+    const target = Math.round(Math.max(0.0075 * price / 12, 70 * units) / 5) * 5;
+    const el = document.getElementById('fin-ins');
+    el.value = String(target);
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    return { from: ins, to: target };
+  }).catch(() => null);
+  if (insFix) { console.log('insurance adjusted:', JSON.stringify(insFix)); await sleep(2000); }
+
   // ---- 5. card stills, collecting page text as each section renders ----
   const seen = [];
   const snap = async n => { seen.push(await page.evaluate(() => document.body.innerText)); await page.screenshot({ path: out(`page_${n}.png`) }); };
@@ -218,6 +237,7 @@ async function clickTab(page, label) {
     })).filter(u => +u.rent > 0);
     return { units, ltrRent: v('ltr-rent'), tax: v('fin-tax'), taxSrc: srcOf('fin-tax'), ins: v('fin-ins'), insSrc: srcOf('fin-ins') };
   }).catch(() => ({}));
+  if (insFix) { auto.insAdjusted = insFix; auto.ins = String(insFix.to); }
   console.log('auto-filled:', JSON.stringify(auto));
   // ---- rehab estimate from the listing photos (one AI call on the content account)
   let rehab = null;
