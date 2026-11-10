@@ -134,7 +134,7 @@ async function clickTab(page, label) {
   await sleep(400);
   if (inSheet) {
     await box.press('Enter');
-    const ok = await page.waitForSelector('text=/Deal ScoreCard/i', { timeout: 5000 }).then(() => true).catch(() => false);
+    const ok = await page.waitForSelector('#live-score-num', { state: 'attached', timeout: 5000 }).then(() => true).catch(() => false);
     if (!ok) {
       const opt = sheet.locator('[role="listbox"] [role="option"], [role="listbox"] li, [role="listbox"] button').first();
       if (await opt.isVisible().catch(() => false)) await opt.click();
@@ -145,7 +145,7 @@ async function clickTab(page, label) {
   if (/guest_limit|\/signup/.test(page.url())) {
     throw new Error(`Hit the guest limit (${page.url()}). Add DC_EMAIL / DC_PASSWORD secrets.`);
   }
-  await page.waitForSelector('text=/Deal ScoreCard/i', { timeout: 90000 });
+  await page.waitForSelector('#live-score-num', { state: 'attached', timeout: 90000 });
   console.log(`analysis loaded via ${inSheet ? 'search sheet' : 'inline form'}`);
 
   // ---- 4. listing photo (largest non-/static/ image near the top) ----
@@ -184,7 +184,11 @@ async function clickTab(page, label) {
   await hideIcons();
 
   await snap('1_hero');
-  await shootCard(page, 'hero', 'Deal ScoreCard', 300, 900);
+  if (!(await shootCard(page, 'hero', 'Deal ScoreCard', 300, 900))) {
+    // facelift layout: the whole property card (photo + score chip + key numbers) is the hero
+    try { await page.locator('#results-top').first().screenshot({ path: out('card_hero.png'), animations: 'disabled' }); console.log('card hero: #results-top'); }
+    catch (e) { console.log('card hero: not captured — ' + e.message); }
+  }
 
   if (await clickTab(page, 'Cashflow')) await snap('2_cashflow');
   await shootCard(page, 'strats', 'Cashflow by Strategy', 60, 600);
@@ -204,6 +208,7 @@ async function clickTab(page, label) {
   if (await clickTab(page, 'AI Take')) await snap('4_ai');
 
   // ---- 6. scrape ----
+  const domScore = await page.evaluate(() => (document.querySelector('#live-score-num') || {}).textContent || '').catch(() => '');
   const text = seen.join('\n');
   console.log('----- PAGE TEXT (first 6000 chars) -----\n' + text.slice(0, 6000) + '\n----- END PAGE TEXT -----');
   const grab = (re, i = 1) => { const m = text.match(re); return m ? m[i].trim() : null; };
@@ -219,7 +224,7 @@ async function clickTab(page, label) {
     cityLine: grab(/\n(\d+[^\n,]{3,60})\n(?:,\n)?([A-Za-z .'-]+, [A-Z]{2} \d{5})/, 2),
     price: grab(/\n(\$[0-9]{2,3},[0-9]{3}(?:,[0-9]{3})?)\n/),
     beds: grab(/(\d+)\s*bd/), baths: grab(/(\d+(?:\.\d)?)\s*ba/), sqft: grab(/([0-9,]+)\s*sqft/),
-    score: grab(/\n(\d{1,2}\.\d)\n\/10/) || grab(/SCORE\n(\d{1,2}\.\d)/),
+    score: ((domScore.match(/\d{1,2}(?:\.\d)?/) || [])[0]) || grab(/\n(\d{1,2}\.\d)\n\/10/) || grab(/SCORE\n(\d{1,2}\.\d)/),
     ltrCashflow: grab(/MONTHLY CASH FLOW[\s\S]{0,12}?([+\-−]?\$[0-9,]+)\/mo/i) || grab(/LTR CF\n([+\-−]?\$[0-9,]+)/),
     coc: grab(/COC RETURN[\s\S]{0,16}?(-?[0-9.]+%)/i),
     capRate: grab(/CAP RATE[\s\S]{0,16}?(-?[0-9.]+%)/i),

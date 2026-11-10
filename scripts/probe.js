@@ -86,7 +86,7 @@ async function scrollShots(page, prefix, max = 10) {
   const box = inSheet ? sheet.locator('input[type="text"]').first() : input;
   await box.fill(listing); await sleep(400);
   if (inSheet) await box.press('Enter'); else await page.locator('button[type="submit"]').first().click();
-  await page.waitForSelector('text=/Deal ScoreCard/i', { timeout: 90000 });
+  await page.waitForSelector('#live-score-num', { state: 'attached', timeout: 90000 });
   await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
   await sleep(2500);
   page.on('framenavigated', f => { if (f === page.mainFrame()) note('NAVIGATED ' + f.url()); });

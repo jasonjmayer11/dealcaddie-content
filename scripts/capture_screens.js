@@ -43,7 +43,7 @@ async function deals(page) {
         const box = inSheet ? sheet.locator('input[type="text"]').first() : input;
         await box.fill(url); await sleep(300);
         if (inSheet) await box.press('Enter'); else await page.locator('button[type="submit"]').first().click();
-        await page.waitForSelector('text=/Deal ScoreCard/i', { timeout: 90000 });
+        await page.waitForSelector('#live-score-num', { state: 'attached', timeout: 90000 });
         await page.waitForLoadState('networkidle', { timeout: 20000 }).catch(() => {}); await sleep(3000);
         const resp = page.waitForResponse(r => /\/api\/save-analysis/.test(r.url()), { timeout: 30000 }).catch(() => null);
         await page.evaluate(() => window.saveDeal && window.saveDeal());

@@ -102,7 +102,7 @@ async function clickTab(page, label) {
   const box = inSheet ? sheet.locator('input[type="text"]').first() : input;
   await box.fill(listing); await sleep(400);
   if (inSheet) await box.press('Enter'); else await page.locator('button[type="submit"]').first().click();
-  await page.waitForSelector('text=/Deal ScoreCard/i', { timeout: 90000 });
+  await page.waitForSelector('#live-score-num', { state: 'attached', timeout: 90000 });
 
   const photoUrl = await page.waitForFunction(() => {
     const ok = u => u && /^https?:/.test(u) && !/\/static\//.test(u) && !/logo|icon|badge|avatar/i.test(u);
@@ -125,7 +125,11 @@ async function clickTab(page, label) {
   const snap = async n => { texts.push(await ev(page, () => document.body.innerText) || ''); await page.screenshot({ path: out(`page_${n}.png`) }); };
 
   await snap('1_hero');
-  await shootCard(page, 'hero', 'Deal ScoreCard', 300, 900);
+  if (!(await shootCard(page, 'hero', 'Deal ScoreCard', 300, 900))) {
+    // facelift layout: the whole property card (photo + score chip + key numbers) is the hero
+    try { await page.locator('#results-top').first().screenshot({ path: out('card_hero.png'), animations: 'disabled' }); console.log('card hero: #results-top'); }
+    catch (e) { console.log('card hero: not captured — ' + e.message); }
+  }
 
   if (await clickTab(page, 'Cashflow')) await snap('2_cashflow');
   await shootCard(page, 'strats', 'Cashflow by Strategy', 60, 600);
