@@ -82,7 +82,7 @@ def pick_copy(d):
         rows_u.append({"label": "Total rent", "value": money(total) + "/mo", "color": GREEN, "best": True})
         beats.append({"kind": "list", "eyebrow": "RENT BY UNIT · RENTCAST", "headline": f"{money(total)}/mo across {len(units)} units.",
                       "headline_size": 78, "sub": "Live rent estimates for every unit, pulled automatically.",
-                      "rows": rows_u, "y_eb": 420, "dur": 4.6,
+                      "rows": rows_u, "y_eb": 420, "dur": 4.3,
                       "say": f"Rent: {money(total)}/mo across {len(units)} units (RentCast estimates, pulled automatically)."})
     rent_row = ([] if len(units) >= 2 or not auto.get("ltrRent") else
                 [{"label": "Rent", "note": "RentCast estimate", "value": money(auto["ltrRent"]) + "/mo", "color": GREEN}])
@@ -92,16 +92,16 @@ def pick_copy(d):
     if len(exp_rows) >= 2:
         beats.append({"kind": "list", "eyebrow": "FILLED IN FOR YOU", "headline": "Rent, taxes and insurance. No lookups." if rent_row else "Taxes and insurance. No lookups.",
                       "headline_size": 78, "sub": "Every number sourced, every number editable.",
-                      "rows": exp_rows, "y_eb": 440, "dur": 4.4,
+                      "rows": exp_rows, "y_eb": 440, "dur": 3.9,
                       "say": "Taxes" + (f" {money(auto['tax'])}/mo" if auto.get("tax") else "") + " and insurance"
                              + (f" {money(auto['ins'])}/mo" if auto.get("ins") else "") + " filled in automatically."})
     # ---- 2. rehab estimate from the listing photos
     rh = d.get("rehab") or {}
     if rh.get("range") and "$" in rh["range"]:
         rng = rh["range"].replace("\u2013", "–").replace(" – ", "–").replace("–", " – ")
-        scope = [x.rstrip(".") for x in (rh.get("scope") or [])][:3]
+        scope = [x.split(":")[0].strip().lower() for x in (rh.get("scope") or [])][:4]   # "Interior: paint…" → "interior"
         beats.append({"kind": "stat", "eyebrow": "REHAB ESTIMATE FROM PHOTOS", "headline": rng,
-                      "sub": ((rh.get("level") or "").strip() + " · " if rh.get("level") else "") + (", ".join(scope) if scope else "scoped from the listing photos"),
+                      "sub": ((rh.get("level") or "").strip() + " rehab" + (": " + ", ".join(scope) if scope else "") + ". Scoped by AI from the listing photos.").strip(),
                       "y_eb": 600, "dur": 4.2,
                       "say": f"AI read the listing photos: {rh.get('level', '').lower() or 'rehab'} at {rng}."})
     if score_s:
