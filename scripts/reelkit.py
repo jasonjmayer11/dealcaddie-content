@@ -235,6 +235,12 @@ def render_photo_beat(spec, dur):
     sub = text_layer(spec["sub"], F_HEAD, fit_size(spec["sub"], F_HEAD, 66, 900, 44), WHITE)
     specs = text_layer(spec["specs"], F_MED, 42, WHITE, alpha=230) if spec.get("specs") else None
     logo = logo_layer(360, white=True)
+    badge = None
+    if spec.get("badge"):                              # e.g. TRIPLEX · 3 UNITS — gold pill above the price
+        bt = text_layer(spec["badge"], F_SEMI, 34, FOREST, tracking=0.12)
+        badge = Image.new("RGBA", (bt.width + 56, bt.height + 30), (0, 0, 0, 0))
+        ImageDraw.Draw(badge).rounded_rectangle([0, 0, badge.width - 1, badge.height - 1], radius=badge.height // 2, fill=(232, 197, 92, 255))
+        badge.alpha_composite(bt, (28, 15))
 
     def frame(t):
         if base is not None:
@@ -247,7 +253,7 @@ def render_photo_beat(spec, dur):
             f = Image.new("RGBA", (W, H), FOREST + (255,))
         f.alpha_composite(scrim)
         place(f, logo, CX, TOP_Y, ease_out(t / 0.5))
-        rows = [(eb, 18), (val, 10)] + ([(specs, 40)] if specs else []) + [(sub, 0)]
+        rows = ([(badge, 26)] if badge else []) + [(eb, 18), (val, 10)] + ([(specs, 40)] if specs else []) + [(sub, 0)]
         y = 1420 - sum(l.height + g for l, g in rows)         # bottom-anchored inside the safe zone
         for i, (l, gap) in enumerate(rows):
             p, dy = enter(t, 0.15 + i * 0.12)

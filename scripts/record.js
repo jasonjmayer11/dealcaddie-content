@@ -208,6 +208,30 @@ async function clickTab(page, label) {
   if (await clickTab(page, 'AI Take')) await snap('4_ai');
 
   // ---- 6. scrape ----
+  // ---- auto-filled inputs the reels call out: per-unit rents (RentCast), taxes, insurance
+  const auto = await page.evaluate(() => {
+    const v = (id) => { const e = document.getElementById(id); return e ? String(e.value || '').replace(/[^0-9.]/g, '') : ''; };
+    const srcOf = (id) => { const e = document.getElementById(id); const n = e && e.parentElement && e.parentElement.querySelector('div[style*="italic"]'); return n ? n.textContent.replace(/\s+/g, ' ').trim() : ''; };
+    const units = [...document.querySelectorAll('[id^="mf-unit-box-"]')].map(b => ({
+      label: ((b.querySelector('div') || {}).textContent || '').replace(/\s+/g, ' ').trim(),
+      rent: ((b.querySelector('input') || {}).value || '').replace(/[^0-9.]/g, ''),
+    })).filter(u => +u.rent > 0);
+    return { units, ltrRent: v('ltr-rent'), tax: v('fin-tax'), taxSrc: srcOf('fin-tax'), ins: v('fin-ins'), insSrc: srcOf('fin-ins') };
+  }).catch(() => ({}));
+  console.log('auto-filled:', JSON.stringify(auto));
+  // ---- rehab estimate from the listing photos (one AI call on the content account)
+  let rehab = null;
+  try {
+    await page.evaluate(() => { if (typeof autoAnalyzeCondition === 'function') autoAnalyzeCondition(); });
+    await page.waitForSelector('#cond-rehab', { state: 'attached', timeout: 90000 });
+    rehab = await page.evaluate(() => {
+      const el = document.getElementById('cond-rehab');
+      const spans = el.querySelectorAll('span');
+      return { range: (spans[0] || {}).textContent || '', level: (spans[1] || {}).textContent || '',
+               scope: [...el.querySelectorAll('li')].map(li => li.textContent.trim()).slice(0, 4) };
+    });
+    console.log('rehab:', JSON.stringify(rehab));
+  } catch (e) { console.log('rehab: none — ' + e.message.split('\n')[0]); }
   const domScore = await page.evaluate(() => (document.querySelector('#live-score-num') || {}).textContent || '').catch(() => '');
   const text = seen.join('\n');
   console.log('----- PAGE TEXT (first 6000 chars) -----\n' + text.slice(0, 6000) + '\n----- END PAGE TEXT -----');
@@ -233,7 +257,8 @@ async function clickTab(page, label) {
     maxOffer: maxOfferCard || grab(/MAX OFFER PRICE\n(\$[0-9,]+)/i) || grab(/MAX OFFER[^\n$]*\n(\$[0-9,]+)/i),
     strategies,
     strRestricted: /STR Restricted Market/i.test(text),
-    propType: grab(/\b(duplex|triplex|fourplex|quadplex)\b/i) || ((grab(/\b([2-4])[ -]?units?\b/i) || '') ? `${grab(/\b([2-4])[ -]?units?\b/i)}-unit` : null) || (/multi[- ]?family/i.test(text) ? 'multifamily' : null),   // the app's local-rules badge (str_regulations.py)
+    auto, rehab,
+    propType: ((auto.units || []).length >= 2 ? ({2: 'duplex', 3: 'triplex', 4: 'fourplex'}[auto.units.length] || `${auto.units.length}-unit`) : null) || grab(/\b(duplex|triplex|fourplex|quadplex)\b/i) || ((grab(/\b([2-4])[ -]?units?\b/i) || '') ? `${grab(/\b([2-4])[ -]?units?\b/i)}-unit` : null) || (/multi[- ]?family/i.test(text) ? 'multifamily' : null),   // the app's local-rules badge (str_regulations.py)
     photoUrl,
     cards: fs.readdirSync(outdir).filter(f => f.startsWith('card_')),
   };

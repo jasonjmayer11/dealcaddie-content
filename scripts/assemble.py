@@ -67,8 +67,43 @@ def pick_copy(d):
         f"{d['sqft']} sq ft" if d.get("sqft") else None] if x)
     hook = {"kind": "photo", "eyebrow": place.upper() or "ACTIVE LISTING",
             "value": price_full or "This house", "specs": specs, "sub": q}
+    auto = d.get("auto") or {}
+    units = auto.get("units") or []
+    if pt:
+        hook["badge"] = (pt.upper() + (f" · {len(units)} UNITS" if len(units) >= 2 else ""))
 
     beats = []
+    money = lambda x: f"${int(round(float(x))):,}" if x not in (None, "") else None
+    # ---- 1. rent, pulled automatically (RentCast) — per unit on multifamily
+    if len(units) >= 2:
+        total = sum(float(u["rent"]) for u in units)
+        rows_u = [{"label": u.get("label") or f"Unit {i + 1}", "value": money(u["rent"]) + "/mo", "color": INK}
+                  for i, u in enumerate(units[:6])]
+        rows_u.append({"label": "Total rent", "value": money(total) + "/mo", "color": GREEN, "best": True})
+        beats.append({"kind": "list", "eyebrow": "RENT BY UNIT · RENTCAST", "headline": f"{money(total)}/mo across {len(units)} units.",
+                      "headline_size": 78, "sub": "Live rent estimates for every unit, pulled automatically.",
+                      "rows": rows_u, "y_eb": 420, "dur": 4.6,
+                      "say": f"Rent: {money(total)}/mo across {len(units)} units (RentCast estimates, pulled automatically)."})
+    rent_row = ([] if len(units) >= 2 or not auto.get("ltrRent") else
+                [{"label": "Rent", "note": "RentCast estimate", "value": money(auto["ltrRent"]) + "/mo", "color": GREEN}])
+    exp_rows = rent_row + [r for r in [
+        {"label": "Property tax", "note": (auto.get("taxSrc") or "public records")[:40], "value": money(auto.get("tax")) + "/mo", "color": INK} if auto.get("tax") else None,
+        {"label": "Insurance", "note": (auto.get("insSrc") or "regional average")[:40], "value": money(auto.get("ins")) + "/mo", "color": INK} if auto.get("ins") else None] if r]
+    if len(exp_rows) >= 2:
+        beats.append({"kind": "list", "eyebrow": "FILLED IN FOR YOU", "headline": "Rent, taxes and insurance. No lookups." if rent_row else "Taxes and insurance. No lookups.",
+                      "headline_size": 78, "sub": "Every number sourced, every number editable.",
+                      "rows": exp_rows, "y_eb": 440, "dur": 4.4,
+                      "say": "Taxes" + (f" {money(auto['tax'])}/mo" if auto.get("tax") else "") + " and insurance"
+                             + (f" {money(auto['ins'])}/mo" if auto.get("ins") else "") + " filled in automatically."})
+    # ---- 2. rehab estimate from the listing photos
+    rh = d.get("rehab") or {}
+    if rh.get("range") and "$" in rh["range"]:
+        rng = rh["range"].replace("\u2013", "–").replace(" – ", "–").replace("–", " – ")
+        scope = [x.rstrip(".") for x in (rh.get("scope") or [])][:3]
+        beats.append({"kind": "stat", "eyebrow": "REHAB ESTIMATE FROM PHOTOS", "headline": rng,
+                      "sub": ((rh.get("level") or "").strip() + " · " if rh.get("level") else "") + (", ".join(scope) if scope else "scoped from the listing photos"),
+                      "y_eb": 600, "dur": 4.2,
+                      "say": f"AI read the listing photos: {rh.get('level', '').lower() or 'rehab'} at {rng}."})
     if score_s:
         beats.append({"kind": "stat", "eyebrow": "DEAL SCORE", "value": score_s, "unit": "/10",
                       "color": score_color(num(score_s)),
