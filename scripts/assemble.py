@@ -36,6 +36,8 @@ os.environ.setdefault("MUSIC_VARIANT", "1" if AGENT else "0")
 
 
 def pick_copy(d):
+    pt = (d.get("propType") or "").lower()
+    pt = {"quadplex": "fourplex", "2-unit": "duplex", "3-unit": "triplex", "4-unit": "fourplex"}.get(pt, pt)
     city_line = d.get("cityLine") or ""
     city = city_line.split(",")[0].strip()
     place = re.sub(r"\s*\d{5}(-\d{4})?$", "", city_line).strip()          # "Indianapolis, IN"
@@ -118,7 +120,7 @@ def pick_copy(d):
     if cf is not None and cf < 0 and best_alt and not has_list:
         nm = names.get(best_alt[0], best_alt[0])
         beats.append({"kind": "stat", "eyebrow": f"AS A {nm.upper()}", "value": pretty_money(best_alt[1]), "unit": "/mo",
-                      "color": GREEN, "sub": "Same house. Different strategy.", "card": "strats",
+                      "color": GREEN, "sub": f"Same {pt or 'house'}. Different strategy.", "card": "strats",
                       "say": f"As a {nm}: {best_alt[1]}/mo."})
     elif mo and asking:
         diff = abs(asking - mo)
@@ -137,7 +139,8 @@ def pick_copy(d):
                       "color": INK, "sub": "What the cash you put in earns each year.", "card": None,
                       "say": f"{d['coc']} cash-on-cash."})
 
-    noun = "listing" if AGENT else "house"
+    noun = "listing" if AGENT else (pt or "house")
+    if AGENT and pt: noun = f"{pt} listing"
     title = [f"{short_price(price_full) or 'This'} {city} {noun}." if city else f"This {noun}.", q]
     return hook, beats, title
 
