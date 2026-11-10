@@ -366,6 +366,13 @@ def render_list_beat(spec, dur):  # noqa: C901
         elif i:
             pd.line([(sh_pad + 40, y0), (sh_pad + pw - 40, y0)], fill=(0, 0, 0, 16), width=2)
     row_layers = []
+
+    def pill(txt):
+        t = text_layer(txt, F_SEMI, 24, (255, 255, 255), tracking=0.06)
+        im = Image.new("RGBA", (t.width + 32, t.height + 18), (0, 0, 0, 0))
+        ImageDraw.Draw(im).rounded_rectangle([0, 0, im.width - 1, im.height - 1], radius=im.height // 2, fill=RED + (255,))
+        im.alpha_composite(t, (16, 9)); return im
+    tags = [pill(r["tag"]) if r.get("tag") else None for r in rows]
     for r in rows:
         lab = text_layer(r["label"], F_SEMI, 40, INK)
         note = text_layer(r["note"], F_MED, 28, MUTED) if r.get("note") else None
@@ -394,6 +401,8 @@ def render_list_beat(spec, dur):  # noqa: C901
             f.alpha_composite(with_alpha(lab, a), (int(x0 + 40 + dx), int(ty)))
             if note:
                 f.alpha_composite(with_alpha(note, a), (int(x0 + 40 + dx), int(ty + lab.height - 4)))
+            if tags[i] is not None:
+                f.alpha_composite(with_alpha(tags[i], a), (int(x0 + 40 + lab.width + 18 + dx), int(y0 + (rh - tags[i].height) / 2)))
             cp = min(1.0, max(0.0, (t - d) / 0.7))
             vl = text_layer(count_value(r["value"], cp), F_NUM, vsize, r.get("color", INK), tracking=-0.03)
             f.alpha_composite(with_alpha(vl, a), (int(x0 + pw - 40 - vl.width - dx), int(y0 + (rh - vl.height) / 2)))

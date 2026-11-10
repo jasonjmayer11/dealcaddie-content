@@ -77,6 +77,7 @@ def pick_copy(d):
     strat_all = d.get("strategies") or {}
     NAMES = [("LTR", "Long-term rental"), ("MTR", "Mid-term rental"), ("STR", "Short-term · Airbnb"),
              ("S8", "Section 8"), ("HH", "House hack"), ("BRRRR", "BRRRR"), ("FLIP", "Fix & flip · profit")]
+    str_blocked = bool(d.get("strRestricted"))
     rows = []
     for k, label in NAMES:
         v = strat_all.get(k)
@@ -84,18 +85,24 @@ def pick_copy(d):
         n = num(v.replace("k", "000").replace("K", "000"))
         rows.append({"label": label, "value": pretty_money(v.replace("k", "K")) + ("" if k == "FLIP" else "/mo"),
                      "color": GREEN if (n or 0) > 0 else RED, "_n": n, "_k": k})
+        if k == "STR" and str_blocked:     # the app's own flag: local rules restrict Airbnb here
+            rows[-1].update({"label": "Short-term", "tag": "STR RESTRICTED", "color": MUTED, "_blocked": True})
     if cf is not None and len(rows) >= 4:
-        monthly = [r for r in rows if r["_k"] != "FLIP"]
+        monthly = [r for r in rows if r["_k"] != "FLIP" and not r.get("_blocked")]
         best = max(monthly, key=lambda r: r["_n"] if r["_n"] is not None else -1e9) if monthly else None
         if best and (best["_n"] or 0) > 0: best["best"] = True
-        npos = sum(1 for r in rows if (r["_n"] or 0) > 0)
-        head = (f"Cash flows on {npos} of {len(rows)} strategies." if npos else "Negative on every strategy.")
+        npos = sum(1 for r in rows if (r["_n"] or 0) > 0 and not r.get("_blocked"))
+        nlegal = sum(1 for r in rows if not r.get("_blocked"))
+        head = (f"Cash flows on {npos} of {nlegal} strategies." if npos else "Negative on every strategy.")
         sub = ("Send your client every option in one link." if AGENT else "Every strategy, after mortgage, taxes and insurance.")
+        if str_blocked:
+            sub = "Airbnb is restricted here — flagged automatically."
         beats.append({"kind": "list", "eyebrow": "CASH FLOW BY STRATEGY", "headline": head, "headline_size": 78,
                       "sub": sub, "rows": rows, "y_eb": 392, "dur": 5.6,
                       "say": (f"{cf_s}/mo as a rental." if cf >= 200 else
                               f"Loses ${abs(int(cf)):,}/mo as a rental." if cf < 0 else f"{cf_s}/mo. Barely.")
-                             + (f" Best play: {best['label'].lower()} at {best['value']}." if best and best.get('best') and best['_k'] != 'LTR' else "")})
+                             + (f" Best play: {best['label'].lower()} at {best['value']}." if best and best.get('best') and best['_k'] != 'LTR' else "")
+                             + (" Short-term rental? Restricted in this city — DealCaddie flags local STR rules before you buy." if str_blocked else "")})
     elif cf is not None:
         beats.append({"kind": "stat", "eyebrow": "CASH FLOW · LONG-TERM RENTAL", "value": pretty_money(cf_s),
                       "unit": "/mo", "color": GREEN if cf > 0 else RED, "sub": cf_sub, "card": "ltr",

@@ -232,6 +232,7 @@ async function clickTab(page, label) {
     rent: grab(/\nRENT[^\n]*\n(\$[0-9,]+)\/mo/i),
     maxOffer: maxOfferCard || grab(/MAX OFFER PRICE\n(\$[0-9,]+)/i) || grab(/MAX OFFER[^\n$]*\n(\$[0-9,]+)/i),
     strategies,
+    strRestricted: /STR Restricted Market/i.test(text),   // the app's local-rules badge (str_regulations.py)
     photoUrl,
     cards: fs.readdirSync(outdir).filter(f => f.startsWith('card_')),
   };
