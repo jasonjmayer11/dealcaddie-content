@@ -86,7 +86,7 @@ def pick_copy(d):
         rows.append({"label": label, "value": pretty_money(v.replace("k", "K")) + ("" if k == "FLIP" else "/mo"),
                      "color": GREEN if (n or 0) > 0 else RED, "_n": n, "_k": k})
         if k == "STR" and str_blocked:     # the app's own flag: local rules restrict Airbnb here
-            rows[-1].update({"label": "Short-term", "tag": "STR RESTRICTED", "color": MUTED, "_blocked": True})
+            rows[-1].update({"label": "Airbnb", "tag": "STR RESTRICTED", "color": MUTED, "_blocked": True})
     if cf is not None and len(rows) >= 4:
         monthly = [r for r in rows if r["_k"] != "FLIP" and not r.get("_blocked")]
         best = max(monthly, key=lambda r: r["_n"] if r["_n"] is not None else -1e9) if monthly else None

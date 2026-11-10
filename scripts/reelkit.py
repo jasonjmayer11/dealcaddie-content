@@ -368,7 +368,7 @@ def render_list_beat(spec, dur):  # noqa: C901
     row_layers = []
 
     def pill(txt):
-        t = text_layer(txt, F_SEMI, 24, (255, 255, 255), tracking=0.06)
+        t = text_layer(txt, F_SEMI, 22, (255, 255, 255), tracking=0.05)
         im = Image.new("RGBA", (t.width + 32, t.height + 18), (0, 0, 0, 0))
         ImageDraw.Draw(im).rounded_rectangle([0, 0, im.width - 1, im.height - 1], radius=im.height // 2, fill=RED + (255,))
         im.alpha_composite(t, (16, 9)); return im
