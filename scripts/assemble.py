@@ -99,7 +99,11 @@ def pick_copy(d):
     rh = d.get("rehab") or {}
     if rh.get("range") and "$" in rh["range"]:
         rng = rh["range"].replace("\u2013", "–").replace(" – ", "–").replace("–", " – ")
-        scope = [x.split(":")[0].strip().lower() for x in (rh.get("scope") or [])][:4]   # "Interior: paint…" → "interior"
+        scope = []                                   # "Interior: paint…" / "Kitchen refresh, new…" → "interior", "kitchen refresh"
+        for x in rh.get("scope") or []:
+            w = " ".join(re.split(r"[:,;(—–-]", x)[0].strip().lower().split()[:3])
+            if w and w not in scope: scope.append(w)
+        scope = scope[:3]
         beats.append({"kind": "stat", "eyebrow": "REHAB ESTIMATE FROM PHOTOS", "headline": rng,
                       "sub": ((rh.get("level") or "").strip() + " rehab" + (": " + ", ".join(scope) if scope else "") + ". Scoped by AI from the listing photos.").strip(),
                       "y_eb": 600, "dur": 4.2,
