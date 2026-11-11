@@ -1,0 +1,442 @@
+﻿2026-11-11T00:11:25.0118690Z Current runner version: '2.338.2'
+2026-11-11T00:11:25.0145428Z ##[group]Runner Image Provisioner
+2026-11-11T00:11:25.0146372Z Hosted Compute Agent
+2026-11-11T00:11:25.0147148Z Version: 20261028.624
+2026-11-11T00:11:25.0147816Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+2026-11-11T00:11:25.0148491Z Build Date: 2026-10-28T21:51:42Z
+2026-11-11T00:11:25.0149208Z Worker ID: {d547a494-fdf8-4fc2-a28b-508797ab27e1}
+2026-11-11T00:11:25.0149881Z Region: westus3
+2026-11-11T00:11:25.0150510Z Cloud: Azure
+2026-11-11T00:11:25.0151313Z ##[endgroup]
+2026-11-11T00:11:25.0152921Z ##[group]Operating System
+2026-11-11T00:11:25.0153587Z Ubuntu
+2026-11-11T00:11:25.0154095Z 24.04.5
+2026-11-11T00:11:25.0154604Z LTS
+2026-11-11T00:11:25.0155401Z ##[endgroup]
+2026-11-11T00:11:25.0155944Z ##[group]Runner Image
+2026-11-11T00:11:25.0156582Z Image: ubuntu-24.04
+2026-11-11T00:11:25.0157595Z Version: 20261101.360.1
+2026-11-11T00:11:25.0158942Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-11T00:11:25.0160802Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+2026-11-11T00:11:25.0161686Z ##[endgroup]
+2026-11-11T00:11:25.0162837Z ##[group]GITHUB_TOKEN Permissions
+2026-11-11T00:11:25.0165400Z Contents: write
+2026-11-11T00:11:25.0166018Z Metadata: read
+2026-11-11T00:11:25.0166572Z ##[endgroup]
+2026-11-11T00:11:25.0169722Z Secret source: Actions
+2026-11-11T00:11:25.0170708Z Cache mode: write
+2026-11-11T00:11:25.0171422Z Prepare workflow directory
+2026-11-11T00:11:25.0566240Z Prepare all required actions
+2026-11-11T00:11:25.0619511Z Getting action download info
+2026-11-11T00:11:25.4098689Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-11T00:11:25.4996146Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-11-11T00:11:25.5736692Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-11-11T00:11:25.6425278Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-11-11T00:11:25.8482007Z Complete job name: demo
+2026-11-11T00:11:25.9500981Z ##[group]Run actions/checkout@v4
+2026-11-11T00:11:25.9501963Z with:
+2026-11-11T00:11:25.9502547Z   repository: jasonjmayer11/dealcaddie-content
+2026-11-11T00:11:25.9506471Z   token: ***
+2026-11-11T00:11:25.9507325Z   ssh-strict: true
+2026-11-11T00:11:25.9507837Z   ssh-user: git
+2026-11-11T00:11:25.9508370Z   persist-credentials: true
+2026-11-11T00:11:25.9508929Z   clean: true
+2026-11-11T00:11:25.9509450Z   sparse-checkout-cone-mode: true
+2026-11-11T00:11:25.9510040Z   fetch-depth: 1
+2026-11-11T00:11:25.9510533Z   fetch-tags: false
+2026-11-11T00:11:25.9511049Z   show-progress: true
+2026-11-11T00:11:25.9511569Z   lfs: false
+2026-11-11T00:11:25.9512073Z   submodules: false
+2026-11-11T00:11:25.9512603Z   set-safe-directory: true
+2026-11-11T00:11:25.9513194Z   allow-unsafe-pr-checkout: false
+2026-11-11T00:11:25.9514216Z ##[endgroup]
+2026-11-11T00:11:26.2265432Z Syncing repository: jasonjmayer11/dealcaddie-content
+2026-11-11T00:11:26.2269409Z ##[group]Getting Git version info
+2026-11-11T00:11:26.2271254Z Working directory is '/home/runner/work/dealcaddie-content/dealcaddie-content'
+2026-11-11T00:11:26.2273574Z [command]/usr/bin/git version
+2026-11-11T00:11:26.2343193Z git version 2.56.0
+2026-11-11T00:11:26.2364060Z ##[endgroup]
+2026-11-11T00:11:26.2379385Z Temporarily overriding HOME='/home/runner/work/_temp/7cd2550f-74d4-4a9e-9fb2-b77b7be50069' before making global git config changes
+2026-11-11T00:11:26.2382739Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-11T00:11:26.2385682Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/dealcaddie-content/dealcaddie-content
+2026-11-11T00:11:26.2446513Z Deleting the contents of '/home/runner/work/dealcaddie-content/dealcaddie-content'
+2026-11-11T00:11:26.2460713Z ##[group]Initializing the repository
+2026-11-11T00:11:26.2472314Z [command]/usr/bin/git init /home/runner/work/dealcaddie-content/dealcaddie-content
+2026-11-11T00:11:26.2590419Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-11T00:11:26.2593660Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-11T00:11:26.2596161Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-11T00:11:26.2598502Z hint: call:
+2026-11-11T00:11:26.2599873Z hint:
+2026-11-11T00:11:26.2601390Z hint: 	git config --global init.defaultBranch <name>
+2026-11-11T00:11:26.2603175Z hint:
+2026-11-11T00:11:26.2604736Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-11T00:11:26.2607094Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-11T00:11:26.2608893Z hint:
+2026-11-11T00:11:26.2610049Z hint: 	git branch -m <name>
+2026-11-11T00:11:26.2611306Z hint:
+2026-11-11T00:11:26.2612836Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-11T00:11:26.2617012Z Initialized empty Git repository in /home/runner/work/dealcaddie-content/dealcaddie-content/.git/
+2026-11-11T00:11:26.2622164Z [command]/usr/bin/git remote add origin https://github.com/jasonjmayer11/dealcaddie-content
+2026-11-11T00:11:26.2662413Z ##[endgroup]
+2026-11-11T00:11:26.2664040Z ##[group]Disabling automatic garbage collection
+2026-11-11T00:11:26.2667451Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-11T00:11:26.2704059Z ##[endgroup]
+2026-11-11T00:11:26.2704928Z ##[group]Setting up auth
+2026-11-11T00:11:26.2714095Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-11T00:11:26.2754223Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-11T00:11:26.3172701Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-11T00:11:26.3211210Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-11T00:11:26.3424845Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-11T00:11:26.3461552Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-11T00:11:26.3668609Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-11T00:11:26.3718559Z ##[endgroup]
+2026-11-11T00:11:26.3719586Z ##[group]Fetching the repository
+2026-11-11T00:11:26.3732405Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +95ddd43b873e30fc1e18826d30a3ace63fb162f7:refs/remotes/origin/main
+2026-11-11T00:11:28.3345743Z From https://github.com/jasonjmayer11/dealcaddie-content
+2026-11-11T00:11:28.3347918Z  * [new ref]         95ddd43b873e30fc1e18826d30a3ace63fb162f7 -> origin/main
+2026-11-11T00:11:28.3350457Z ##[endgroup]
+2026-11-11T00:11:28.3351326Z ##[group]Determining the checkout info
+2026-11-11T00:11:28.3353277Z ##[endgroup]
+2026-11-11T00:11:28.3360073Z [command]/usr/bin/git sparse-checkout disable
+2026-11-11T00:11:28.3411772Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-11T00:11:28.3444721Z ##[group]Checking out the ref
+2026-11-11T00:11:28.3450852Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-11-11T00:11:28.5072045Z Switched to a new branch 'main'
+2026-11-11T00:11:28.5075137Z branch 'main' set up to track 'origin/main'.
+2026-11-11T00:11:28.5081120Z ##[endgroup]
+2026-11-11T00:11:28.5125614Z [command]/usr/bin/git log -1 --format=%H
+2026-11-11T00:11:28.5152242Z 95ddd43b873e30fc1e18826d30a3ace63fb162f7
+2026-11-11T00:11:28.5425940Z ##[group]Run actions/setup-node@v4
+2026-11-11T00:11:28.5426538Z with:
+2026-11-11T00:11:28.5426951Z   node-version: 20
+2026-11-11T00:11:28.5427245Z   always-auth: false
+2026-11-11T00:11:28.5427524Z   check-latest: false
+2026-11-11T00:11:28.5430221Z   token: ***
+2026-11-11T00:11:28.5430490Z ##[endgroup]
+2026-11-11T00:11:28.6897431Z Attempting to download 20...
+2026-11-11T00:11:28.7076465Z (node:2326) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-11T00:11:28.7077991Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-11T00:11:29.7551424Z Acquiring 20.20.2 - x64 from https://github.com/actions/node-versions/releases/download/20.20.2-23521894959/node-20.20.2-linux-x64.tar.gz
+2026-11-11T00:11:30.2278054Z Extracting ...
+2026-11-11T00:11:30.2441714Z [command]/usr/bin/tar xz --strip 1 --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/e26352c0-c929-44fd-9249-c2031bca1c35 -f /home/runner/work/_temp/3e67b9a6-5db7-4181-9796-535c6c6f46c3
+2026-11-11T00:11:31.2214833Z Adding to the cache ...
+2026-11-11T00:11:32.3678571Z ##[group]Environment details
+2026-11-11T00:11:32.6061199Z node: v20.20.2
+2026-11-11T00:11:32.6061672Z npm: 10.8.2
+2026-11-11T00:11:32.6061949Z yarn: 1.22.22
+2026-11-11T00:11:32.6079352Z ##[endgroup]
+2026-11-11T00:11:32.6278836Z ##[group]Run actions/setup-python@v5
+2026-11-11T00:11:32.6279132Z with:
+2026-11-11T00:11:32.6279359Z   python-version: 3.12
+2026-11-11T00:11:32.6279583Z   check-latest: false
+2026-11-11T00:11:32.6282033Z   token: ***
+2026-11-11T00:11:32.6282259Z   update-environment: true
+2026-11-11T00:11:32.6282501Z   allow-prereleases: false
+2026-11-11T00:11:32.6282734Z   freethreaded: false
+2026-11-11T00:11:32.6282944Z ##[endgroup]
+2026-11-11T00:11:32.7672936Z ##[group]Installed versions
+2026-11-11T00:11:32.7794205Z (node:2362) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-11T00:11:32.7795673Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-11T00:11:32.7797182Z Successfully set up CPython (3.12.16)
+2026-11-11T00:11:32.7798217Z ##[endgroup]
+2026-11-11T00:11:32.8660470Z ##[group]Run actions/cache@v4
+2026-11-11T00:11:32.8660759Z with:
+2026-11-11T00:11:32.8660973Z   path: ~/.cache/ms-playwright
+2026-11-11T00:11:32.8661380Z   key: playwright-79c79184c54c4093f0ed469861548546b781c62ffd0cc89a0a0524e5150f5b92
+2026-11-11T00:11:32.8661821Z   enableCrossOsArchive: false
+2026-11-11T00:11:32.8662071Z   fail-on-cache-miss: false
+2026-11-11T00:11:32.8662303Z   lookup-only: false
+2026-11-11T00:11:32.8662512Z   save-always: false
+2026-11-11T00:11:32.8662712Z env:
+2026-11-11T00:11:32.8662975Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:11:32.8663409Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-11T00:11:32.8663820Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:11:32.8664200Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:11:32.8664600Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:11:32.8665033Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-11T00:11:32.8665348Z ##[endgroup]
+2026-11-11T00:11:32.9736047Z (node:2382) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-11T00:11:32.9737253Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-11T00:11:33.1994137Z Cache hit for: playwright-79c79184c54c4093f0ed469861548546b781c62ffd0cc89a0a0524e5150f5b92
+2026-11-11T00:11:33.2137089Z (node:2382) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-11T00:11:34.4335079Z Received 46137344 of 283633208 (16.3%), 44.0 MBs/sec
+2026-11-11T00:11:35.4339028Z Received 201326592 of 283633208 (71.0%), 96.0 MBs/sec
+2026-11-11T00:11:36.0815748Z Received 283633208 of 283633208 (100.0%), 102.1 MBs/sec
+2026-11-11T00:11:36.0819288Z Cache Size: ~270 MB (283633208 B)
+2026-11-11T00:11:36.0958012Z [command]/usr/bin/tar -xf /home/runner/work/_temp/6aead66c-fa80-4e10-964d-cf6d3b714d7b/cache.tzst -P -C /home/runner/work/dealcaddie-content/dealcaddie-content --use-compress-program unzstd
+2026-11-11T00:11:37.0178437Z Cache restored successfully
+2026-11-11T00:11:37.0442557Z Cache restored from key: playwright-79c79184c54c4093f0ed469861548546b781c62ffd0cc89a0a0524e5150f5b92
+2026-11-11T00:11:37.0671940Z ##[group]Run actions/cache@v4
+2026-11-11T00:11:37.0672241Z with:
+2026-11-11T00:11:37.0672487Z   path: ~/.cache/pip
+~/.cache/huggingface
+
+2026-11-11T00:11:37.0672776Z   key: kokoro-v1
+2026-11-11T00:11:37.0673030Z   enableCrossOsArchive: false
+2026-11-11T00:11:37.0673288Z   fail-on-cache-miss: false
+2026-11-11T00:11:37.0673540Z   lookup-only: false
+2026-11-11T00:11:37.0673755Z   save-always: false
+2026-11-11T00:11:37.0673964Z env:
+2026-11-11T00:11:37.0674254Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:11:37.0674680Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-11T00:11:37.0675100Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:11:37.0675479Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:11:37.0675857Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:11:37.0676247Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-11T00:11:37.0676615Z ##[endgroup]
+2026-11-11T00:11:37.1774285Z (node:2400) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-11T00:11:37.1775121Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-11T00:11:37.3993057Z Cache hit for: kokoro-v1
+2026-11-11T00:11:37.4107383Z (node:2400) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-11T00:11:38.6469486Z Received 41943040 of 685393933 (6.1%), 39.9 MBs/sec
+2026-11-11T00:11:39.6463295Z Received 192937984 of 685393933 (28.1%), 91.9 MBs/sec
+2026-11-11T00:11:40.6465546Z Received 331350016 of 685393933 (48.3%), 105.2 MBs/sec
+2026-11-11T00:11:41.6467243Z Received 452984832 of 685393933 (66.1%), 107.9 MBs/sec
+2026-11-11T00:11:42.6462939Z Received 591396864 of 685393933 (86.3%), 112.8 MBs/sec
+2026-11-11T00:11:43.4713991Z Received 685393933 of 685393933 (100.0%), 112.2 MBs/sec
+2026-11-11T00:11:43.4716374Z Cache Size: ~654 MB (685393933 B)
+2026-11-11T00:11:43.4762289Z [command]/usr/bin/tar -xf /home/runner/work/_temp/c6760ed9-6116-40f4-9c70-7a00a53a564e/cache.tzst -P -C /home/runner/work/dealcaddie-content/dealcaddie-content --use-compress-program unzstd
+2026-11-11T00:11:44.3137348Z Cache restored successfully
+2026-11-11T00:11:44.6048778Z Cache restored from key: kokoro-v1
+2026-11-11T00:11:44.6221975Z ##[group]Run npm ci
+2026-11-11T00:11:44.6222353Z [36;1mnpm ci[0m
+2026-11-11T00:11:44.6222627Z [36;1mnpx playwright install chromium[0m
+2026-11-11T00:11:44.6223059Z [36;1mcurl -fsSL --retry 3 -o /tmp/ffmpeg.tar.xz \[0m
+2026-11-11T00:11:44.6223746Z [36;1m  https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz[0m
+2026-11-11T00:11:44.6224458Z [36;1mmkdir -p /tmp/ffmpeg && tar -xf /tmp/ffmpeg.tar.xz -C /tmp/ffmpeg --strip-components=1[0m
+2026-11-11T00:11:44.6224922Z [36;1mecho "/tmp/ffmpeg/bin" >> "$GITHUB_PATH"[0m
+2026-11-11T00:11:44.6225338Z [36;1msudo apt-get update -qq && sudo apt-get install -y -qq espeak-ng[0m
+2026-11-11T00:11:44.6225849Z [36;1mpip install --quiet torch --index-url https://download.pytorch.org/whl/cpu[0m
+2026-11-11T00:11:44.6226353Z [36;1mpip install --quiet "kokoro>=0.9.4" soundfile pillow numpy[0m
+2026-11-11T00:11:44.6383260Z shell: /usr/bin/bash -e {0}
+2026-11-11T00:11:44.6383586Z env:
+2026-11-11T00:11:44.6384287Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:11:44.6384732Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-11T00:11:44.6385170Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:11:44.6385566Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:11:44.6385966Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:11:44.6386378Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-11T00:11:44.6386707Z ##[endgroup]
+2026-11-11T00:11:45.2740911Z 
+2026-11-11T00:11:45.2741552Z added 2 packages, and audited 3 packages in 571ms
+2026-11-11T00:11:45.2748300Z 
+2026-11-11T00:11:45.2748478Z found 0 vulnerabilities
+2026-11-11T00:12:03.6787907Z Selecting previously unselected package libasyncns0:amd64.
+2026-11-11T00:12:03.7000480Z (Reading database ... 
+2026-11-11T00:12:03.7000982Z (Reading database ... 5%
+2026-11-11T00:12:03.7001478Z (Reading database ... 10%
+2026-11-11T00:12:03.7001870Z (Reading database ... 15%
+2026-11-11T00:12:03.7002127Z (Reading database ... 20%
+2026-11-11T00:12:03.7002389Z (Reading database ... 25%
+2026-11-11T00:12:03.7003107Z (Reading database ... 30%
+2026-11-11T00:12:03.7003746Z (Reading database ... 35%
+2026-11-11T00:12:03.7004258Z (Reading database ... 40%
+2026-11-11T00:12:03.7004717Z (Reading database ... 45%
+2026-11-11T00:12:03.7005182Z (Reading database ... 50%
+2026-11-11T00:12:03.7066537Z (Reading database ... 55%
+2026-11-11T00:12:03.8876667Z (Reading database ... 60%
+2026-11-11T00:12:04.0368009Z (Reading database ... 65%
+2026-11-11T00:12:04.2857130Z (Reading database ... 70%
+2026-11-11T00:12:04.4554507Z (Reading database ... 75%
+2026-11-11T00:12:04.5911702Z (Reading database ... 80%
+2026-11-11T00:12:04.8426712Z (Reading database ... 85%
+2026-11-11T00:12:05.0519226Z (Reading database ... 90%
+2026-11-11T00:12:05.2051954Z (Reading database ... 95%
+2026-11-11T00:12:05.2052361Z (Reading database ... 100%
+2026-11-11T00:12:05.2052947Z (Reading database ... 215960 files and directories currently installed.)
+2026-11-11T00:12:05.2101686Z Preparing to unpack .../00-libasyncns0_0.8-6build4_amd64.deb ...
+2026-11-11T00:12:05.2142306Z Unpacking libasyncns0:amd64 (0.8-6build4) ...
+2026-11-11T00:12:05.2345059Z Selecting previously unselected package libflac12t64:amd64.
+2026-11-11T00:12:05.2470427Z Preparing to unpack .../01-libflac12t64_1.4.3+ds-2.1ubuntu2_amd64.deb ...
+2026-11-11T00:12:05.2486350Z Unpacking libflac12t64:amd64 (1.4.3+ds-2.1ubuntu2) ...
+2026-11-11T00:12:05.2705977Z Selecting previously unselected package libmp3lame0:amd64.
+2026-11-11T00:12:05.2833018Z Preparing to unpack .../02-libmp3lame0_3.100-6build1_amd64.deb ...
+2026-11-11T00:12:05.2846074Z Unpacking libmp3lame0:amd64 (3.100-6build1) ...
+2026-11-11T00:12:05.3045402Z Selecting previously unselected package libmpg123-0t64:amd64.
+2026-11-11T00:12:05.3172894Z Preparing to unpack .../03-libmpg123-0t64_1.32.5-1ubuntu1.1_amd64.deb ...
+2026-11-11T00:12:05.3184248Z Unpacking libmpg123-0t64:amd64 (1.32.5-1ubuntu1.1) ...
+2026-11-11T00:12:05.3384152Z Selecting previously unselected package libopus0:amd64.
+2026-11-11T00:12:05.3509454Z Preparing to unpack .../04-libopus0_1.4-1build1_amd64.deb ...
+2026-11-11T00:12:05.3522296Z Unpacking libopus0:amd64 (1.4-1build1) ...
+2026-11-11T00:12:05.3724372Z Selecting previously unselected package libvorbisenc2:amd64.
+2026-11-11T00:12:05.3851399Z Preparing to unpack .../05-libvorbisenc2_1.3.7-1build3_amd64.deb ...
+2026-11-11T00:12:05.3864464Z Unpacking libvorbisenc2:amd64 (1.3.7-1build3) ...
+2026-11-11T00:12:05.4075840Z Selecting previously unselected package libsndfile1:amd64.
+2026-11-11T00:12:05.4201920Z Preparing to unpack .../06-libsndfile1_1.2.2-1ubuntu5.24.04.1_amd64.deb ...
+2026-11-11T00:12:05.4217362Z Unpacking libsndfile1:amd64 (1.2.2-1ubuntu5.24.04.1) ...
+2026-11-11T00:12:05.4432052Z Selecting previously unselected package libpulse0:amd64.
+2026-11-11T00:12:05.4558274Z Preparing to unpack .../07-libpulse0_1%3a16.1+dfsg1-2ubuntu10.1_amd64.deb ...
+2026-11-11T00:12:05.4626457Z Unpacking libpulse0:amd64 (1:16.1+dfsg1-2ubuntu10.1) ...
+2026-11-11T00:12:05.4858342Z Selecting previously unselected package libpcaudio0:amd64.
+2026-11-11T00:12:05.4984399Z Preparing to unpack .../08-libpcaudio0_1.2-2build3_amd64.deb ...
+2026-11-11T00:12:05.4997639Z Unpacking libpcaudio0:amd64 (1.2-2build3) ...
+2026-11-11T00:12:05.5179450Z Selecting previously unselected package libsonic0:amd64.
+2026-11-11T00:12:05.5304827Z Preparing to unpack .../09-libsonic0_0.2.0-13build1_amd64.deb ...
+2026-11-11T00:12:05.5322714Z Unpacking libsonic0:amd64 (0.2.0-13build1) ...
+2026-11-11T00:12:05.5490992Z Selecting previously unselected package espeak-ng-data:amd64.
+2026-11-11T00:12:05.5617643Z Preparing to unpack .../10-espeak-ng-data_1.51+dfsg-12build1_amd64.deb ...
+2026-11-11T00:12:05.5631958Z Unpacking espeak-ng-data:amd64 (1.51+dfsg-12build1) ...
+2026-11-11T00:12:06.2441787Z Selecting previously unselected package libespeak-ng1:amd64.
+2026-11-11T00:12:06.2572837Z Preparing to unpack .../11-libespeak-ng1_1.51+dfsg-12build1_amd64.deb ...
+2026-11-11T00:12:06.2585207Z Unpacking libespeak-ng1:amd64 (1.51+dfsg-12build1) ...
+2026-11-11T00:12:06.2788357Z Selecting previously unselected package espeak-ng.
+2026-11-11T00:12:06.2918354Z Preparing to unpack .../12-espeak-ng_1.51+dfsg-12build1_amd64.deb ...
+2026-11-11T00:12:06.2929780Z Unpacking espeak-ng (1.51+dfsg-12build1) ...
+2026-11-11T00:12:06.3394491Z Setting up libmpg123-0t64:amd64 (1.32.5-1ubuntu1.1) ...
+2026-11-11T00:12:06.3418827Z Setting up libopus0:amd64 (1.4-1build1) ...
+2026-11-11T00:12:06.3437165Z Setting up libsonic0:amd64 (0.2.0-13build1) ...
+2026-11-11T00:12:06.3455676Z Setting up libasyncns0:amd64 (0.8-6build4) ...
+2026-11-11T00:12:06.3474197Z Setting up libflac12t64:amd64 (1.4.3+ds-2.1ubuntu2) ...
+2026-11-11T00:12:06.3493816Z Setting up libmp3lame0:amd64 (3.100-6build1) ...
+2026-11-11T00:12:06.3512847Z Setting up espeak-ng-data:amd64 (1.51+dfsg-12build1) ...
+2026-11-11T00:12:06.3535106Z Setting up libvorbisenc2:amd64 (1.3.7-1build3) ...
+2026-11-11T00:12:06.3557327Z Setting up libsndfile1:amd64 (1.2.2-1ubuntu5.24.04.1) ...
+2026-11-11T00:12:06.3575087Z Setting up libpulse0:amd64 (1:16.1+dfsg1-2ubuntu10.1) ...
+2026-11-11T00:12:06.3645591Z Setting up libpcaudio0:amd64 (1.2-2build3) ...
+2026-11-11T00:12:06.3665043Z Setting up libespeak-ng1:amd64 (1.51+dfsg-12build1) ...
+2026-11-11T00:12:06.3689266Z Setting up espeak-ng (1.51+dfsg-12build1) ...
+2026-11-11T00:12:06.3713682Z Processing triggers for man-db (2.12.0-4build2) ...
+2026-11-11T00:12:06.3737909Z Not building database; man-db/auto-update is not 'true'.
+2026-11-11T00:12:06.3751769Z Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+2026-11-11T00:12:07.0129684Z 
+2026-11-11T00:12:07.0130828Z Running kernel seems to be up-to-date.
+2026-11-11T00:12:07.0131242Z 
+2026-11-11T00:12:07.0131482Z No services need to be restarted.
+2026-11-11T00:12:07.0131751Z 
+2026-11-11T00:12:07.0131988Z No containers need to be restarted.
+2026-11-11T00:12:07.0132275Z 
+2026-11-11T00:12:07.0132940Z No user sessions are running outdated binaries.
+2026-11-11T00:12:07.0133320Z 
+2026-11-11T00:12:07.0133803Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-11-11T00:12:30.8482934Z 
+2026-11-11T00:12:30.8483990Z [notice] A new release of pip is available: 26.2.2 -> 26.3
+2026-11-11T00:12:30.8484693Z [notice] To update, run: pip install --upgrade pip
+2026-11-11T00:12:53.6441467Z 
+2026-11-11T00:12:53.6442367Z [notice] A new release of pip is available: 26.2.2 -> 26.3
+2026-11-11T00:12:53.9968254Z [notice] To update, run: pip install --upgrade pip
+2026-11-11T00:12:54.1394694Z ##[group]Run node scripts/record_demo.js "https://www.zillow.com/homedetails/9018-S-Ada-St-Chicago-IL-60620/4120793_zpid" work
+2026-11-11T00:12:54.1395767Z [36;1mnode scripts/record_demo.js "https://www.zillow.com/homedetails/9018-S-Ada-St-Chicago-IL-60620/4120793_zpid" work[0m
+2026-11-11T00:12:54.1416764Z shell: /usr/bin/bash -e {0}
+2026-11-11T00:12:54.1417350Z env:
+2026-11-11T00:12:54.1417696Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:12:54.1418975Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-11T00:12:54.1419952Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:12:54.1420822Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:12:54.1421608Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:12:54.1422077Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-11T00:12:54.1422894Z   DC_EMAIL: ***
+2026-11-11T00:12:54.1423253Z   DC_PASSWORD: ***
+2026-11-11T00:12:54.1423518Z ##[endgroup]
+2026-11-11T00:12:58.0684261Z paste.start @ 2.14s
+2026-11-11T00:13:02.8474281Z paste.end @ 6.92s
+2026-11-11T00:13:02.8804372Z insurance adjusted: {"from":61,"to":110}
+2026-11-11T00:13:02.8929121Z score.start @ 6.97s
+2026-11-11T00:13:11.8944355Z score.end @ 15.97s
+2026-11-11T00:13:12.8931647Z auto.start @ 16.97s
+2026-11-11T00:13:21.8999125Z auto.end @ 25.97s
+2026-11-11T00:13:22.8947148Z strategies.start @ 26.97s
+2026-11-11T00:13:31.9099211Z strategies.end @ 35.98s
+2026-11-11T00:13:32.9045866Z rehab.start @ 36.98s
+2026-11-11T00:13:41.9117610Z rehab.end @ 45.98s
+2026-11-11T00:13:41.9158304Z data {"score":"8.9","price":"175000","ltrRent":"2410","tax":"129","ins":"110","units":[],"strategies":{"ltr":"+$548","mtr":"+$677","str":"+$1,306","s8":"+$477","hh":"+$711","brrrr":"+$417"},"strRestricted":true,"cityLine":"Chicago, IL 60620","rehab":{"range":"$43K – $76K","level":"Heavy"},"insAdjusted":{"from":61,"to":110}}
+2026-11-11T00:13:45.9280962Z recorded 322 frames → work/screen.mp4
+2026-11-11T00:13:45.9401363Z ##[group]Run SLUG="demo-$(date -u +%Y%m%d-%H%M)"
+2026-11-11T00:13:45.9402042Z [36;1mSLUG="demo-$(date -u +%Y%m%d-%H%M)"[0m
+2026-11-11T00:13:45.9402604Z [36;1mecho "slug=$SLUG" >> "$GITHUB_OUTPUT"[0m
+2026-11-11T00:13:45.9403096Z [36;1mmkdir -p dist[0m
+2026-11-11T00:13:45.9403569Z [36;1mpython3 scripts/narrate.py work "dist/$SLUG.mp4"[0m
+2026-11-11T00:13:45.9404165Z [36;1mmv dist/cover.jpg "dist/$SLUG-cover.jpg"[0m
+2026-11-11T00:13:45.9404750Z [36;1mcat dist/script.txt; cat dist/meta.json[0m
+2026-11-11T00:13:45.9425837Z shell: /usr/bin/bash -e {0}
+2026-11-11T00:13:45.9426330Z env:
+2026-11-11T00:13:45.9427030Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:13:45.9427811Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-11T00:13:45.9428578Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:13:45.9429256Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:13:45.9430009Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:13:45.9430746Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-11T00:13:45.9431374Z   VOICE: af_heart
+2026-11-11T00:13:45.9431758Z ##[endgroup]
+2026-11-11T00:13:51.5979561Z Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-11-11T00:13:51.6701189Z /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/torch/nn/modules/rnn.py:1012: UserWarning: dropout option adds dropout after all but last recurrent layer, so non-zero dropout expects num_layers greater than 1, but got dropout=0.2 and num_layers=1
+2026-11-11T00:13:51.6702712Z   super().__init__("LSTM", *args, **kwargs)
+2026-11-11T00:13:51.7269314Z /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/torch/nn/utils/weight_norm.py:145: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.
+2026-11-11T00:13:51.7270495Z   WeightNorm.apply(module, name, dim)
+2026-11-11T00:13:52.9624286Z Collecting en-core-web-sm==3.8.0
+2026-11-11T00:13:53.2328874Z   Downloading en_core_web_sm-3.8.0-py3-none-any.whl (12.8 MB)
+2026-11-11T00:13:53.6523125Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.8/12.8 MB 33.1 MB/s  0:00:00
+2026-11-11T00:13:53.7840204Z Installing collected packages: en-core-web-sm
+2026-11-11T00:13:53.8801337Z Successfully installed en-core-web-sm-3.8.0
+2026-11-11T00:13:53.8809844Z 
+2026-11-11T00:13:53.8810274Z [notice] A new release of pip is available: 26.2.2 -> 26.3
+2026-11-11T00:13:53.8810975Z [notice] To update, run: pip install --upgrade pip
+2026-11-11T00:13:54.1321982Z /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+2026-11-11T00:13:54.1323031Z   warnings.warn(
+2026-11-11T00:15:18.6145635Z WARNING: Defaulting repo_id to hexgrad/Kokoro-82M. Pass repo_id='hexgrad/Kokoro-82M' to suppress this warning.
+2026-11-11T00:15:18.6149463Z [38;5;2m✔ Download and installation successful[0m
+2026-11-11T00:15:18.6150354Z You can now load the package via spacy.load('en_core_web_sm')
+2026-11-11T00:15:18.6150935Z voice @ 1.05x: 40.1s
+2026-11-11T00:15:18.6151317Z voice @ 1.09x: 39.2s
+2026-11-11T00:15:18.6152047Z wrote dist/demo-20261111-0013.mp4  (39.2s, voice af_heart @ 1.09x, music dc-08)
+2026-11-11T00:15:19.7289128Z [paste] A $175K house in Chicago. Is it a deal? I just paste the Zillow link.
+2026-11-11T00:15:19.7289834Z [score] Ten seconds later: deal score, 8.9 out of 10.
+2026-11-11T00:15:19.7290587Z [auto] Rent from RentCast: $2,410/mo. Taxes and insurance, filled in.
+2026-11-11T00:15:19.7291739Z [strategies] Every strategy, side by side. Airbnb pays most, but it's restricted in Chicago, and DealCaddie flags it. The real play: house hack, at +$711/mo.
+2026-11-11T00:15:19.7292676Z [rehab] It even reads the photos: heavy rehab, $43K to $76K.
+2026-11-11T00:15:19.7299472Z [end] Every number, in seconds. Try it free at dealcaddie.ai.{
+2026-11-11T00:15:19.7300459Z   "hook": "$175K Chicago house. Watch DealCaddie run the numbers.",
+2026-11-11T00:15:19.7301287Z   "duration": 39.233333333333334,
+2026-11-11T00:15:19.7301878Z   "voice": "af_heart",
+2026-11-11T00:15:19.7302335Z   "speed": 1.09,
+2026-11-11T00:15:19.7302776Z   "track": "dc-08"
+2026-11-11T00:15:19.7303539Z }
+2026-11-11T00:15:19.7371454Z ##[group]Run TAG="demo-20261111-0013"
+2026-11-11T00:15:19.7371856Z [36;1mTAG="demo-20261111-0013"[0m
+2026-11-11T00:15:19.7372206Z [36;1m[ -z "$TAG" ] && TAG="demo-failed-$(date -u +%Y%m%d-%H%M)"[0m
+2026-11-11T00:15:19.7372673Z [36;1mcd work && zip -qr ../captures.zip . -x 'frames/*' -x '*.mp4' && cd ..[0m
+2026-11-11T00:15:19.7373068Z [36;1mFILES="captures.zip"[0m
+2026-11-11T00:15:19.7373493Z [36;1m[ -f "dist/$TAG.mp4" ] && FILES="dist/$TAG.mp4 dist/$TAG-cover.jpg dist/script.txt $FILES"[0m
+2026-11-11T00:15:19.7374093Z [36;1mNOTES=dist/caption.txt; [ -f "$NOTES" ] || { echo "build failed" > /tmp/n.txt; NOTES=/tmp/n.txt; }[0m
+2026-11-11T00:15:19.7374783Z [36;1mTITLE=$(python3 -c "import json;print(json.load(open('dist/meta.json'))['hook'])" 2>/dev/null || echo "$TAG")[0m
+2026-11-11T00:15:19.7375427Z [36;1mgh release create "$TAG" $FILES --prerelease --title "$TITLE" --notes-file "$NOTES"[0m
+2026-11-11T00:15:19.7389796Z shell: /usr/bin/bash -e {0}
+2026-11-11T00:15:19.7390140Z env:
+2026-11-11T00:15:19.7390457Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:15:19.7390921Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+2026-11-11T00:15:19.7391374Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:15:19.7391775Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:15:19.7392166Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+2026-11-11T00:15:19.7392564Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+2026-11-11T00:15:19.7395420Z   GH_TOKEN: ***
+2026-11-11T00:15:19.7395642Z ##[endgroup]
+2026-11-11T00:15:23.0453422Z https://github.com/jasonjmayer11/dealcaddie-content/releases/tag/demo-20261111-0013
+2026-11-11T00:15:23.0567929Z Post job cleanup.
+2026-11-11T00:15:23.1785536Z Cache hit occurred on the primary key kokoro-v1, not saving cache.
+2026-11-11T00:15:23.1788543Z (node:3337) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-11T00:15:23.1790432Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-11T00:15:23.2533681Z Post job cleanup.
+2026-11-11T00:15:23.3778063Z Cache hit occurred on the primary key playwright-79c79184c54c4093f0ed469861548546b781c62ffd0cc89a0a0524e5150f5b92, not saving cache.
+2026-11-11T00:15:23.3779878Z (node:3358) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-11T00:15:23.3780881Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-11T00:15:23.3907595Z Post job cleanup.
+2026-11-11T00:15:23.5297760Z (node:3366) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-11T00:15:23.5299055Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-11T00:15:23.5429057Z Post job cleanup.
+2026-11-11T00:15:23.6867420Z (node:3374) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-11T00:15:23.6868872Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-11T00:15:23.7109231Z Post job cleanup.
+2026-11-11T00:15:23.8168955Z [command]/usr/bin/git version
+2026-11-11T00:15:23.8218413Z git version 2.56.0
+2026-11-11T00:15:23.8268985Z Temporarily overriding HOME='/home/runner/work/_temp/684ae444-698f-4646-bd44-485af826c2ce' before making global git config changes
+2026-11-11T00:15:23.8281537Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-11T00:15:23.8288602Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/dealcaddie-content/dealcaddie-content
+2026-11-11T00:15:23.8339817Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-11T00:15:23.8386429Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-11T00:15:23.8725894Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-11T00:15:23.8775591Z http.https://github.com/.extraheader
+2026-11-11T00:15:23.8791511Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-11T00:15:23.8877108Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-11T00:15:23.9205431Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-11T00:15:23.9271758Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-11T00:15:23.9720031Z Cleaning up orphan processes
+2026-11-11T00:15:24.0037013Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/setup-node@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

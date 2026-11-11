@@ -124,23 +124,55 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
 
   // ---- 2. score: the property card at the top ----
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
-  mark('score', 'start'); await sleep(HOLD); mark('score', 'end');
+  mark('score', 'start');
+  await sleep(1200);
+  await focus('#results-top'); await sleep(HOLD); mark('score', 'end');
 
-  // ---- 3. auto-filled inputs: rent + taxes + insurance ----
-  await clickTab('Financials');
+  // gold focus ring on whatever the voice is talking about; scroll it clear of the sticky tab bar
+  const focus = (sel, pick = 'self') => page.evaluate(([sel, pick]) => {
+    document.querySelectorAll('[data-demo-focus]').forEach(e => { e.style.boxShadow = ''; e.removeAttribute('data-demo-focus'); });
+    let el = null;
+    if (sel.startsWith('text:')) {
+      const rx = new RegExp(sel.slice(5), 'i');
+      for (const e of document.querySelectorAll('body *')) {
+        if (!e.offsetParent || !rx.test(e.textContent || '')) continue;
+        if (!el || e.textContent.length < el.textContent.length) el = e;
+      }
+    } else el = document.querySelector(sel);
+    if (!el) return false;
+    if (pick === 'card') el = el.closest('.card, [class*="rounded-2xl"], [class*="rounded-xl"]') || el.parentElement || el;
+    if (pick === 'parent2') el = (el.parentElement && el.parentElement.parentElement) || el;
+    const r = el.getBoundingClientRect();
+    const y = window.scrollY + r.top - Math.max(150, (window.innerHeight - r.height) / 2);
+    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+    el.style.transition = 'box-shadow .35s ease'; el.style.borderRadius = el.style.borderRadius || '12px';
+    el.setAttribute('data-demo-focus', '1');
+    setTimeout(() => { el.style.boxShadow = '0 0 0 3px rgba(201,168,76,.95), 0 0 0 9px rgba(201,168,76,.22)'; }, 450);
+    return true;
+  }, [sel, pick]).catch(() => false);
+
+  // ---- 3. auto-filled inputs: rent (RentCast) → taxes + insurance ----
   mark('auto', 'start');
-  await page.evaluate(() => { const e = document.getElementById('mf-units-grid') || document.getElementById('fin-tax');
-                              if (e) e.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
-  await sleep(HOLD * 0.55);
-  await page.evaluate(() => { const e = document.getElementById('fin-tax'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
-  await sleep(HOLD * 0.45);
+  if (await page.locator('#mf-units-grid').count()) {
+    for (const tab of ['Financials', 'Cashflow', 'All']) {
+      if (await page.locator('#mf-units-grid').isVisible().catch(() => false)) break; await clickTab(tab);
+    }
+    await focus('#mf-units-grid');
+  } else {
+    await clickTab('Cashflow'); await hideIcons();
+    await focus('#ltr-rent', 'parent2');
+  }
+  await sleep(HOLD * 0.5);
+  await clickTab('Financials'); await hideIcons();
+  await focus('#fin-tax', 'parent2');
+  await sleep(HOLD * 0.5);
   mark('auto', 'end');
 
   // ---- 4. cash flow by strategy ----
   (await clickTab('Cashflow')) || (await clickTab('All'));
   await hideIcons();
   mark('strategies', 'start');
-  await scrollTo('^\\s*Cashflow by Strategy', 'start');
+  await focus('text:^\\s*Cashflow by Strategy', 'card');
   await sleep(HOLD); mark('strategies', 'end');
 
   // ---- 5. rehab estimate from photos ----
@@ -150,7 +182,7 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
     await clickTab(tab);
   }
   mark('rehab', 'start');
-  await page.evaluate(() => { const e = document.getElementById('cond-rehab'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+  await focus('#cond-rehab');
   await sleep(HOLD); mark('rehab', 'end');
 
   // ---- numbers for the script ----
