@@ -22,7 +22,8 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const out = f => path.join(outdir, f);
 const HOLD = 9000;
 const STORY = process.env.STORY ? JSON.parse(fs.readFileSync(process.env.STORY, 'utf8')) : null;
-const SEARCH_INTRO = !STORY || STORY.start === 'search';                    // ms each section stays on screen (VO lines are ~4-8s)
+const SEARCH_INTRO = !STORY || STORY.start === 'search';
+const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outside an analysis (Deals, Pipeline…)                    // ms each section stays on screen (VO lines are ~4-8s)
 
 (async () => {
   const browser = await chromium.launch();
@@ -90,6 +91,7 @@ const SEARCH_INTRO = !STORY || STORY.start === 'search';                    // m
   await sleep(800);
   if (SEARCH_INTRO) { mark('intro', 'start'); await sleep(3200); mark('intro', 'end'); }   // sit on the search page first
   if (SEARCH_INTRO) mark('paste', 'start');
+  if (!NO_ANALYSIS) {
   const input = page.locator('input[name="address"]').first();
   await input.click(); await sleep(600);
   const sheet = page.locator('.dcs-sheet.on');
@@ -108,6 +110,7 @@ const SEARCH_INTRO = !STORY || STORY.start === 'search';                    // m
   await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
   await sleep(1200);
   if (SEARCH_INTRO) mark('paste', 'end');
+  }
 
   // insurance sanity fix, same rule as the reels (typed into the app's own field so it recalculates)
   const insFix = await page.evaluate(() => {
@@ -191,6 +194,15 @@ const SEARCH_INTRO = !STORY || STORY.start === 'search';                    // m
           await el.click().catch(() => {}); await el.fill(''); await el.type(String(val), { delay: 90 }).catch(() => {}); await sleep(600); }
         if (act.unscope) await page.evaluate(() => { window.__demoScope = null; });
         if (act.focus) { const ok = await focus(act.focus, act.pick || 'self', !!act.scope); console.log(`focus ${act.focus}: ${ok}`); }
+        if (act.press) { await page.keyboard.press(act.press).catch(() => {}); await sleep(800); }
+        if (act.typein) {                                     // type into whatever field is focused/open, like a person
+          const [sel, val] = act.typein; const el = page.locator(sel).first();
+          await el.click().catch(() => {}); await sleep(400);
+          const target = (await page.locator('.dcs-sheet.on input[type="text"]').first().isVisible().catch(() => false))
+            ? page.locator('.dcs-sheet.on input[type="text"]').first() : el;
+          await target.type(String(val), { delay: 55 }).catch(e => console.log('typein miss', e.message));
+          await sleep(500);
+        }
         if (act.wait) await sleep(act.wait);
         if (act.waitgone) {                                   // wait for async sections (AI) to finish loading
           await page.waitForFunction(t => !document.body.innerText.includes(t), act.waitgone, { timeout: 90000, polling: 500 })
