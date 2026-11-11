@@ -73,7 +73,7 @@ jobs:
         run: |
           TAG="${{ steps.build.outputs.slug }}"
           [ -z "$TAG" ] && TAG="demo-failed-$(date -u +%Y%m%d-%H%M)"
-          cd work && zip -qr ../captures.zip . -x '*.webm' && cd ..
+          cd work && zip -qr ../captures.zip . -x 'frames/*' -x '*.mp4' && cd ..
           FILES="captures.zip"
           [ -f "dist/$TAG.mp4" ] && FILES="dist/$TAG.mp4 dist/$TAG-cover.jpg dist/script.txt $FILES"
           NOTES=dist/caption.txt; [ -f "$NOTES" ] || { echo "build failed" > /tmp/n.txt; NOTES=/tmp/n.txt; }

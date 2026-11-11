@@ -41,10 +41,21 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
   const ctx = await browser.newContext({
     storageState, viewport: { width: vw, height: vh }, deviceScaleFactor: 2, isMobile: true, hasTouch: true,
     userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
-    recordVideo: { dir: outdir, size: { width: vw * 2, height: vh * 2 } },
   });
   const page = await ctx.newPage();
   const t0 = Date.now();
+  // Crisp capture: Playwright's recordVideo films at 1x CSS pixels. The DevTools screencast gives
+  // device pixels (2x), one JPEG per painted frame with a timestamp — stitched into video below.
+  const fdir = out('frames'); fs.mkdirSync(fdir, { recursive: true });
+  const frames = [];
+  const cdp = await ctx.newCDPSession(page);
+  cdp.on('Page.screencastFrame', async (f) => {
+    const file = path.join(fdir, `f${String(frames.length).padStart(5, '0')}.jpg`);
+    fs.writeFileSync(file, Buffer.from(f.data, 'base64'));
+    frames.push({ t: f.metadata.timestamp - t0 / 1000, file });
+    cdp.send('Page.screencastFrameAck', { sessionId: f.sessionId }).catch(() => {});
+  });
+  await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 88, maxWidth: vw * 2, maxHeight: vh * 2, everyNthFrame: 1 });
   const now = () => (Date.now() - t0) / 1000;
   const markers = {};
   const mark = (k, edge) => { (markers[k] = markers[k] || {})[edge] = +now().toFixed(2); console.log(`${k}.${edge} @ ${markers[k][edge]}s`); };
@@ -163,9 +174,20 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
   fs.writeFileSync(out('data.json'), JSON.stringify(data, null, 2));
   fs.writeFileSync(out('markers.json'), JSON.stringify(markers, null, 2));
 
-  const video = page.video();
-  await ctx.close();
-  fs.renameSync(await video.path(), out('screen.webm'));
-  await browser.close();
-  console.log('recorded', out('screen.webm'));
+  await sleep(500);
+  await cdp.send('Page.stopScreencast').catch(() => {});
+  await ctx.close(); await browser.close();
+  // stitch: each frame lasts until the next one arrives (the screencast only sends changes)
+  if (!frames.length) throw new Error('screencast produced no frames');
+  const lines = ['ffconcat version 1.0'];
+  frames.forEach((f, i) => {
+    const start = i === 0 ? 0 : f.t;
+    const next = i + 1 < frames.length ? frames[i + 1].t : f.t + 1.0;
+    lines.push(`file '${path.resolve(f.file)}'`, `duration ${Math.max(0.001, next - start).toFixed(3)}`);
+  });
+  lines.push(`file '${path.resolve(frames[frames.length - 1].file)}'`);
+  fs.writeFileSync(out('frames.txt'), lines.join('\n'));
+  require('child_process').execFileSync('ffmpeg', ['-loglevel', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', out('frames.txt'),
+    '-vf', 'fps=30,scale=trunc(iw/2)*2:trunc(ih/2)*2', '-c:v', 'libx264', '-crf', '14', '-pix_fmt', 'yuv420p', out('screen.mp4')]);
+  console.log(`recorded ${frames.length} frames → ${out('screen.mp4')}`);
 })().catch(e => { console.error(e); process.exit(1); });

@@ -95,7 +95,7 @@ for attempt in range(3):
     SPEED = round(SPEED * min(1.18, total / MAX_LEN + 0.02), 2)
 
 # ------------------------------------------------------------------ retime the screen recording
-src = os.path.join(work, "screen.webm")
+src = os.path.join(work, "screen.mp4")
 filters, labels = [], []
 for i, (seg, _, _) in enumerate(lines):
     if seg == "end": continue
@@ -126,9 +126,11 @@ for (seg, disp, _), t0, dur, a in zip(lines, starts, seg_len, audio):
     chunks, cur = [], []
     for w in words:
         cur.append(w)
-        if len(cur) >= 5 or w.endswith((".", "?", ":", ",")) and len(cur) >= 3:
+        if len(cur) >= 6 or (w.endswith((".", "?", ":", ",")) and len(cur) >= 2):
             chunks.append(" ".join(cur)); cur = []
-    if cur: chunks.append(" ".join(cur))
+    if cur:
+        if len(cur) == 1 and chunks: chunks[-1] += " " + cur[0]      # never strand a single word
+        else: chunks.append(" ".join(cur))
     speak_t = len(a) / SR
     tot = sum(len(c) for c in chunks) or 1
     t = t0
