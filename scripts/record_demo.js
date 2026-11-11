@@ -156,7 +156,9 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
 
   // ---- 3. auto-filled inputs: rent (RentCast) → taxes + insurance ----
   mark('auto', 'start');
-  if (await page.locator('#mf-units-grid').count()) {
+  const nUnits = await page.evaluate(() => [...document.querySelectorAll('[id^="mf-unit-box-"]')].filter(e => e.offsetParent !== null || e.closest('#mf-units-grid')).length).catch(() => 0);
+  console.log('units on page:', nUnits);
+  if (nUnits >= 2) {
     for (const tab of ['Financials', 'Cashflow', 'All']) {
       if (await page.locator('#mf-units-grid').isVisible().catch(() => false)) break; await clickTab(tab);
     }
@@ -173,7 +175,9 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
     if (t && t.getAttribute('aria-expanded') !== 'true') t.click();
   }).catch(() => {});
   await sleep(500);
+  await sleep(700);                                          // let the accordion finish opening before measuring
   const okT = (await focus('#fin-tax', 'parent2')) || (await focus('#fin-ins', 'parent2'));
+  await sleep(900); await focus('#fin-tax', 'parent2');      // re-aim once the layout has settled
   console.log('focus tax:', okT);
   await sleep(HOLD * 0.5);
   mark('auto', 'end');
