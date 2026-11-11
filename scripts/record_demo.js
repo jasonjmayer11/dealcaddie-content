@@ -194,7 +194,13 @@ const SEARCH_INTRO = !STORY || STORY.start === 'search';                    // m
         if (act.wait) await sleep(act.wait);
       }
       mark(sc.id, 'start');
-      await sleep((sc.hold || 7) * 1000);
+      await sleep(900);                                   // let the smooth scroll land, then note where the subject is
+      if (sc.zoom !== false) {
+        const rect = await page.evaluate(() => { const e = window.__demoFocus; if (!e) return null;
+          const r = e.getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; }).catch(() => null);
+        if (rect) markers[sc.id].rect = rect.map(x => +x.toFixed(1));
+      }
+      await sleep(Math.max(0, (sc.hold || 7) * 1000 - 900));
       // grab numbers for the voice from the focused element's text (or the whole page)
       const txt = await page.evaluate(() => (window.__demoFocus || document.body).innerText || '').catch(() => '');
       const pageTxt = await page.evaluate(() => document.body.innerText).catch(() => '');

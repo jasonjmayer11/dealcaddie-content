@@ -254,10 +254,37 @@ fsz = sw * sh * 3
 last = None
 cover_saved = False
 last_main = None
+# camera punch-in: on storyboard scenes the recorder noted where the subject sits on screen;
+# ease in to it so small table text is readable on a phone, ease back out before the next scene
+VW, VH = 430.0, 932.0
+seg_t0 = np.cumsum([0] + seg_len[:-1])
+zplan = []
+for (seg, _, _), t0, dur in zip(lines, seg_t0, seg_len):
+    r = (mk.get(seg) or {}).get("rect")
+    if not r or seg == "end":
+        zplan.append(None); continue
+    x, y, w, h = r
+    z = max(1.0, min(1.6, 0.94 * VW / max(w, 1), 0.80 * VH / max(h, 1)))
+    if z < 1.08: zplan.append(None); continue
+    zplan.append((t0, dur, z, (x + w / 2) / VW, (y + h / 2) / VH))
+def zoom_at(t):
+    for zp in zplan:
+        if zp and zp[0] <= t < zp[0] + zp[1]:
+            t0, dur, z, cx, cy = zp
+            k = min(1.0, (t - t0) / 0.7, (t0 + dur - t) / 0.45)
+            k = max(0.0, k); k = k * k * (3 - 2 * k)
+            return 1 + (z - 1) * k, cx, cy
+    return 1.0, 0.5, 0.5
 for i in range(n_main):
     buf = dec.stdout.read(fsz)
     if len(buf) == fsz:
-        last = Image.frombytes("RGB", (sw, sh), buf).resize((SCR_W, SCR_H), Image.LANCZOS)
+        src_im = Image.frombytes("RGB", (sw, sh), buf)
+        z, cx, cy = zoom_at(i / FPS)
+        if z > 1.001:
+            cw, ch = sw / z, sh / z
+            x0 = min(max(cx * sw - cw / 2, 0), sw - cw); y0 = min(max(cy * sh - ch / 2, 0), sh - ch)
+            src_im = src_im.crop((int(x0), int(y0), int(x0 + cw), int(y0 + ch)))
+        last = src_im.resize((SCR_W, SCR_H), Image.LANCZOS)
     t = i / FPS
     f = base.copy()
     if last is not None:
