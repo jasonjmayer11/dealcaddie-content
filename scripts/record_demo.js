@@ -192,6 +192,11 @@ const SEARCH_INTRO = !STORY || STORY.start === 'search';                    // m
         if (act.unscope) await page.evaluate(() => { window.__demoScope = null; });
         if (act.focus) { const ok = await focus(act.focus, act.pick || 'self', !!act.scope); console.log(`focus ${act.focus}: ${ok}`); }
         if (act.wait) await sleep(act.wait);
+        if (act.waitgone) {                                   // wait for async sections (AI) to finish loading
+          await page.waitForFunction(t => !document.body.innerText.includes(t), act.waitgone, { timeout: 90000, polling: 500 })
+            .catch(() => console.log('still loading:', act.waitgone));
+          await sleep(800);
+        }
       }
       mark(sc.id, 'start');
       await sleep(900);                                   // let the smooth scroll land, then note where the subject is

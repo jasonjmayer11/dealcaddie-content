@@ -1,0 +1,25 @@
+{
+  "audience": "investor",
+  "start": "quick",
+  "title": "Will a DSCR lender like this {price_short} {city} rental?",
+  "blurb": "Lender & investor ratios on every deal — DSCR, break-even occupancy, the 1% rule, IRR — plus a one-tap Lender Summary PDF.",
+  "tags": "#dscrloan #realestateinvesting #rentalproperty #realestatefinancing #realestateinvestor",
+  "scenes": [
+    {"id": "hook", "do": [{"top": true}, {"wait": 600}, {"focus": "#results-top"}], "hold": 4,
+     "line": "Will a lender actually like this {price_short} {ptype}? Let's check it the way they do."},
+    {"id": "dscr", "do": [{"tab": "Cashflow"}, {"focus": "text:^\\s*LENDER & INVESTOR RATIOS", "pick": "card", "scope": true}], "hold": 6,
+     "grab": {"dscr": "DSCR\\s+(?:Ⓘ\\s+)?([\\d.]+x)", "beo": "BREAK-EVEN OCCUPANCY\\s+(?:Ⓘ\\s+)?(\\d+%)", "rtv": "RENT-TO-VALUE\\s+(?:Ⓘ\\s+)?([\\d.]+%)",
+              "irr": "IRR\\s+(?:Ⓘ\\s+)?([\\d.]+%)"},
+     "line": "DSCR: {dscr}. Most DSCR lenders want at least one point two five.",
+     "alts": ["Here's the DSCR — the number DSCR lenders care about most."]},
+    {"id": "beo", "do": [{"focus": "text:^\\s*BREAK-EVEN OCCUPANCY", "pick": "parent"}], "hold": 5,
+     "line": "It breaks even at {beo} occupancy, and the rent-to-value is {rtv}.",
+     "alts": ["Break-even occupancy and the one percent rule, already worked out."]},
+    {"id": "irr", "do": [{"focus": "text:^\\s*IRR", "pick": "parent"}], "hold": 4.5,
+     "line": "Hold it thirty years and the IRR is {irr}.", "alts": ["Plus IRR and equity multiple over the full hold."]},
+    {"id": "pdf", "do": [{"unscope": true}, {"focus": "text:^\\s*Lender summary PDF\\s*$"}], "hold": 5,
+     "line": "And one tap makes the lender summary PDF your loan officer asks for."}
+  ],
+  "wrap": "Know what your lender will say, before you call them.",
+  "end": "Try it free at dealcaddie.ai."
+}
