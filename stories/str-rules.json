@@ -3,7 +3,7 @@
   "start": "quick",
   "title": "Airbnb pays the most on this {city} house. There's a catch.",
   "blurb": "DealCaddie checks short-term rental rules for the city on every analysis and flags restricted markets, so you never underwrite an Airbnb you can't legally run.",
-  "tags": "#airbnb #shorttermrental #strinvesting #realestateinvesting #airbnbhost #{city}",
+  "tags": "#airbnb #shorttermrental #strinvesting #realestateinvesting #airbnbhost",
   "scenes": [
     {"id": "hook", "do": [{"top": true}, {"wait": 600}, {"focus": "#results-top"}], "hold": 4,
      "line": "On this {price_short} {ptype} in {city}, Airbnb pays the most. But there's a catch."},
