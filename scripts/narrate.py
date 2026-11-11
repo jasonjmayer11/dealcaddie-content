@@ -35,6 +35,7 @@ city = (data.get("cityLine") or "").split(",")[0].strip() or "this market"
 units = [float(u) for u in data.get("units") or []]
 ptype = {2: "duplex", 3: "triplex", 4: "fourplex"}.get(len(units), f"{len(units)}-unit" if len(units) > 4 else "house")
 score = (data.get("score") or "").strip()
+AIRBNB = "[Airbnb](/ˈɛɹbˌiˌɛnbˌi/)"
 NAMES = {"ltr": "long-term rental", "mtr": "mid-term rental", "str": "Airbnb", "s8": "Section 8", "hh": "house hack", "brrrr": "BRRRR"}
 cf = {k: num(v) for k, v in (data.get("strategies") or {}).items() if num(v) is not None}
 restricted = bool(data.get("strRestricted"))
@@ -44,8 +45,12 @@ rehab = data.get("rehab") or {}
 
 def signed(v): return ("plus " if v >= 0 else "minus ") + dollars(abs(v))
 lines = []          # (segment, display text, spoken text)
-lines.append(("paste", f"A {short(price)} {ptype} in {city}. Is it a deal? I just paste the Zillow link.",
-              f"A {dollars(price)} {ptype} in {city}. Is it a deal? I just paste the Zillow link."))
+def spoken_price(x):                        # "a 175 thousand dollar house" — singular, like people say it
+    k = int(round(x / 1000))
+    return f"{k // 1000} point {str(k % 1000)[0]} million dollar" if k >= 1000 else f"{k} thousand dollar"
+lines.append(("intro", f"A {short(price)} {ptype} in {city}. Is it a deal?",
+              f"A {spoken_price(price)} {ptype} in {city}. Is it a deal?"))
+lines.append(("paste", "I just paste the Zillow link.", "I just paste the Zillow link."))
 if score:
     lines.append(("score", f"Ten seconds later: deal score, {score} out of 10.",
                   f"Ten seconds later. Deal score: {score} out of ten."))
@@ -58,7 +63,7 @@ if best is not None:
     if restricted and cf.get("str") is not None and cf["str"] > legal[best]:
         d = (f"Every strategy, side by side. Airbnb pays most, but it's restricted in {city}, and DealCaddie flags it. "
              f"The real play: {NAMES[best]}, at {'+' if legal[best] >= 0 else '−'}{dollars(abs(legal[best]))}/mo.")
-        s = (f"Every strategy, side by side. Airbnb pays most, but it's restricted in {city}, and Deal Caddie flags it. "
+        s = (f"Every strategy, side by side. AIRBNB pays most, but it's restricted in {city}, and Deal Caddie flags it. "
              f"The real play: {NAMES[best]}, at {signed(legal[best])} a month.")
     elif best == "ltr" or cf.get("ltr") is None:
         d = f"Every strategy, side by side. Best play: {NAMES[best]}, at {'+' if legal[best] >= 0 else '−'}{dollars(abs(legal[best]))}/mo."
@@ -68,7 +73,7 @@ if best is not None:
              f"But as a {NAMES[best]}: {'+' if legal[best] >= 0 else '−'}{dollars(abs(legal[best]))}/mo.")
         s = (f"Every strategy, side by side. Long-term rental, {signed(cf['ltr'])} a month. "
              f"But as a {NAMES[best]}, {signed(legal[best])} a month.")
-    lines.append(("strategies", d, s.replace("BRRRR", "burr")))
+    lines.append(("strategies", d, re.sub(r"(?<!\[)\b(?:AIRBNB|Airbnb)\b(?!\])", AIRBNB, s.replace("BRRRR", "burr"))))
 rng = (rehab.get("range") or "").replace("–", "-")
 m = re.findall(r"\$(\d+)K", rng)
 if len(m) == 2:
@@ -76,7 +81,7 @@ if len(m) == 2:
     lines.append(("rehab", f"It even reads the photos: {lvl} rehab, ${m[0]}K to ${m[1]}K.",
                   f"It even reads the photos. {lvl.capitalize()} rehab, {m[0]} to {m[1]} thousand."))
 lines.append(("end", "Every number, in seconds. Try it free at dealcaddie.ai.",
-              "Every number. In seconds. Try it free at deal caddie dot A I."))
+              "Every number. In seconds. Try it free at Deal Caddie dot [A.I.](/ˌAˈI/)"))
 
 # ------------------------------------------------------------------ voice (Kokoro, runs locally)
 from kokoro import KPipeline
@@ -139,8 +144,8 @@ for (seg, disp, _), t0, dur, a in zip(lines, starts, seg_len, audio):
         caps.append((t, t + d, c)); t += d
 
 # ------------------------------------------------------------------ compose: brand canvas, phone, captions
-LOGO = logo_layer(300)
-SCR_H = 1400
+LOGO = logo_layer(250)
+SCR_H = 1430
 SCR_W = int(sw * SCR_H / sh)
 bez = 20
 phone = Image.new("RGBA", (SCR_W + 2 * bez, SCR_H + 2 * bez), (0, 0, 0, 0))
@@ -149,13 +154,13 @@ shadow = Image.new("RGBA", (phone.width + 160, phone.height + 160), (0, 0, 0, 0)
 ImageDraw.Draw(shadow).rounded_rectangle([80, 110, 80 + phone.width, 110 + phone.height], radius=86, fill=(10, 30, 18, 70))
 from PIL import ImageFilter
 shadow = shadow.filter(ImageFilter.GaussianBlur(40))
-PX, PY = (W - phone.width) // 2, 470
+PX, PY = (W - phone.width) // 2, 175
 mask = Image.new("L", (SCR_W, SCR_H), 0)
 ImageDraw.Draw(mask).rounded_rectangle([0, 0, SCR_W - 1, SCR_H - 1], radius=68, fill=255)
 base = BG.copy().convert("RGBA")
 base.alpha_composite(shadow, (PX - 80, PY - 80))
 base.alpha_composite(phone, (PX, PY))
-place(base, LOGO, W // 2, 175)
+place(base, LOGO, W // 2, 62)
 cap_cache = {}
 def caption(text):
     if text not in cap_cache:
@@ -192,7 +197,7 @@ for i in range(n_main):
     cur = next((c for c in caps if c[0] <= t < c[1] + 0.12), None)
     if cur:
         cl = caption(cur[2])
-        f.alpha_composite(cl, (0, 300 - cl.height // 2 + 40))
+        f.alpha_composite(cl, (0, 1752 - cl.height // 2))
     fr = f.convert("RGB")
     if not cover_saved and t >= 0.4:
         fr.save(os.path.join(out_dir, "cover.jpg"), quality=92); cover_saved = True

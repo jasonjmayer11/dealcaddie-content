@@ -86,6 +86,7 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
   // ---- 1. paste the link ----
   await page.goto(`${BASE}/analyze`, { waitUntil: 'networkidle', timeout: 60000 });
   await sleep(800);
+  mark('intro', 'start'); await sleep(3200); mark('intro', 'end');   // sit on the search page first
   mark('paste', 'start');
   const input = page.locator('input[name="address"]').first();
   await input.click(); await sleep(600);
