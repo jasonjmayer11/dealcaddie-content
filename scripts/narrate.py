@@ -81,7 +81,7 @@ if len(m) == 2:
     lines.append(("rehab", f"It even reads the photos: {lvl} rehab, ${m[0]}K to ${m[1]}K.",
                   f"It even reads the photos. {lvl.capitalize()} rehab, {m[0]} to {m[1]} thousand."))
 lines.append(("wrap", "DealCaddie runs every number for you, in seconds.",
-              "Deal Caddie runs every number for you. In seconds."))
+              "Deal Caddie runs every number for you in seconds."))
 lines.append(("end", "Try it free at dealcaddie.ai.",
               "Try it free, at Deal Caddie dot [A.I.](/ˌAˈI/)"))
 
