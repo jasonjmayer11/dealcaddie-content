@@ -22,7 +22,7 @@ data = json.load(open(os.path.join(work, "data.json")))
 mk = json.load(open(os.path.join(work, "markers.json")))
 SR = 24000
 VOICE = os.environ.get("VOICE") or "af_heart"
-SPEED = float(os.environ.get("VOICE_SPEED") or 1.08)
+SPEED = float(os.environ.get("VOICE_SPEED") or 1.05)
 MAX_LEN = 39.5
 
 # ------------------------------------------------------------------ the script, from real numbers
@@ -47,35 +47,35 @@ lines = []          # (segment, display text, spoken text)
 lines.append(("paste", f"A {short(price)} {ptype} in {city}. Is it a deal? I just paste the Zillow link.",
               f"A {dollars(price)} {ptype} in {city}. Is it a deal? I just paste the Zillow link."))
 if score:
-    lines.append(("score", f"Ten seconds later: a deal score of {score} out of 10.",
-                  f"Ten seconds later, a deal score of {score} out of ten."))
+    lines.append(("score", f"Ten seconds later: deal score, {score} out of 10.",
+                  f"Ten seconds later. Deal score: {score} out of ten."))
 rent_total = sum(units) if len(units) >= 2 else (num(data.get("ltrRent") or "") or 0)
 if rent_total:
     across = f" across {len(units)} units" if len(units) >= 2 else ""
-    lines.append(("auto", f"Rent comes straight from RentCast: {dollars(rent_total)}/mo{across}. Taxes and insurance fill in automatically.",
-                  f"Rent comes straight from Rent Cast: {dollars(rent_total)} a month{across}. Taxes and insurance fill in automatically."))
+    lines.append(("auto", f"Rent from RentCast: {dollars(rent_total)}/mo{across}. Taxes and insurance, filled in.",
+                  f"Rent from Rent Cast: {dollars(rent_total)} a month{across}. Taxes and insurance, filled in."))
 if best is not None:
     if restricted and cf.get("str") is not None and cf["str"] > legal[best]:
-        d = (f"Then it runs every strategy. Airbnb looks best, but it's restricted in {city}, and DealCaddie flags it. "
+        d = (f"Every strategy, side by side. Airbnb pays most, but it's restricted in {city}, and DealCaddie flags it. "
              f"The real play: {NAMES[best]}, at {'+' if legal[best] >= 0 else '−'}{dollars(abs(legal[best]))}/mo.")
-        s = (f"Then it runs every strategy. Airbnb looks best, but it's restricted in {city}, and Deal Caddie flags it. "
+        s = (f"Every strategy, side by side. Airbnb pays most, but it's restricted in {city}, and Deal Caddie flags it. "
              f"The real play: {NAMES[best]}, at {signed(legal[best])} a month.")
     elif best == "ltr" or cf.get("ltr") is None:
-        d = f"Then it runs every strategy. Best play: {NAMES[best]}, at {'+' if legal[best] >= 0 else '−'}{dollars(abs(legal[best]))}/mo."
-        s = f"Then it runs every strategy. Best play: {NAMES[best]}, at {signed(legal[best])} a month."
+        d = f"Every strategy, side by side. Best play: {NAMES[best]}, at {'+' if legal[best] >= 0 else '−'}{dollars(abs(legal[best]))}/mo."
+        s = f"Every strategy, side by side. Best play: {NAMES[best]}, at {signed(legal[best])} a month."
     else:
-        d = (f"Then it runs every strategy. Long-term rental: {'+' if cf['ltr'] >= 0 else '−'}{dollars(abs(cf['ltr']))}/mo. "
+        d = (f"Every strategy, side by side. Long-term rental: {'+' if cf['ltr'] >= 0 else '−'}{dollars(abs(cf['ltr']))}/mo. "
              f"But as a {NAMES[best]}: {'+' if legal[best] >= 0 else '−'}{dollars(abs(legal[best]))}/mo.")
-        s = (f"Then it runs every strategy. Long-term rental, {signed(cf['ltr'])} a month. "
+        s = (f"Every strategy, side by side. Long-term rental, {signed(cf['ltr'])} a month. "
              f"But as a {NAMES[best]}, {signed(legal[best])} a month.")
     lines.append(("strategies", d, s.replace("BRRRR", "burr")))
 rng = (rehab.get("range") or "").replace("–", "-")
 m = re.findall(r"\$(\d+)K", rng)
 if len(m) == 2:
     lvl = (rehab.get("level") or "").strip().lower() or "light"
-    lines.append(("rehab", f"It even reads the listing photos: {lvl} rehab, about ${m[0]}K to ${m[1]}K.",
-                  f"It even reads the listing photos. {lvl.capitalize()} rehab, about {m[0]} to {m[1]} thousand dollars."))
-lines.append(("end", "Every number. In seconds. Try it free at dealcaddie.ai.",
+    lines.append(("rehab", f"It even reads the photos: {lvl} rehab, ${m[0]}K to ${m[1]}K.",
+                  f"It even reads the photos. {lvl.capitalize()} rehab, {m[0]} to {m[1]} thousand."))
+lines.append(("end", "Every number, in seconds. Try it free at dealcaddie.ai.",
               "Every number. In seconds. Try it free at deal caddie dot A I."))
 
 # ------------------------------------------------------------------ voice (Kokoro, runs locally)
