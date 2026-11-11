@@ -176,7 +176,16 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
   await sleep(HOLD); mark('strategies', 'end');
 
   // ---- 5. rehab estimate from photos ----
-  await page.waitForSelector('#cond-rehab', { state: 'attached', timeout: 60000 }).catch(() => {});
+  let gotRehab = await page.waitForSelector('#cond-rehab', { state: 'attached', timeout: 45000 }).then(() => true).catch(() => false);
+  if (!gotRehab) {                     // cached report without an estimate, or the first call raced the page — ask again
+    console.log('rehab: retrying');
+    await page.evaluate(() => {
+      const b = [...document.querySelectorAll('button')].find(x => /estimate rehab from these photos/i.test(x.textContent || ''));
+      if (b) b.click(); else if (typeof autoAnalyzeCondition === 'function') autoAnalyzeCondition();
+    }).catch(() => {});
+    gotRehab = await page.waitForSelector('#cond-rehab', { state: 'attached', timeout: 90000 }).then(() => true).catch(() => false);
+  }
+  console.log('rehab ready:', gotRehab);
   for (const tab of ['AI Take', 'Financials', 'Comps', 'All', 'Cashflow']) {
     if (await page.locator('#cond-rehab').isVisible().catch(() => false)) break;
     await clickTab(tab);
