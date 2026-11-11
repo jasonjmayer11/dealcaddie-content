@@ -88,9 +88,11 @@
    "line": "And one tap makes the lender summary PDF your loan officer asks for."
   }
  ],
- "wrap": "Know what your lender will say, before you call them.",
+ "wrap": "Walk into your lender's office already knowing the answer.",
  "end": "Try it free at dealcaddie.ai.",
  "cover": "Will the lender say yes?",
  "cover_sub": "DSCR {dscr} · breaks even at {beo} occupancy",
- "cover_scene": "dscr"
+ "cover_scene": "dscr",
+ "why": "Stop waiting on a loan officer to tell you if your deal works. Know before you call.",
+ "ask": "What's the lowest DSCR you'd buy at?"
 }

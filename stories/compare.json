@@ -68,9 +68,11 @@
    "line": "Still torn? Ask Caddie which one to chase, and why."
   }
  ],
- "wrap": "Stop flipping between tabs. Pick the winner.",
+ "wrap": "Stop second-guessing. Pick the winner and get back to your life.",
  "end": "Try it free at dealcaddie.ai.",
  "cover": "3 deals. 1 answer.",
  "cover_sub": "Side by side, best in every row, plus Caddie's pick",
- "cover_scene": "best"
+ "cover_scene": "best",
+ "why": "Analysis paralysis costs you deals. Compare side by side and decide in minutes.",
+ "ask": "Which of these would you buy? 👇"
 }

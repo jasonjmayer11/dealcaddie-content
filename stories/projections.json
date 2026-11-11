@@ -65,10 +65,12 @@
    "line": "Every year is broken down: rent, expenses, equity, and what you'd net if you sold."
   }
  ],
- "wrap": "See the whole hold before you buy.",
+ "wrap": "This is how one good rental turns into real wealth. See your future before you buy.",
  "end": "Try it free at dealcaddie.ai.",
  "require": "CF Breakeven\\s+Year\\s+([6-9]|1\\d)\\b",
  "cover": "This house, 30 years from now.",
  "cover_sub": "{net} net · {roi} a year vs. 7% index fund",
- "cover_scene": "summary"
+ "cover_scene": "summary",
+ "why": "One rental, held for thirty years, can change your family's future. See exactly how.",
+ "ask": "How many rentals would you need to replace your paycheck?"
 }

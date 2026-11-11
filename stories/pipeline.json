@@ -76,9 +76,11 @@
    "line": "And when a deal goes pending, sells, or comes back on the market, it's tagged right on the card."
   }
  ],
- "wrap": "Your whole deal flow, in one place.",
+ "wrap": "Your whole deal flow, organized, so you can focus on buying.",
  "end": "Try it free at dealcaddie.ai.",
  "cover": "Every deal you're watching. One list.",
  "cover_sub": "Score, cap rate, CoC, DSCR and sold/pending tags",
- "cover_scene": "card"
+ "cover_scene": "card",
+ "why": "Serious investors track every deal. Here's how to do it without a spreadsheet.",
+ "ask": "How many deals are you watching right now? 👇"
 }

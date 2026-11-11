@@ -81,12 +81,14 @@
    "line": "And Caddie explains why, so you can defend your number to the listing agent."
   }
  ],
- "wrap": "Don't overpay. Let the comps set your offer.",
+ "wrap": "Every dollar you don't overpay is a dollar working for you. Offer with confidence.",
  "end": "Try it free at dealcaddie.ai.",
  "require": "Asking\\s+\\S+\\s+\\$\\d+/sqft\\s+\\+?\\d+%\\s*▲",
  "requireWait": "Comp avg",
  "requireLog": "Comp avg[\\s\\S]{0,120}",
  "cover": "Is it overpriced?",
  "cover_sub": "Asking {price_short}. Comps say open at {sugg}.",
- "cover_scene": "sugg"
+ "cover_scene": "sugg",
+ "why": "The money in real estate is made when you buy. Never overpay again.",
+ "ask": "Have you ever overpaid for a property? Be honest 👇"
 }

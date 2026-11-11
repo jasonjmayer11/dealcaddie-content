@@ -77,9 +77,11 @@
    ]
   }
  ],
- "wrap": "Know the rules before you buy, not after.",
+ "wrap": "Know the rules before you buy, and protect your money.",
  "end": "Try it free at dealcaddie.ai.",
  "cover": "Airbnb pays most. It's restricted here.",
  "cover_sub": "DealCaddie flags local STR rules on every deal",
- "cover_scene": "strats"
+ "cover_scene": "strats",
+ "why": "Thousands of investors have bought Airbnbs they couldn't legally run. Don't be one of them.",
+ "ask": "Is your city Airbnb-friendly? Tell us below 👇"
 }

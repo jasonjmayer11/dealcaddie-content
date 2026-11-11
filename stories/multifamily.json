@@ -75,12 +75,14 @@
    "line": "Live in one unit? The house hack numbers are already there too."
   }
  ],
- "wrap": "Every unit, every strategy, in seconds.",
+ "wrap": "More doors, more income, less guesswork. Every unit, every strategy, in seconds.",
  "end": "Try it free at dealcaddie.ai.",
  "cover": "Every unit's rent, pulled for you.",
  "cover_sub": "{rent}/mo total rent across the building",
  "cover_scene": "units",
  "require": "RENT-TO-VALUE\\s+(?:Ⓘ\\s+)?(0\\.\\d+|1\\.[0-4]\\d?)%",
  "requireWait": "RENT-TO-VALUE",
- "requireLog": "RENT-TO-VALUE[\\s\\S]{0,30}"
+ "requireLog": "RENT-TO-VALUE[\\s\\S]{0,30}",
+ "why": "Small multifamily is how many investors build real cash flow. Underwrite every unit in seconds.",
+ "ask": "Duplex or single-family for your first deal? 👇"
 }

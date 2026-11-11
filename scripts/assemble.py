@@ -224,7 +224,12 @@ if AGENT:
 
 {specs + '. ' if specs else ''}Your investor client sends you a listing. Paste the link into DealCaddie and reply with real numbers: {body}
 
-Send it as one branded link with your name, photo and brokerage on it. Clients get a private portal to rank deals and request showings, plus comps, financing scenarios side by side and a one-tap Offer Plan.
+Investor clients stay with the agent who brings them real numbers. Send it as one branded link with your name, photo and brokerage on it. Clients get a private portal to rank deals and request showings, plus comps, financing scenarios side by side and a one-tap Offer Plan.
+
+Be the agent your investors can't work without, and get your evenings back.
+
+💬 Would your client buy this one? 👇
+📌 Save this for your next investor client.
 
 Agent plans start at {AGENT_PRICE} → dealcaddie.ai
 
@@ -237,9 +242,12 @@ else:
 
 Taxes, insurance and rent comps pulled automatically — about 10 seconds start to finish.
 
-Comment a city and I'll run the next one 👇
+Every rental you buy right is one step closer to owning your time. Stop guessing. Know the numbers.
 
-Try it free · dealcaddie.ai
+💬 Would you buy it? Comment BUY or PASS — or drop a city and I'll run the next one 👇
+📌 Save this for your next deal.
+
+Try it free → dealcaddie.ai
 
 #realestateinvesting #rentalproperty #cashflow #realestateinvestor {city_tag}
 """

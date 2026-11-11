@@ -88,9 +88,11 @@
    "line": "Add a third option, change the rate or a seller credit, and every number updates live."
   }
  ],
- "wrap": "Pick your loan with real numbers, not a guess.",
+ "wrap": "The right loan can mean hundreds more in your pocket every month. Now you'll know.",
  "end": "Try it free at dealcaddie.ai.",
  "cover": "25% down or 10% down?",
  "cover_sub": "{save_close} less at closing. {cf_delta}/mo less cash flow.",
- "cover_scene": "flow"
+ "cover_scene": "flow",
+ "why": "Small loan choices compound into big money. Know the real cost before you sign.",
+ "ask": "Would you rather keep cash in the bank, or more cash flow every month?"
 }

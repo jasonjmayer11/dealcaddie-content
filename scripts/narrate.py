@@ -436,14 +436,22 @@ if STORY:
     except KeyError: pass
     blurb = STORY.get("blurb", blurb)
     tags = STORY.get("tags", tags)
+why = (STORY or {}).get("why", "Stop guessing on deals. Know the numbers before you buy.") if STORY else \
+      "Stop guessing on deals. Know the numbers in seconds, and buy with confidence."
+ask = (STORY or {}).get("ask", "Would you buy it? 👇") if STORY else "Would you buy it? Comment BUY or PASS 👇"
 open(os.path.join(out_dir, "caption.txt"), "w").write(
     f"""{hook}
 
-{' '.join(d for s, d, _ in lines if s != 'end')}
+{why}
+
+{' '.join(d for s, d, _ in lines if s not in ('end', 'wrap'))}
 
 {blurb}
 
-Try it free · dealcaddie.ai
+💬 {ask}
+📌 Save this for your next deal.
+
+Try it free → dealcaddie.ai
 
 {tags}
 """)

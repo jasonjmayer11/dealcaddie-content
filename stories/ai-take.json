@@ -87,9 +87,11 @@
    "line": "Still have a question? Ask Caddie. It sees the exact numbers on your screen."
   }
  ],
- "wrap": "A second opinion on every deal, in seconds.",
+ "wrap": "It's like having an expert investor in your pocket, on every deal.",
  "end": "Try it free at dealcaddie.ai.",
  "cover": "Should you buy it?",
  "cover_sub": "Caddie's verdict, red flags and best strategy",
- "cover_scene": "verdict"
+ "cover_scene": "verdict",
+ "why": "Every investor needs a second opinion. Now you have one on every single deal.",
+ "ask": "Would you buy this one? Comment BUY or PASS 👇"
 }
