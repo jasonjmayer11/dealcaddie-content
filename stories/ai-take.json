@@ -88,5 +88,8 @@
   }
  ],
  "wrap": "A second opinion on every deal, in seconds.",
- "end": "Try it free at dealcaddie.ai."
+ "end": "Try it free at dealcaddie.ai.",
+ "cover": "Should you buy it?",
+ "cover_sub": "Caddie's verdict, red flags and best strategy",
+ "cover_scene": "verdict"
 }

@@ -78,5 +78,8 @@
   }
  ],
  "wrap": "Know the rules before you buy, not after.",
- "end": "Try it free at dealcaddie.ai."
+ "end": "Try it free at dealcaddie.ai.",
+ "cover": "Airbnb pays most. It's restricted here.",
+ "cover_sub": "DealCaddie flags local STR rules on every deal",
+ "cover_scene": "strats"
 }

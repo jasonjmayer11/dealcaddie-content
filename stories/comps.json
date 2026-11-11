@@ -85,5 +85,8 @@
  "end": "Try it free at dealcaddie.ai.",
  "require": "Asking\\s+\\S+\\s+\\$\\d+/sqft\\s+\\+?\\d+%\\s*▲",
  "requireWait": "Comp avg",
- "requireLog": "Comp avg[\\s\\S]{0,120}"
+ "requireLog": "Comp avg[\\s\\S]{0,120}",
+ "cover": "Is it overpriced?",
+ "cover_sub": "Asking {price_short}. Comps say open at {sugg}.",
+ "cover_scene": "sugg"
 }

@@ -67,5 +67,8 @@
  ],
  "wrap": "See the whole hold before you buy.",
  "end": "Try it free at dealcaddie.ai.",
- "require": "CF Breakeven\\s+Year\\s+([6-9]|1\\d)\\b"
+ "require": "CF Breakeven\\s+Year\\s+([6-9]|1\\d)\\b",
+ "cover": "This house, 30 years from now.",
+ "cover_sub": "{net} net · {roi} a year vs. 7% index fund",
+ "cover_scene": "summary"
 }

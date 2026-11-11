@@ -1,27 +1,96 @@
 {
-  "audience": "investor",
-  "start": "quick",
-  "title": "{dp_a} down or {dp_b} down? The math on a {price_short} {city} rental.",
-  "blurb": "Scenarios: compare down payment, rate, price and seller credit side by side — cash to close, payment, PMI and cash flow.",
-  "tags": "#realestateinvesting #rentalproperty #mortgage #downpayment #cashflow #realestateinvestor",
-  "scenes": [
-    {"id": "hook", "do": [{"top": true}, {"wait": 600}, {"focus": "#results-top"}], "hold": 4.5,
-     "line": "{dp_a} down, or {dp_b} down? Here's what it really costs on a {price_short} {ptype} in {city}.",
-     "alts": ["How much should you put down? Here's what it really costs on a {price_short} {ptype} in {city}."]},
-    {"id": "table", "do": [{"unscope": true}, {"tab": "Scenarios"}, {"focus": "text:Compare financing side by side", "pick": "card", "scope": true}], "hold": 6,
-     "grab": {"dp_a": "Down\\s+(\\d+%)", "dp_b": "Down\\s+\\d+%\\s+\\$[\\d,]+\\s+(\\d+%)",
-              "save_close": "Cash to close[\\s\\S]*?[−-](\\$[\\d,]+) vs yours",
-              "cf_delta": "LTR cashflow[\\s\\S]*?[−-](\\$[\\d,]+) vs yours",
-              "pmi_b": "PMI[\\s\\S]*?(\\$[\\d,]+)\\s+est"},
-     "line": "DealCaddie puts both loans side by side: cash to close, payment, PMI and cash flow."},
-    {"id": "cash", "do": [{"focus": "text:^\\s*Cash to close\\s*$", "pick": "row"}], "hold": 5,
-     "line": "Putting {dp_b} down saves you {save_close} at closing."},
-    {"id": "flow", "do": [{"focus": "text:^\\s*LTR cashflow\\s*$", "pick": "row"}], "hold": 6,
-     "line": "But it costs you {cf_delta}/mo in cash flow, with {pmi_b}/mo of PMI baked in.",
-     "alts": ["But it costs you {cf_delta}/mo in cash flow."]},
-    {"id": "more", "do": [{"unscope": true}, {"focus": "text:^\\s*\\+ Add scenario\\s*$"}], "hold": 4.5,
-     "line": "Add a third option, change the rate or a seller credit, and every number updates live."}
-  ],
-  "wrap": "Pick your loan with real numbers, not a guess.",
-  "end": "Try it free at dealcaddie.ai."
+ "audience": "investor",
+ "start": "quick",
+ "title": "{dp_a} down or {dp_b} down? The math on a {price_short} {city} rental.",
+ "blurb": "Scenarios: compare down payment, rate, price and seller credit side by side — cash to close, payment, PMI and cash flow.",
+ "tags": "#realestateinvesting #rentalproperty #mortgage #downpayment #cashflow #realestateinvestor",
+ "scenes": [
+  {
+   "id": "hook",
+   "do": [
+    {
+     "top": true
+    },
+    {
+     "wait": 600
+    },
+    {
+     "focus": "#results-top"
+    }
+   ],
+   "hold": 4.5,
+   "line": "{dp_a} down, or {dp_b} down? Here's what it really costs on a {price_short} {ptype} in {city}.",
+   "alts": [
+    "How much should you put down? Here's what it really costs on a {price_short} {ptype} in {city}."
+   ]
+  },
+  {
+   "id": "table",
+   "do": [
+    {
+     "unscope": true
+    },
+    {
+     "tab": "Scenarios"
+    },
+    {
+     "focus": "text:Compare financing side by side",
+     "pick": "card",
+     "scope": true
+    }
+   ],
+   "hold": 6,
+   "grab": {
+    "dp_a": "Down\\s+(\\d+%)",
+    "dp_b": "Down\\s+\\d+%\\s+\\$[\\d,]+\\s+(\\d+%)",
+    "save_close": "Cash to close[\\s\\S]*?[−-](\\$[\\d,]+) vs yours",
+    "cf_delta": "LTR cashflow[\\s\\S]*?[−-](\\$[\\d,]+) vs yours",
+    "pmi_b": "PMI[\\s\\S]*?(\\$[\\d,]+)\\s+est"
+   },
+   "line": "DealCaddie puts both loans side by side: cash to close, payment, PMI and cash flow."
+  },
+  {
+   "id": "cash",
+   "do": [
+    {
+     "focus": "text:^\\s*Cash to close\\s*$",
+     "pick": "row"
+    }
+   ],
+   "hold": 5,
+   "line": "Putting {dp_b} down saves you {save_close} at closing."
+  },
+  {
+   "id": "flow",
+   "do": [
+    {
+     "focus": "text:^\\s*LTR cashflow\\s*$",
+     "pick": "row"
+    }
+   ],
+   "hold": 6,
+   "line": "But it costs you {cf_delta}/mo in cash flow, with {pmi_b}/mo of PMI baked in.",
+   "alts": [
+    "But it costs you {cf_delta}/mo in cash flow."
+   ]
+  },
+  {
+   "id": "more",
+   "do": [
+    {
+     "unscope": true
+    },
+    {
+     "focus": "text:^\\s*\\+ Add scenario\\s*$"
+    }
+   ],
+   "hold": 4.5,
+   "line": "Add a third option, change the rate or a seller credit, and every number updates live."
+  }
+ ],
+ "wrap": "Pick your loan with real numbers, not a guess.",
+ "end": "Try it free at dealcaddie.ai.",
+ "cover": "25% down or 10% down?",
+ "cover_sub": "{save_close} less at closing. {cf_delta}/mo less cash flow.",
+ "cover_scene": "flow"
 }

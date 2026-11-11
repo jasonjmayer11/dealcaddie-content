@@ -12,7 +12,7 @@ from PIL import Image, ImageDraw
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import reelkit as rk
-from reelkit import (W, H, FPS, BG, INK, MUTED, GREEN, F_HEAD, F_SEMI, logo_layer, text_layer, wrap,
+from reelkit import (W, H, FPS, BG, INK, MUTED, GREEN, F_HEAD, F_SEMI, F_NUM, fit_size, logo_layer, text_layer, wrap,
                      render_end_beat, place, rounded)
 
 work, out_mp4 = sys.argv[1], sys.argv[2]
@@ -286,6 +286,10 @@ dec = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-i", cut, "-f", "rawvid
 fsz = sw * sh * 3
 last = None
 cover_saved = False
+_cs = (STORY or {}).get("cover_scene") if STORY else "strategies"
+_cover_seg = next((i for i, (seg, _, _) in enumerate(lines) if seg == _cs), 1 if len(lines) > 2 else 0)
+_cover_t = float(np.cumsum([0] + seg_len)[_cover_seg] + seg_len[_cover_seg] * 0.6)
+cover_shot = None
 last_main = None
 # camera punch-in: on storyboard scenes the recorder noted where the subject sits on screen;
 # ease in to it so small table text is readable on a phone, ease back out before the next scene
@@ -336,8 +340,8 @@ for i in range(n_main):
         cl = caption(cur[2])
         f.alpha_composite(cl, (0, 1752 - cl.height // 2))
     fr = f.convert("RGB")
-    if not cover_saved and t >= 1.3:
-        fr.save(os.path.join(out_dir, "cover.jpg"), quality=92); cover_saved = True
+    if cover_shot is None and t >= _cover_t and last is not None:
+        cover_shot = screen_with_insets(last).copy()
     enc.stdin.write(fr.tobytes())
     last_main = fr
 dec.stdout.close()
@@ -349,11 +353,56 @@ for i in range(n_end):
     enc.stdin.write(e.tobytes())
 enc.stdin.close(); enc.wait()
 
+# ------------------------------------------------------------------ designed cover (grid thumbnail)
+def make_cover(headline, sub, shot):
+    cv = Image.new("RGB", (W, H), (3, 62, 36)); d = ImageDraw.Draw(cv)
+    for y in range(H):                                             # forest gradient
+        k = y / H; d.line([(0, y), (W, y)], fill=(int(3 + 14 * (1 - k)), int(62 - 30 * k), int(36 - 14 * k)))
+    cv = cv.convert("RGBA")
+    place(cv, logo_layer(330, white=True), W // 2, 250)
+    size = 128
+    while size > 76:
+        ls = wrap(headline, F_NUM, size, 960)
+        if len(ls) <= 3: break
+        size -= 8
+    y = 360
+    for l in ls:
+        tl = text_layer(l, F_NUM, size, (255, 255, 255), tracking=-0.03)
+        cv.alpha_composite(tl, ((W - tl.width) // 2, y)); y += int(size * 1.04)
+    if sub:
+        st = text_layer(sub, F_SEMI, fit_size(sub, F_SEMI, 46, 980, 30), (232, 197, 92)); cv.alpha_composite(st, ((W - st.width) // 2, y + 18)); y += 44 + 40
+    if shot is not None:                                           # the payoff screen, in the phone, lower half
+        ph_h = max(640, 1800 - (y + 40)); ph_w = int(ph_h * shot.width / shot.height)
+        sh_ = shot.resize((ph_w, ph_h), Image.LANCZOS)
+        m_ = Image.new("L", sh_.size, 0); ImageDraw.Draw(m_).rounded_rectangle([0, 0, ph_w - 1, ph_h - 1], radius=52, fill=255)
+        bz = 16; body = Image.new("RGBA", (ph_w + 2 * bz, ph_h + 2 * bz), (0, 0, 0, 0))
+        ImageDraw.Draw(body).rounded_rectangle([0, 0, body.width - 1, body.height - 1], radius=66, fill=(12, 16, 14, 255))
+        body.paste(sh_, (bz, bz), m_)
+        cv.alpha_composite(body, ((W - body.width) // 2, y + 40))
+    return cv.convert("RGB")
+
+cover_head = (STORY or {}).get("cover") if STORY else "Is it a deal? 10 seconds."
+cover_sub = (STORY or {}).get("cover_sub") if STORY else None
+try:
+    cover_head = (cover_head or lines[0][1]).format_map(v) if STORY else cover_head
+    cover_sub = cover_sub.format_map(v) if cover_sub else None
+except Exception:
+    cover_head, cover_sub = lines[0][1], None
+cover_img = make_cover(cover_head, cover_sub, cover_shot)
+cover_path = os.path.join(out_dir, "cover.jpg"); cover_img.save(cover_path, quality=93)
+COVER_LEAD = 0.5                                                   # cover holds, then fades into the opening
+lead = os.path.join(work, "demo_lead.mp4")
+subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-loop", "1", "-t", f"{COVER_LEAD}", "-i", cover_path, "-i", silent,
+                "-filter_complex", f"[0:v]fps={FPS},format=yuv420p,setsar=1[a];[1:v]setsar=1[b];[a][b]xfade=transition=fade:duration=0.3:offset={COVER_LEAD - 0.3}[v]",
+                "-map", "[v]", "-c:v", "libx264", "-crf", "17", "-pix_fmt", "yuv420p", lead], check=True)
+silent = lead
+
 # ------------------------------------------------------------------ audio: voice + quiet music bed
-total = (n_main + n_end) / FPS
+total = (n_main + n_end) / FPS + COVER_LEAD - 0.3
+LEAD_S = COVER_LEAD - 0.3
 voice = np.zeros(int(total * SR) + SR, np.float32)
 for t0, a in zip(starts, audio):
-    s = int(t0 * SR); voice[s:s + len(a)] += a[: max(0, len(voice) - s)]
+    s = int((t0 + LEAD_S) * SR); voice[s:s + len(a)] += a[: max(0, len(voice) - s)]
 peak = np.abs(voice).max() or 1
 voice = (voice / peak * 0.9).astype(np.float32)
 vwav = os.path.join(work, "voice.wav")
@@ -364,7 +413,9 @@ with wave.open(vwav, "wb") as w:
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 tracks = sorted(x for x in os.listdir(os.path.join(root, "music")) if x.endswith(".m4a"))
 import datetime
-track = os.environ.get("MUSIC_TRACK") or tracks[(datetime.date.today().toordinal() * 5) % len(tracks)].rsplit(".", 1)[0]
+import zlib
+_salt = zlib.crc32(((STORY or {}).get("title", "full") if STORY else "full").encode())
+track = os.environ.get("MUSIC_TRACK") or tracks[(datetime.date.today().toordinal() * 5 + _salt) % len(tracks)].rsplit(".", 1)[0]
 music = os.path.join(root, "music", track + ".m4a")
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", silent, "-i", vwav, "-stream_loop", "-1", "-i", music,
                 "-filter_complex",

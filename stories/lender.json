@@ -89,5 +89,8 @@
   }
  ],
  "wrap": "Know what your lender will say, before you call them.",
- "end": "Try it free at dealcaddie.ai."
+ "end": "Try it free at dealcaddie.ai.",
+ "cover": "Will the lender say yes?",
+ "cover_sub": "DSCR {dscr} · breaks even at {beo} occupancy",
+ "cover_scene": "dscr"
 }

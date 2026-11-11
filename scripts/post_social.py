@@ -58,7 +58,8 @@ if cover:
     # our own cover (the price/specs frame) instead of the platform picking frame 0
     for field in ("cover_image", "facebook_thumbnail", "thumbnail"):     # Instagram, Facebook, YouTube
         files.append((field, (os.path.basename(cover), open(cover, "rb"), "image/jpeg")))
-    fields.append(("cover_timestamp", "1600"))                           # TikTok: frame at 1.6s
+    # TikTok can't take an uploaded image — it picks a frame. Narrated demos open on their designed cover.
+    fields.append(("cover_timestamp", "80" if os.path.basename(video).startswith("demo-") else "1600"))
     print("cover:", cover)
 r = requests.post("https://api.upload-post.com/api/upload",
                   headers={"Authorization": f"Apikey {key}", "Idempotency-Key": idem},
