@@ -139,6 +139,29 @@ def rounded(img, r):
     out = img.convert("RGBA"); out.putalpha(m)
     return out
 
+def make_scorecard(address, city, price, tiles, pill=None):
+    """Our own clean property card (used when the app's card would mislead, e.g. 'Best · STR' on a
+    restricted market). tiles = [(label, value, color)] x3. Saved like a captured card."""
+    Wc, Hc, pad = 1000, 520, 52
+    c = Image.new("RGBA", (Wc, Hc), (255, 255, 255, 255)); d = ImageDraw.Draw(c)
+    a = text_layer(address, F_SEMI, 44, INK); c.alpha_composite(a, (pad, pad))
+    ct = text_layer(city, F_MED, 30, MUTED); c.alpha_composite(ct, (pad, pad + a.height + 8))
+    pr = text_layer(price, F_NUM, 60, INK, tracking=-0.02); c.alpha_composite(pr, (Wc - pad - pr.width, pad - 4))
+    if pill:
+        t = text_layer(pill, F_SEMI, 24, WHITE, tracking=0.05)
+        pl = Image.new("RGBA", (t.width + 32, t.height + 18), (0, 0, 0, 0))
+        ImageDraw.Draw(pl).rounded_rectangle([0, 0, pl.width - 1, pl.height - 1], radius=pl.height // 2, fill=RED + (255,))
+        pl.alpha_composite(t, (16, 9)); c.alpha_composite(pl, (Wc - pad - pl.width, pad + pr.height + 14))
+    ty, gap = 230, 22
+    tw = (Wc - 2 * pad - 2 * gap) // 3
+    for i, (lab, val, col) in enumerate(tiles[:3]):
+        x = pad + i * (tw + gap)
+        d.rounded_rectangle([x, ty, x + tw, Hc - pad], radius=24, fill=(246, 248, 245), outline=(226, 231, 226), width=2)
+        l = text_layer(lab, F_SEMI, 26, MUTED); c.alpha_composite(l, (x + 26, ty + 30))
+        v = text_layer(val, F_NUM, fit_size(val, F_NUM, 58, tw - 52, 34), col, tracking=-0.02)
+        c.alpha_composite(v, (x + 26, Hc - pad - 40 - v.height))
+    return c.convert("RGB")
+
 def card_layer(name, max_w, max_h, crop=None):
     path = P(f"card_{name}.png")
     if not os.path.exists(path):

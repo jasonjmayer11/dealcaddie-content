@@ -72,6 +72,14 @@ def pick_copy(d):
     if pt:
         hook["badge"] = (pt.upper() + (f" · {len(units)} UNITS" if len(units) >= 2 else ""))
 
+    if d.get("strRestricted"):
+        lbl = {"LTR": "Long-term", "MTR": "Mid-term", "S8": "Section 8", "HH": "House hack", "BRRRR": "BRRRR"}
+        legal = [(k, v) for k, v in (d.get("strategies") or {}).items() if k in lbl and num(v) is not None]
+        bk = max(legal, key=lambda kv: num(kv[1]), default=None)
+        tiles = ([(f"Best · {lbl[bk[0]]}", pretty_money(bk[1]) + "/mo", GREEN if num(bk[1]) > 0 else RED)] if bk else []) + \
+                [("Cap rate", d.get("capRate") or "—", INK), ("Cash-on-cash", d.get("coc") or "—", INK)]
+        make_scorecard(d.get("address") or "", city_line, price_full, tiles, pill="STR RESTRICTED").save(P("card_scorecard.png"))
+
     beats = []
     money = lambda x: f"${int(round(float(x))):,}" if x not in (None, "") else None
     # ---- 1. rent, pulled automatically (RentCast) — per unit on multifamily
@@ -112,7 +120,7 @@ def pick_copy(d):
         beats.append({"kind": "stat", "eyebrow": "DEAL SCORE", "value": score_s, "unit": "/10",
                       "color": score_color(num(score_s)),
                       "sub": "Your answer, ready in 10 seconds." if AGENT else "Cash flow, price and market in one number.",
-                      "card": None if d.get("strRestricted") else "hero", "crop": 0.70,   # app card would say "Best · STR" on a restricted market
+                      "card": "scorecard" if d.get("strRestricted") else "hero", "crop": None if d.get("strRestricted") else 0.70,   # app card would say "Best · STR" on a restricted market
                       "say": f"{score_s}/10 deal score.",
                       # bigger property card: tighter header, smaller number, card up to 860x720
                       "y_eb": 376, "value_size": 160, "card_max_h": 710})
