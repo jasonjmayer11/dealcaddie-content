@@ -85,6 +85,49 @@ lines.append(("wrap", "DealCaddie runs every number for you, in seconds.",
 lines.append(("end", "Try it free at dealcaddie.ai.",
               "Try it free, at Deal Caddie dot [A.I.](/ˌAˈI/)"))
 
+# ------------------------------------------------------------------ storyboard mode (feature videos)
+STORY = json.load(open(os.environ["STORY"])) if os.environ.get("STORY") else None
+
+def speakify(t):
+    """Display text → what the voice should say (prices as people say them, brand names, units)."""
+    t = re.sub(r"\$(\d+(?:\.\d)?)[Kk] (house|rental|duplex|triplex|fourplex|condo|townhome|home|property|listing|deal)\b",
+               lambda m: f"{m.group(1)} thousand dollar {m.group(2)}", t)
+    t = re.sub(r"\$(\d+(?:\.\d)?)M\b", lambda m: f"{m.group(1)} million dollars", t)
+    t = re.sub(r"\$(\d+)[Kk]\s*[–-]\s*\$(\d+)[Kk]", r"\1 to \2 thousand dollars", t)
+    t = re.sub(r"(\$[\d.,]+[KkM]?)\s*[–-]\s*(\$[\d.,]+[KkM]?)", r"\1 to \2", t)
+    t = re.sub(r"\$(\d+(?:\.\d)?)[Kk]\b", lambda m: f"{m.group(1)} thousand dollars", t)
+    t = re.sub(r"(\$[\d,]+)/mo\b", r"\1 a month", t)
+    t = re.sub(r"(\$[\d,]+)/sqft\b", r"\1 a square foot", t)
+    t = t.replace("+$", "plus $").replace("−$", "minus $").replace("-$", "minus $")
+    t = t.replace("DealCaddie", "Deal Caddie").replace("RentCast", "Rent Cast").replace("BRRRR", "burr")
+    t = t.replace("DSCR", "D S C R").replace("PITIA", "P I T I A").replace("PMI", "P M I").replace("LTV", "L T V")
+    t = re.sub(r"(?<!\[)\bAirbnb\b(?!\])", AIRBNB, t)
+    return t
+
+if STORY:
+    v = dict(price_short=short(price), city=city, ptype=ptype, score=score)
+    v.update({k: x for k, x in (data.get("vars") or {}).items() if x})
+    class _Miss(dict):
+        def __missing__(self, k): raise KeyError(k)
+    lines = []
+    for sc in STORY["scenes"]:
+        for cand in [sc.get("line")] + list(sc.get("alts") or []):
+            if not cand: continue
+            try:
+                txt = cand.format_map(_Miss(v)); break
+            except KeyError:
+                txt = None
+        if txt:
+            lines.append((sc["id"], txt, speakify(txt)))
+        else:
+            print(f"scene {sc['id']}: no line (missing numbers) — dropped")
+    wrap = STORY.get("wrap", "DealCaddie runs every number for you in seconds.")
+    if wrap:
+        lines.append(("wrap", wrap, speakify(wrap)))
+    lines.append(("end", STORY.get("end", "Try it free at dealcaddie.ai."),
+                  speakify(STORY.get("end", "Try it free at dealcaddie.ai.")).replace("dealcaddie.ai", "Deal Caddie dot [A.I.](/ˌAˈI/)")))
+    for seg, d, sp in lines: print(f"[{seg}] {d}\n      say: {sp}")
+
 # ------------------------------------------------------------------ voice (Kokoro, runs locally)
 from kokoro import KPipeline
 pipe = KPipeline(lang_code="a")
@@ -266,16 +309,23 @@ print(f"wrote {out_mp4}  ({total:.1f}s, voice {VOICE} @ {SPEED}x, music {track})
 # ------------------------------------------------------------------ caption + script files
 open(os.path.join(out_dir, "script.txt"), "w").write("\n".join(f"[{s}] {d}" for s, d, _ in lines))
 hook = f"{short(price)} {city} {ptype}. Watch DealCaddie run the numbers."
+blurb = "Paste any Zillow link → rent, taxes, insurance, 7 strategies and a rehab estimate in about 10 seconds."
+tags = f"#realestateinvesting #rentalproperty #cashflow #realestateinvestor #{re.sub(r'[^a-z]', '', city.lower())}realestate"
+if STORY:
+    try: hook = STORY.get("title", hook).format_map(v)
+    except KeyError: pass
+    blurb = STORY.get("blurb", blurb)
+    tags = STORY.get("tags", tags)
 open(os.path.join(out_dir, "caption.txt"), "w").write(
     f"""{hook}
 
 {' '.join(d for s, d, _ in lines if s != 'end')}
 
-Paste any Zillow link → rent, taxes, insurance, 7 strategies and a rehab estimate in about 10 seconds.
+{blurb}
 
 Try it free · dealcaddie.ai
 
-#realestateinvesting #rentalproperty #cashflow #realestateinvestor #{re.sub(r'[^a-z]', '', city.lower())}realestate
+{tags}
 """)
 json.dump({"hook": hook, "duration": total, "voice": VOICE, "speed": SPEED, "track": track},
           open(os.path.join(out_dir, "meta.json"), "w"), indent=2)

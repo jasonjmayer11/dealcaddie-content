@@ -6,6 +6,10 @@ on:
       listing:
         description: "Zillow URL to demo"
         required: true
+      story:
+        description: "Storyboard in stories/ (blank = the full 4-feature demo), e.g. scenarios, comps, projections"
+        required: false
+        default: ""
       voice:
         description: "Kokoro voice (af_heart, af_bella, am_michael, am_fenrir…)"
         required: false
@@ -54,13 +58,15 @@ jobs:
         env:
           DC_EMAIL: ${{ secrets.DC_EMAIL }}
           DC_PASSWORD: ${{ secrets.DC_PASSWORD }}
+          STORY: ${{ github.event.inputs.story != '' && format('stories/{0}.json', github.event.inputs.story) || '' }}
         run: node scripts/record_demo.js "${{ github.event.inputs.listing }}" work
       - name: Script, voice and edit
         id: build
         env:
           VOICE: ${{ github.event.inputs.voice }}
+          STORY: ${{ github.event.inputs.story != '' && format('stories/{0}.json', github.event.inputs.story) || '' }}
         run: |
-          SLUG="demo-$(date -u +%Y%m%d-%H%M)"
+          SLUG="demo-${{ github.event.inputs.story || 'full' }}-$(date -u +%Y%m%d-%H%M)"
           echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
           mkdir -p dist
           python3 scripts/narrate.py work "dist/$SLUG.mp4"

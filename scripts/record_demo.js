@@ -20,7 +20,9 @@ fs.mkdirSync(outdir, { recursive: true });
 const BASE = 'https://www.dealcaddie.ai';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const out = f => path.join(outdir, f);
-const HOLD = 9000;                    // ms each section stays on screen (VO lines are ~4-8s)
+const HOLD = 9000;
+const STORY = process.env.STORY ? JSON.parse(fs.readFileSync(process.env.STORY, 'utf8')) : null;
+const SEARCH_INTRO = !STORY || STORY.start === 'search';                    // ms each section stays on screen (VO lines are ~4-8s)
 
 (async () => {
   const browser = await chromium.launch();
@@ -86,8 +88,8 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
   // ---- 1. paste the link ----
   await page.goto(`${BASE}/analyze`, { waitUntil: 'networkidle', timeout: 60000 });
   await sleep(800);
-  mark('intro', 'start'); await sleep(3200); mark('intro', 'end');   // sit on the search page first
-  mark('paste', 'start');
+  if (SEARCH_INTRO) { mark('intro', 'start'); await sleep(3200); mark('intro', 'end'); }   // sit on the search page first
+  if (SEARCH_INTRO) mark('paste', 'start');
   const input = page.locator('input[name="address"]').first();
   await input.click(); await sleep(600);
   const sheet = page.locator('.dcs-sheet.on');
@@ -105,7 +107,7 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
   await page.waitForSelector('#live-score-num', { state: 'attached', timeout: 90000 });
   await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
   await sleep(1200);
-  mark('paste', 'end');
+  if (SEARCH_INTRO) mark('paste', 'end');
 
   // insurance sanity fix, same rule as the reels (typed into the app's own field so it recalculates)
   const insFix = await page.evaluate(() => {
@@ -120,16 +122,17 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
   }).catch(() => null);
   if (insFix) console.log('insurance adjusted:', JSON.stringify(insFix));
   // start the photo rehab estimate now so it is ready by the time we get there
-  await page.evaluate(() => { if (typeof autoAnalyzeCondition === 'function') autoAnalyzeCondition(); }).catch(() => {});
+  if (!STORY || STORY.rehab) await page.evaluate(() => { if (typeof autoAnalyzeCondition === 'function') autoAnalyzeCondition(); }).catch(() => {});
   await hideIcons();
 
   // gold focus ring on whatever the voice is talking about; scroll it clear of the sticky tab bar
-  const focus = (sel, pick = 'self') => page.evaluate(([sel, pick]) => {
+  const focus = (sel, pick = 'self', setScope = false) => page.evaluate(([sel, pick, setScope]) => {
+    const root = window.__demoScope || document;
     document.querySelectorAll('[data-demo-focus]').forEach(e => { e.style.boxShadow = ''; e.removeAttribute('data-demo-focus'); });
     let el = null;
     if (sel.startsWith('text:')) {
       const rx = new RegExp(sel.slice(5), 'i');
-      for (const e of document.querySelectorAll('body *')) {
+      for (const e of root.querySelectorAll('*')) {
         if (!e.offsetParent || !rx.test(e.textContent || '')) continue;
         if (!el || e.textContent.length < el.textContent.length) el = e;
       }
@@ -140,15 +143,72 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
     if (!el) return false;
     if (pick === 'card') el = el.closest('.card, [class*="rounded-2xl"], [class*="rounded-xl"]') || el.parentElement || el;
     if (pick === 'parent2') el = (el.parentElement && el.parentElement.parentElement) || el;
+    if (pick === 'parent') el = el.parentElement || el;
+    if (pick === 'row') el = el.closest('tr') || el.parentElement || el;
+    window.__demoFocus = el;
+    if (setScope) window.__demoScope = el;
+    // scroll whichever element actually scrolls (signed-in pages scroll an inner shell, not the window)
+    let sc = el.parentElement;
+    while (sc && sc !== document.body) {
+      const cs = getComputedStyle(sc);
+      if (/(auto|scroll)/.test(cs.overflowY) && sc.scrollHeight > sc.clientHeight + 20) break;
+      sc = sc.parentElement;
+    }
     const r = el.getBoundingClientRect();
-    const y = window.scrollY + r.top - Math.max(150, (window.innerHeight - r.height) / 2);
-    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+    if (sc && sc !== document.body) {
+      const sr = sc.getBoundingClientRect();
+      const top = sc.scrollTop + (r.top - sr.top) - Math.max(130, (sc.clientHeight - r.height) / 2);
+      sc.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    } else {
+      const y = window.scrollY + r.top - Math.max(150, (window.innerHeight - r.height) / 2);
+      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+    }
     el.style.transition = 'box-shadow .35s ease'; el.style.borderRadius = el.style.borderRadius || '12px';
     el.setAttribute('data-demo-focus', '1');
     setTimeout(() => { el.style.boxShadow = '0 0 0 3px rgba(201,168,76,.95), 0 0 0 9px rgba(201,168,76,.22)'; }, 450);
     return true;
-  }, [sel, pick]).catch(() => false);
+  }, [sel, pick, setScope]).catch(() => false);
 
+  const vars = {};
+  if (STORY) {
+    // ---- storyboard: each scene = actions, a hold, and numbers grabbed from the focused element ----
+    for (const sc of STORY.scenes) {
+      for (const act of sc.do || []) {
+        if (act.tab) { await clickTab(act.tab); await hideIcons(); }
+        if (act.top) await page.evaluate(() => { window.scrollTo({ top: 0, behavior: 'smooth' });
+          document.querySelectorAll('*').forEach(e => { if (e.scrollTop > 0 && /(auto|scroll)/.test(getComputedStyle(e).overflowY)) e.scrollTo({ top: 0, behavior: 'smooth' }); }); });
+        if (act.goto) { await page.goto(`${BASE}${act.goto}`, { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {}); await hideIcons(); }
+        if (act.click) {
+          const t = act.click.startsWith('text:') ? page.getByText(new RegExp(act.click.slice(5), 'i')).first() : page.locator(act.click).first();
+          await t.scrollIntoViewIfNeeded().catch(() => {}); await t.click({ timeout: 5000 }).catch(e => console.log('click miss', act.click));
+          await sleep(900);
+        }
+        if (act.fill) { const [sel, val] = act.fill; const el = page.locator(sel).first();
+          await el.click().catch(() => {}); await el.fill(''); await el.type(String(val), { delay: 90 }).catch(() => {}); await sleep(600); }
+        if (act.unscope) await page.evaluate(() => { window.__demoScope = null; });
+        if (act.focus) { const ok = await focus(act.focus, act.pick || 'self', !!act.scope); console.log(`focus ${act.focus}: ${ok}`); }
+        if (act.wait) await sleep(act.wait);
+      }
+      mark(sc.id, 'start');
+      await sleep((sc.hold || 7) * 1000);
+      // grab numbers for the voice from the focused element's text (or the whole page)
+      const txt = await page.evaluate(() => (window.__demoFocus || document.body).innerText || '').catch(() => '');
+      const pageTxt = await page.evaluate(() => document.body.innerText).catch(() => '');
+      for (const [k, rx] of Object.entries(sc.grab || {})) {
+        const m = (txt.match(new RegExp(rx, 'i')) || pageTxt.match(new RegExp(rx, 'i')));
+        if (m) vars[k] = (m[1] || m[0]).trim();
+      }
+      mark(sc.id, 'end');
+    }
+    // closing shot for the spoken wrap-up: glide back to the top of the page
+    await page.evaluate(() => {
+      document.querySelectorAll('[data-demo-focus]').forEach(e => { e.style.boxShadow = ''; e.removeAttribute('data-demo-focus'); });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.querySelectorAll('*').forEach(e => { if (e.scrollTop > 0 && /(auto|scroll)/.test(getComputedStyle(e).overflowY)) e.scrollTo({ top: 0, behavior: 'smooth' }); });
+    }).catch(() => {});
+    mark('wrap', 'start'); await sleep(7000); mark('wrap', 'end');
+    console.log('vars', JSON.stringify(vars));
+  } else {
   // ---- 2. score: the property card at the top ----
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
   mark('score', 'start');
@@ -206,6 +266,8 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
   }).catch(() => {});
   mark('wrap', 'start'); await sleep(HOLD); mark('wrap', 'end');
 
+  }
+
   // ---- numbers for the script ----
   const data = await page.evaluate(() => {
     const v = id => { const e = document.getElementById(id); return e ? String(e.value || '').replace(/[^0-9.]/g, '') : ''; };
@@ -223,6 +285,7 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
     };
   });
   data.insAdjusted = insFix;
+  data.vars = vars;
   console.log('data', JSON.stringify(data));
   fs.writeFileSync(out('data.json'), JSON.stringify(data, null, 2));
   fs.writeFileSync(out('markers.json'), JSON.stringify(markers, null, 2));
