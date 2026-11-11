@@ -160,10 +160,15 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
     await focus('#mf-units-grid');
   } else {
     await clickTab('Cashflow'); await hideIcons();
-    await focus('#ltr-rent', 'parent2');
+    await focus('#live-ltr-rent', 'parent2');               // LTR card: Rent $2,410/mo (RentCast)
   }
   await sleep(HOLD * 0.5);
   await clickTab('Financials'); await hideIcons();
+  await page.evaluate(() => {                               // taxes/insurance live under "Adjust financing"
+    const t = document.getElementById('fin-toggle');
+    if (t && t.getAttribute('aria-expanded') !== 'true') t.click();
+  }).catch(() => {});
+  await sleep(500);
   await focus('#fin-tax', 'parent2');
   await sleep(HOLD * 0.5);
   mark('auto', 'end');
