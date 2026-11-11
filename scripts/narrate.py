@@ -23,7 +23,7 @@ mk = json.load(open(os.path.join(work, "markers.json")))
 SR = 24000
 VOICE = os.environ.get("VOICE") or "af_heart"
 SPEED = float(os.environ.get("VOICE_SPEED") or 1.05)
-MAX_LEN = 39.5
+MAX_LEN = 45.0          # natural pacing beats a hard 40s cap
 
 # ------------------------------------------------------------------ the script, from real numbers
 num = lambda s: float(re.sub(r"[^0-9.\-]", "", s.replace("−", "-"))) if s and re.search(r"\d", s) else None
@@ -80,8 +80,10 @@ if len(m) == 2:
     lvl = (rehab.get("level") or "").strip().lower() or "light"
     lines.append(("rehab", f"It even reads the photos: {lvl} rehab, ${m[0]}K to ${m[1]}K.",
                   f"It even reads the photos. {lvl.capitalize()} rehab, {m[0]} to {m[1]} thousand."))
-lines.append(("end", "Every number, in seconds. Try it free at dealcaddie.ai.",
-              "Every number. In seconds. Try it free at Deal Caddie dot [A.I.](/ˌAˈI/)"))
+lines.append(("wrap", "DealCaddie runs every number for you, in seconds.",
+              "Deal Caddie runs every number for you. In seconds."))
+lines.append(("end", "Try it free at dealcaddie.ai.",
+              "Try it free, at Deal Caddie dot [A.I.](/ˌAˈI/)"))
 
 # ------------------------------------------------------------------ voice (Kokoro, runs locally)
 from kokoro import KPipeline
@@ -151,7 +153,7 @@ LOGO = logo_layer(250)
 # A real phone keeps content clear of its rounded corners: a status-bar strip on top and a
 # home-indicator strip at the bottom. The recording sits between them, so the app header and the
 # bottom tab bar are never clipped by the corner radius.
-TOP_IN, BOT_IN = 64, 46
+TOP_IN, BOT_IN = 64, 60      # bottom = an iPhone's home-indicator safe area (the emulator reports 0)
 INNER_H = 1440
 SCR_H = INNER_H - TOP_IN - BOT_IN
 SCR_W = int(sw * SCR_H / sh)
@@ -208,6 +210,7 @@ dec = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-i", cut, "-f", "rawvid
 fsz = sw * sh * 3
 last = None
 cover_saved = False
+last_main = None
 for i in range(n_main):
     buf = dec.stdout.read(fsz)
     if len(buf) == fsz:
@@ -224,9 +227,14 @@ for i in range(n_main):
     if not cover_saved and t >= 0.4:
         fr.save(os.path.join(out_dir, "cover.jpg"), quality=92); cover_saved = True
     enc.stdin.write(fr.tobytes())
+    last_main = fr
 dec.stdout.close()
+XF = int(0.6 * FPS)                      # soft cross-fade from the phone into the end card
 for i in range(n_end):
-    enc.stdin.write(end_fn(i / FPS).tobytes())
+    e = end_fn(i / FPS)
+    if i < XF and last_main is not None:
+        e = Image.blend(last_main, e, (i + 1) / XF)
+    enc.stdin.write(e.tobytes())
 enc.stdin.close(); enc.wait()
 
 # ------------------------------------------------------------------ audio: voice + quiet music bed

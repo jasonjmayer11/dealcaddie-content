@@ -199,6 +199,13 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
   await focus('#cond-rehab');
   await sleep(HOLD); mark('rehab', 'end');
 
+  // ---- 6. wrap: glide back up to the finished analysis while the voice sums it up ----
+  await page.evaluate(() => {
+    document.querySelectorAll('[data-demo-focus]').forEach(e => { e.style.boxShadow = ''; e.removeAttribute('data-demo-focus'); });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }).catch(() => {});
+  mark('wrap', 'start'); await sleep(HOLD); mark('wrap', 'end');
+
   // ---- numbers for the script ----
   const data = await page.evaluate(() => {
     const v = id => { const e = document.getElementById(id); return e ? String(e.value || '').replace(/[^0-9.]/g, '') : ''; };
