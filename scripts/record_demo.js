@@ -141,7 +141,11 @@ const SEARCH_INTRO = !STORY || STORY.start === 'search';                    // m
       el = [...document.querySelectorAll(sel)].find(vis) || null;     // first *visible* match (desktop twins are hidden)
     }
     if (!el) return false;
-    if (pick === 'card') el = el.closest('.card, [class*="rounded-2xl"], [class*="rounded-xl"]') || el.parentElement || el;
+    if (pick === 'card') {                       // the section card: climb until it's a real block (≥ 280px tall)
+      let c = el;
+      while (c.parentElement && c.parentElement !== document.body && c.getBoundingClientRect().height < 280) c = c.parentElement;
+      el = c;
+    }
     if (pick === 'parent2') el = (el.parentElement && el.parentElement.parentElement) || el;
     if (pick === 'parent') el = el.parentElement || el;
     if (pick === 'row') el = el.closest('tr') || el.parentElement || el;

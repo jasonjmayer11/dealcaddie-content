@@ -121,9 +121,9 @@ if STORY:
             lines.append((sc["id"], txt, speakify(txt)))
         else:
             print(f"scene {sc['id']}: no line (missing numbers) — dropped")
-    wrap = STORY.get("wrap", "DealCaddie runs every number for you in seconds.")
-    if wrap:
-        lines.append(("wrap", wrap, speakify(wrap)))
+    wrap_line = STORY.get("wrap", "DealCaddie runs every number for you in seconds.")
+    if wrap_line:
+        lines.append(("wrap", wrap_line, speakify(wrap_line)))
     lines.append(("end", STORY.get("end", "Try it free at dealcaddie.ai."),
                   speakify(STORY.get("end", "Try it free at dealcaddie.ai.")).replace("dealcaddie.ai", "Deal Caddie dot [A.I.](/ˌAˈI/)")))
     for seg, d, sp in lines: print(f"[{seg}] {d}\n      say: {sp}")
