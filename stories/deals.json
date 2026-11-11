@@ -102,7 +102,7 @@
    "id": "alerts",
    "do": [
     {
-     "click": "text:^\\s*Filters\\s*\\d*\\s*$"
+     "click": "text:^\\s*Filters"
     },
     {
      "wait": 1200
