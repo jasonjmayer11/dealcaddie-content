@@ -393,7 +393,7 @@ cover_path = os.path.join(out_dir, "cover.jpg"); cover_img.save(cover_path, qual
 COVER_LEAD = 0.5                                                   # cover holds, then fades into the opening
 lead = os.path.join(work, "demo_lead.mp4")
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-loop", "1", "-t", f"{COVER_LEAD}", "-i", cover_path, "-i", silent,
-                "-filter_complex", f"[0:v]fps={FPS},format=yuv420p,setsar=1[a];[1:v]setsar=1[b];[a][b]xfade=transition=fade:duration=0.3:offset={COVER_LEAD - 0.3}[v]",
+                "-filter_complex", f"[0:v]scale={W}:{H},fps={FPS},format=yuv420p,setsar=1,settb=AVTB[a];[1:v]fps={FPS},format=yuv420p,setsar=1,settb=AVTB[b];[a][b]xfade=transition=fade:duration=0.3:offset={COVER_LEAD - 0.3}[v]",
                 "-map", "[v]", "-c:v", "libx264", "-crf", "17", "-pix_fmt", "yuv420p", lead], check=True)
 silent = lead
 
