@@ -1,21 +1,71 @@
 {
-  "audience": "investor",
-  "start": "quick",
-  "title": "This {price_short} {city} rental, 30 years from now.",
-  "blurb": "Projections up to 30 years: equity, cash flow, net proceeds and your return vs. an index fund — every year broken down.",
-  "tags": "#realestateinvesting #wealthbuilding #rentalproperty #passiveincome #realestateinvestor",
-  "scenes": [
-    {"id": "hook", "do": [{"top": true}, {"wait": 600}, {"focus": "#results-top"}], "hold": 4,
-     "line": "What does this {price_short} {ptype} look like in thirty years?"},
-    {"id": "summary", "do": [{"tab": "Projections"}, {"focus": "text:^\\s*Net Proceeds\\s*$", "pick": "parent2", "scope": false}], "hold": 7,
-     "grab": {"net": "Net Proceeds\\s+(\\$[\\d.]+[kKM])", "roi": "Annualized ROI\\s+([\\d.]+%)", "be": "CF Breakeven\\s+Year (\\d+)",
-              "equity": "Total Equity\\s+(\\$[\\d.]+[kKM])"},
-     "line": "Sell in year thirty and you walk away with about {net}. That's {roi} a year — versus seven percent in an index fund."},
-    {"id": "breakeven", "do": [{"focus": "text:^\\s*CF Breakeven\\s*$", "pick": "parent"}], "hold": 4.5,
-     "line": "And the cash flow pays back everything you put in by year {be}."},
-    {"id": "table", "do": [{"focus": "text:^\\s*Net operating income\\s*$", "pick": "row"}], "hold": 6,
-     "line": "Every year is broken down: rent, expenses, equity, and what you'd net if you sold."}
-  ],
-  "wrap": "See the whole hold before you buy.",
-  "end": "Try it free at dealcaddie.ai."
+ "audience": "investor",
+ "start": "quick",
+ "title": "This {price_short} {city} rental, 30 years from now.",
+ "blurb": "Projections up to 30 years: equity, cash flow, net proceeds and your return vs. an index fund — every year broken down.",
+ "tags": "#realestateinvesting #wealthbuilding #rentalproperty #passiveincome #realestateinvestor",
+ "scenes": [
+  {
+   "id": "hook",
+   "do": [
+    {
+     "top": true
+    },
+    {
+     "wait": 600
+    },
+    {
+     "focus": "#results-top"
+    }
+   ],
+   "hold": 4,
+   "line": "What does this {price_short} {ptype} look like in thirty years?"
+  },
+  {
+   "id": "summary",
+   "do": [
+    {
+     "tab": "Projections"
+    },
+    {
+     "focus": "text:^\\s*Net Proceeds\\s*$",
+     "pick": "parent2",
+     "scope": false
+    }
+   ],
+   "hold": 7,
+   "grab": {
+    "net": "Net Proceeds\\s+(\\$[\\d.]+[kKM])",
+    "roi": "Annualized ROI\\s+([\\d.]+%)",
+    "be": "CF Breakeven\\s+Year (\\d+)",
+    "equity": "Total Equity\\s+(\\$[\\d.]+[kKM])"
+   },
+   "line": "Sell in year thirty and you walk away with about {net}. That's {roi} a year — versus seven percent in an index fund."
+  },
+  {
+   "id": "breakeven",
+   "do": [
+    {
+     "focus": "text:^\\s*CF Breakeven\\s*$",
+     "pick": "parent"
+    }
+   ],
+   "hold": 4.5,
+   "line": "And the cash flow pays back everything you put in by year {be}."
+  },
+  {
+   "id": "table",
+   "do": [
+    {
+     "focus": "text:^\\s*Net operating income\\s*$",
+     "pick": "row"
+    }
+   ],
+   "hold": 6,
+   "line": "Every year is broken down: rent, expenses, equity, and what you'd net if you sold."
+  }
+ ],
+ "wrap": "See the whole hold before you buy.",
+ "end": "Try it free at dealcaddie.ai.",
+ "require": "CF Breakeven\\s+Year\\s+([6-9]|1\\d)\\b"
 }
