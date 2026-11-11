@@ -298,7 +298,7 @@ for (seg, _, _), t0, dur in zip(lines, seg_t0, seg_len):
         zplan.append(None); continue
     x, y, w, h = r
     if w < 0.6 * VW:                      # a small label/button: keep the whole row in shot, gentle push only
-        z, cx = min(1.22, 0.80 * VH / max(h, 1)), 0.5
+        z, cx = min(1.1, 0.80 * VH / max(h, 1)), 0.5
     else:
         z, cx = min(1.5, 0.96 * VW / max(w, 1), 0.80 * VH / max(h, 1)), (x + w / 2) / VW
     z = max(1.0, z)
