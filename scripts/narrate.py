@@ -100,7 +100,9 @@ def speakify(t):
     t = re.sub(r"(\$[\d,]+)/sqft\b", r"\1 a square foot", t)
     t = t.replace("+$", "plus $").replace("−$", "minus $").replace("-$", "minus $")
     t = t.replace("DealCaddie", "Deal Caddie").replace("RentCast", "Rent Cast").replace("BRRRR", "burr")
-    t = t.replace("DSCR", "D S C R").replace("PITIA", "P I T I A").replace("PMI", "P M I").replace("LTV", "L T V")
+    for word, ph in (("DSCR", "dˌiɛsˌsiˈɑɹ"), ("PMI", "pˌiɛmˈI"), ("LTV", "ˌɛltiˈvi"), ("PITIA", "pˌitˌiˌIˈA"),
+                     ("IRR", "ˌIɑɹˈɑɹ"), ("HOA", "ˌAtʃˌOˈA"), ("ROI", "ˌɑɹˌOˈI"), ("ARV", "ˌAɑɹˈvi")):
+        t = re.sub(rf"(?<!\[)\b{word}\b(?!\])", f"[{word}](/{ph}/)", t)      # one continuous acronym, no pauses
     t = re.sub(r"(?<!\[)\bAirbnb\b(?!\])", AIRBNB, t)
     return t
 
@@ -226,9 +228,10 @@ def screen_with_insets(fr):
                         fill=(20, 20, 20) if lum > 128 else (235, 235, 235))
     return inner
 base = BG.copy().convert("RGBA")
-base.alpha_composite(shadow, (PX - 80, PY - 80))
-base.alpha_composite(phone, (PX, PY))
 place(base, LOGO, W // 2, 62)
+def ease_out(k): k = min(1.0, max(0.0, k)); return 1 - (1 - k) ** 3
+def phone_dy(t):                         # opening move: the phone rises into place over the first second
+    return int(760 * (1 - ease_out(t / 0.95)))
 cap_cache = {}
 def caption(text):
     if text not in cap_cache:
@@ -240,6 +243,35 @@ def caption(text):
             im.alpha_composite(l, ((W - l.width) // 2, y)); y += l.height + 10
         cap_cache[text] = im
     return cap_cache[text]
+
+# opening hook: the first line as a big title, words popping in as they're spoken
+hook_end = seg_len[0] if lines else 0
+_hw = []
+if lines:
+    hook_txt = lines[0][1]; HS = 66
+    words = hook_txt.split(); rows_, cur_ = [], []
+    for w_ in words:
+        test = " ".join(cur_ + [w_])
+        if cur_ and text_layer(test, F_HEAD, HS, INK).width > 960: rows_.append(cur_); cur_ = [w_]
+        else: cur_.append(w_)
+    if cur_: rows_.append(cur_)
+    space = text_layer("a a", F_HEAD, HS, INK).width - 2 * text_layer("a", F_HEAD, HS, INK).width
+    lh = int(HS * 1.12); top = 1752 - (lh * len(rows_)) // 2
+    spoken = len(audio[0]) / SR if audio else hook_end
+    k = 0; nwords = len(words)
+    for ri, row in enumerate(rows_):
+        lays = [text_layer(w_, F_HEAD, HS, INK, tracking=-0.015) for w_ in row]
+        x = (W - (sum(l.width for l in lays) + space * (len(lays) - 1))) // 2
+        for l in lays:
+            _hw.append((l, x, top + ri * lh, 0.15 + spoken * k / max(1, nwords))); x += l.width + space; k += 1
+def hook_frame(t):
+    im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    for l, x, y, t0 in _hw:
+        a = min(1.0, max(0.0, (t - t0) / 0.18))
+        if a <= 0: continue
+        if a < 1: l = l.copy(); l.putalpha(l.getchannel("A").point(lambda v: int(v * a)))
+        im.alpha_composite(l, (x, int(y + 18 * (1 - a))))
+    return im
 
 end_dur = seg_len[-1] + 0.6
 end_fn = render_end_beat(end_dur)
@@ -292,14 +324,19 @@ for i in range(n_main):
         last = src_im.resize((SCR_W, SCR_H), Image.LANCZOS)
     t = i / FPS
     f = base.copy()
+    dy = phone_dy(t)
+    f.alpha_composite(shadow, (PX - 80, PY - 80 + dy))
+    f.alpha_composite(phone, (PX, PY + dy))
     if last is not None:
-        f.paste(screen_with_insets(last), (PX + bez, PY + bez), mask)
+        f.paste(screen_with_insets(last), (PX + bez, PY + bez + dy), mask)
     cur = next((c for c in caps if c[0] <= t < c[1] + 0.12), None)
+    if t < hook_end:
+        f.alpha_composite(hook_frame(t), (0, 0)); cur = None
     if cur:
         cl = caption(cur[2])
         f.alpha_composite(cl, (0, 1752 - cl.height // 2))
     fr = f.convert("RGB")
-    if not cover_saved and t >= 0.4:
+    if not cover_saved and t >= 1.3:
         fr.save(os.path.join(out_dir, "cover.jpg"), quality=92); cover_saved = True
     enc.stdin.write(fr.tobytes())
     last_main = fr
