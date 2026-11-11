@@ -132,7 +132,10 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
         if (!e.offsetParent || !rx.test(e.textContent || '')) continue;
         if (!el || e.textContent.length < el.textContent.length) el = e;
       }
-    } else el = document.querySelector(sel);
+    } else {
+      const vis = e => e.offsetParent !== null && e.getBoundingClientRect().height > 0;
+      el = [...document.querySelectorAll(sel)].find(vis) || null;     // first *visible* match (desktop twins are hidden)
+    }
     if (!el) return false;
     if (pick === 'card') el = el.closest('.card, [class*="rounded-2xl"], [class*="rounded-xl"]') || el.parentElement || el;
     if (pick === 'parent2') el = (el.parentElement && el.parentElement.parentElement) || el;
@@ -160,7 +163,8 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
     await focus('#mf-units-grid');
   } else {
     await clickTab('Cashflow'); await hideIcons();
-    await focus('#live-ltr-rent', 'parent2');               // LTR card: Rent $2,410/mo (RentCast)
+    const okR = (await focus('#live-ltr-rent', 'parent2')) || (await focus('text:^\\s*Long-Term Rental\\s*$', 'card'));
+    console.log('focus rent:', okR);
   }
   await sleep(HOLD * 0.5);
   await clickTab('Financials'); await hideIcons();
@@ -169,7 +173,8 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
     if (t && t.getAttribute('aria-expanded') !== 'true') t.click();
   }).catch(() => {});
   await sleep(500);
-  await focus('#fin-tax', 'parent2');
+  const okT = (await focus('#fin-tax', 'parent2')) || (await focus('#fin-ins', 'parent2'));
+  console.log('focus tax:', okT);
   await sleep(HOLD * 0.5);
   mark('auto', 'end');
 
