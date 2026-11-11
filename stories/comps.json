@@ -1,24 +1,87 @@
 {
-  "audience": "investor",
-  "start": "quick",
-  "title": "Is {price_short} a fair price? Let the comps answer.",
-  "blurb": "Comparable sales, price per square foot, a suggested offer range and Caddie's take — on every analysis.",
-  "tags": "#realestateinvesting #comps #makeanoffer #realestateinvestor #housinghacks",
-  "scenes": [
-    {"id": "hook", "do": [{"top": true}, {"wait": 600}, {"focus": "#results-top"}], "hold": 4,
-     "line": "Is {price_short} a fair price for this {city} {ptype}?"},
-    {"id": "comps", "do": [{"tab": "Comps"}, {"focus": "text:^\\s*Comparable Sales", "pick": "card", "scope": true}], "hold": 6,
-     "grab": {"n": "(\\d+) comps", "comp_psf": "avg (\\$\\d+)/sqft", "ask_psf": "Asking\\s+\\$[\\d.]+K?\\s+(\\$\\d+)/sqft",
-              "gap": "[−-](\\d+%)\\s*▼", "gap_up": "\\+?(\\d+%)\\s*▲", "sugg": "SUGGESTED OFFER\\s+(\\$[\\d.]+K[–-]\\$[\\d.]+K)"},
-     "line": "DealCaddie pulls {n} recent sales nearby. They average {comp_psf}/sqft."},
-    {"id": "ask", "do": [{"focus": "text:^\\s*Asking\\s*$", "pick": "parent"}], "hold": 5,
-     "line": "This one's asking {ask_psf}/sqft — {gap} below the comps.",
-     "alts": ["This one's asking {ask_psf}/sqft — {gap_up} above the comps."]},
-    {"id": "sugg", "do": [{"focus": "text:^\\s*SUGGESTED OFFER\\s*$", "pick": "parent"}], "hold": 5,
-     "line": "So here's your suggested offer: {sugg}."},
-    {"id": "take", "do": [{"focus": "text:^\\s*Caddie's comp take\\s*$", "pick": "parent"}], "hold": 6,
-     "line": "And Caddie explains what that gap means, before you write the offer."}
-  ],
-  "wrap": "Know what it's worth before you offer.",
-  "end": "Try it free at dealcaddie.ai."
+ "audience": "investor",
+ "start": "quick",
+ "title": "Asking {price_short}. The comps say otherwise.",
+ "blurb": "Comparable sales, price per square foot, a suggested offer range and Caddie's take — on every analysis.",
+ "tags": "#realestateinvesting #comps #makeanoffer #realestateinvestor #housinghacks",
+ "scenes": [
+  {
+   "id": "hook",
+   "do": [
+    {
+     "top": true
+    },
+    {
+     "wait": 600
+    },
+    {
+     "focus": "#results-top"
+    }
+   ],
+   "hold": 4,
+   "line": "Asking {price_short} for this {city} {ptype}. Is that a fair price?"
+  },
+  {
+   "id": "comps",
+   "do": [
+    {
+     "tab": "Comps"
+    },
+    {
+     "focus": "text:^\\s*Comparable Sales",
+     "pick": "card",
+     "scope": true
+    }
+   ],
+   "hold": 6,
+   "grab": {
+    "n": "(\\d+) comps",
+    "comp_psf": "avg (\\$\\d+)/sqft",
+    "ask_psf": "Asking\\s+\\$[\\d.]+K?\\s+(\\$\\d+)/sqft",
+    "gap": "[−-](\\d+%)\\s*▼",
+    "gap_up": "\\+?(\\d+%)\\s*▲",
+    "sugg": "SUGGESTED OFFER\\s+(\\$[\\d.]+K[–-]\\$[\\d.]+K)"
+   },
+   "line": "DealCaddie pulls {n} recent sales nearby. They average {comp_psf}/sqft."
+  },
+  {
+   "id": "ask",
+   "do": [
+    {
+     "focus": "text:^\\s*Asking\\s*$",
+     "pick": "row"
+    }
+   ],
+   "hold": 5,
+   "line": "This one's asking {ask_psf}/sqft. That's {gap_up} above the comps.",
+   "alts": [
+    "This one is priced above the comps."
+   ]
+  },
+  {
+   "id": "sugg",
+   "do": [
+    {
+     "focus": "text:^\\s*SUGGESTED OFFER\\s*$",
+     "pick": "row"
+    }
+   ],
+   "hold": 5,
+   "line": "So instead of paying asking, DealCaddie suggests opening at {sugg}."
+  },
+  {
+   "id": "take",
+   "do": [
+    {
+     "focus": "text:^\\s*Caddie's comp take\\s*$",
+     "pick": "parent"
+    }
+   ],
+   "hold": 6,
+   "line": "And Caddie explains why, so you can defend your number to the listing agent."
+  }
+ ],
+ "wrap": "Don't overpay. Let the comps set your offer.",
+ "end": "Try it free at dealcaddie.ai.",
+ "require": "Asking\\s+\\$[\\d.]+K?\\s+\\$\\d+/sqft\\s+\\+\\d+%\\s*▲"
 }

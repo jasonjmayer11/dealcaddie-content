@@ -13,7 +13,7 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 
-const listing = process.argv[2];
+let listing = process.argv[2];
 const outdir = process.argv[3];
 if (!listing || !outdir) { console.error('usage: record_demo.js <listing> <outdir>'); process.exit(2); }
 fs.mkdirSync(outdir, { recursive: true });
@@ -36,6 +36,30 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
   await Promise.all([lp.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => {}),
                      lp.click('form button[type="submit"]')]);
   if (/\/login/.test(lp.url())) throw new Error('Login failed — check DC_EMAIL / DC_PASSWORD');
+  // Several candidate listings ("url1|url2|…") + a storyboard "require" rule: analyze each one off-camera
+  // and keep the first that tells the story (e.g. priced ABOVE its comps for the suggested-offer video).
+  const cands = listing.split('|').map(x => x.trim()).filter(Boolean);
+  if (cands.length > 1 && STORY && STORY.require) {
+    let chosen = null;
+    for (const c of cands) {
+      try {
+        await lp.goto(`${BASE}/analyze`, { waitUntil: 'networkidle', timeout: 60000 });
+        await lp.locator('input[name="address"]').first().click(); await sleep(500);
+        const sh = lp.locator('.dcs-sheet.on');
+        const box = (await sh.isVisible().catch(() => false)) ? sh.locator('input[type="text"]').first() : lp.locator('input[name="address"]').first();
+        await box.fill(c); await box.press('Enter');
+        await lp.waitForSelector('#live-score-num', { state: 'attached', timeout: 90000 });
+        await lp.waitForLoadState('networkidle', { timeout: 20000 }).catch(() => {});
+        await sleep(2500);
+        const txt = await lp.evaluate(() => document.body.innerText);
+        const ok = new RegExp(STORY.require, 'i').test(txt);
+        console.log(`candidate ${ok ? 'PASS' : 'skip'}: ${c}`);
+        if (ok) { chosen = c; break; }
+      } catch (e) { console.log(`candidate error: ${c} — ${e.message.split('\n')[0]}`); }
+    }
+    if (!chosen) throw new Error('no candidate listing met the storyboard requirement: ' + STORY.require);
+    listing = chosen;
+  } else listing = cands[0];
   const storageState = await lctx.storageState();
   await lctx.close();
 
@@ -131,7 +155,7 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
   // gold focus ring on whatever the voice is talking about; scroll it clear of the sticky tab bar
   const focus = (sel, pick = 'self', setScope = false) => page.evaluate(([sel, pick, setScope]) => {
     const root = window.__demoScope || document;
-    document.querySelectorAll('[data-demo-focus]').forEach(e => { e.style.boxShadow = ''; e.removeAttribute('data-demo-focus'); });
+    document.querySelectorAll('[data-demo-focus]').forEach(e => { e.style.boxShadow = ''; e.removeAttribute('data-demo-focus'); }); { const r = document.getElementById('demo-ring'); if (r) r.style.opacity = '0'; window.__demoRingTarget = null; }
     let el = null;
     if (sel.startsWith('text:')) {
       const rx = new RegExp(sel.slice(5), 'i');
@@ -170,9 +194,39 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
       const y = window.scrollY + r.top - Math.max(150, (window.innerHeight - r.height) / 2);
       window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
     }
-    el.style.transition = 'box-shadow .35s ease'; el.style.borderRadius = el.style.borderRadius || '12px';
     el.setAttribute('data-demo-focus', '1');
-    setTimeout(() => { el.style.boxShadow = '0 0 0 3px rgba(201,168,76,.95), 0 0 0 9px rgba(201,168,76,.22)'; }, 450);
+    // Gold ring as an overlay that follows the subject (a box-shadow on a table cell/row only rings one cell).
+    // It spans the full width of the row's card so label and value are both inside, and pulses gently.
+    if (!document.getElementById('demo-ring-style')) {
+      const st = document.createElement('style'); st.id = 'demo-ring-style';
+      st.textContent = `#demo-ring{position:fixed;pointer-events:none;z-index:2147483646;border-radius:14px;
+        border:3px solid rgba(201,168,76,.98);opacity:0;transition:opacity .35s ease;
+        animation:demoPulse 1.6s ease-in-out infinite}
+        @keyframes demoPulse{0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.45),0 0 18px 2px rgba(201,168,76,.25)}
+        50%{box-shadow:0 0 0 9px rgba(201,168,76,.10),0 0 26px 6px rgba(201,168,76,.35)}}`;
+      document.head.appendChild(st);
+    }
+    let ring = document.getElementById('demo-ring');
+    if (!ring) { ring = document.createElement('div'); ring.id = 'demo-ring'; document.body.appendChild(ring); }
+    ring.style.opacity = '0';
+    let wide = el;                                    // nearest ancestor that spans (almost) the screen width
+    while (wide.parentElement && wide.parentElement !== document.body && wide.getBoundingClientRect().width < window.innerWidth * 0.8) wide = wide.parentElement;
+    window.__demoRingTarget = el; window.__demoRingWide = wide;
+    if (!window.__demoRingLoop) {
+      window.__demoRingLoop = true;
+      const tick = () => {
+        const r = document.getElementById('demo-ring'), t = window.__demoRingTarget;
+        if (r && t && t.isConnected) {
+          const a = t.getBoundingClientRect(), w = (window.__demoRingWide || t).getBoundingClientRect();
+          const pad = 6, left = Math.min(a.left, w.left + 4) - pad, right = Math.max(a.right, w.right - 4) + pad;
+          r.style.left = left + 'px'; r.style.width = (right - left) + 'px';
+          r.style.top = (a.top - pad) + 'px'; r.style.height = (a.height + 2 * pad) + 'px';
+        }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+    setTimeout(() => { ring.style.opacity = '1'; }, 450);
     return true;
   }, [sel, pick, setScope]).catch(() => false);
 
@@ -238,7 +292,7 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
     }
     // closing shot for the spoken wrap-up: glide back to the top of the page
     await page.evaluate(() => {
-      document.querySelectorAll('[data-demo-focus]').forEach(e => { e.style.boxShadow = ''; e.removeAttribute('data-demo-focus'); });
+      document.querySelectorAll('[data-demo-focus]').forEach(e => { e.style.boxShadow = ''; e.removeAttribute('data-demo-focus'); }); { const r = document.getElementById('demo-ring'); if (r) r.style.opacity = '0'; window.__demoRingTarget = null; }
       window.scrollTo({ top: 0, behavior: 'smooth' });
       document.querySelectorAll('*').forEach(e => { if (e.scrollTop > 0 && /(auto|scroll)/.test(getComputedStyle(e).overflowY)) e.scrollTo({ top: 0, behavior: 'smooth' }); });
     }).catch(() => {});
@@ -297,7 +351,7 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
 
   // ---- 6. wrap: glide back up to the finished analysis while the voice sums it up ----
   await page.evaluate(() => {
-    document.querySelectorAll('[data-demo-focus]').forEach(e => { e.style.boxShadow = ''; e.removeAttribute('data-demo-focus'); });
+    document.querySelectorAll('[data-demo-focus]').forEach(e => { e.style.boxShadow = ''; e.removeAttribute('data-demo-focus'); }); { const r = document.getElementById('demo-ring'); if (r) r.style.opacity = '0'; window.__demoRingTarget = null; }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }).catch(() => {});
   mark('wrap', 'start'); await sleep(HOLD); mark('wrap', 'end');
