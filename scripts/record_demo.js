@@ -256,6 +256,8 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
         if (act.fill) { const [sel, val] = act.fill; const el = page.locator(sel).first();
           await el.click().catch(() => {}); await el.fill(''); await el.type(String(val), { delay: 90 }).catch(() => {}); await sleep(600); }
         if (act.unscope) await page.evaluate(() => { window.__demoScope = null; });
+        if (act.clear) await page.evaluate(() => { const r = document.getElementById('demo-ring'); if (r) r.style.opacity = '0';
+          window.__demoRingTarget = null; window.__demoFocus = null; });
         if (act.focus) { const ok = await focus(act.focus, act.pick || 'self', !!act.scope); console.log(`focus ${act.focus}: ${ok}`); }
         if (act.press) { await page.keyboard.press(act.press).catch(() => {}); await sleep(800); }
         if (act.typein) {                                     // type into whatever field is focused/open, like a person

@@ -1,23 +1,121 @@
 {
-  "audience": "investor",
-  "start": "none",
-  "title": "Type it the way you'd say it. DealCaddie finds the cash flow.",
-  "blurb": "Deals: describe your buy box in plain English. DealCaddie underwrites every listing in the market on all 7 strategies, shows the ones that hit your numbers, and emails new matches every morning.",
-  "tags": "#realestateinvesting #cashflow #buyandhold #realestateinvestor #dealflow #clevelandrealestate",
-  "scenes": [
-    {"id": "hook", "do": [{"wait": 400}], "hold": 3.5, "zoom": false,
-     "line": "What if the cash-flowing deals came to you?"},
-    {"id": "type", "do": [{"typein": ["input[name=\"address\"]", "3-bed under $300K in Cleveland that cash-flows $200"]}], "hold": 2.5, "zoom": false,
-     "line": "Just type it the way you'd say it: three-bed under $300K in Cleveland that cash-flows $200 a month."},
-    {"id": "run", "do": [{"press": "Enter"}, {"wait": 9000}, {"focus": "text:hit your targets", "pick": "parent2"}], "hold": 6,
-     "grab": {"hits": "(\\d+) hit your targets", "scanned": "~?([\\d,]+) properties on the market"},
-     "line": "DealCaddie runs every listing in the market through all seven strategies. {hits} hit your numbers.",
-     "alts": ["DealCaddie runs every listing in the market through all seven strategies, and keeps only the ones that hit your numbers."]},
-    {"id": "list", "do": [{"focus": "text:^\\s*Show all\\s*$", "pick": "parent2"}], "hold": 5,
-     "line": "Each one comes with its cash flow already worked out. Tap any of them for the full analysis."},
-    {"id": "alerts", "do": [{"click": "text:^\\s*Filters\\s*\\d*\\s*$"}, {"wait": 1200}, {"focus": "text:Email me a daily digest", "pick": "parent"}], "hold": 6,
-     "line": "Save it, and every morning the new matches land in your inbox. Even while you sleep."}
-  ],
-  "wrap": "No other tool searches for cash flow like this.",
-  "end": "Try it free at dealcaddie.ai."
+ "audience": "investor",
+ "start": "none",
+ "title": "Type it the way you'd say it. DealCaddie finds the cash flow.",
+ "blurb": "Deals: describe your buy box in plain English. DealCaddie underwrites every listing in the market on all 7 strategies, shows the ones that hit your numbers, and emails new matches every morning.",
+ "tags": "#realestateinvesting #cashflow #buyandhold #realestateinvestor #dealflow #clevelandrealestate",
+ "scenes": [
+  {
+   "id": "hook",
+   "do": [
+    {
+     "wait": 400
+    }
+   ],
+   "hold": 3.5,
+   "zoom": false,
+   "line": "What if the cash-flowing deals came to you?"
+  },
+  {
+   "id": "type",
+   "do": [
+    {
+     "typein": [
+      "input[name=\"address\"]",
+      "3-bed under $300K in Cleveland that cash-flows $200"
+     ]
+    }
+   ],
+   "hold": 2.5,
+   "zoom": false,
+   "line": "Just type it the way you'd say it: three-bed under $300K in Cleveland that cash-flows $200 a month."
+  },
+  {
+   "id": "parse",
+   "do": [
+    {
+     "press": "Enter"
+    },
+    {
+     "wait": 4000
+    },
+    {
+     "focus": "text:^\\s*FROM YOUR SEARCH",
+     "pick": "parent2"
+    }
+   ],
+   "hold": 4.5,
+   "line": "DealCaddie turns that into a buy box: the market, price, beds and your cash-flow target."
+  },
+  {
+   "id": "run",
+   "do": [
+    {
+     "click": "text:^\\s*Apply filters\\s*$"
+    },
+    {
+     "wait": 9000
+    },
+    {
+     "focus": "text:hit your targets",
+     "pick": "parent2"
+    }
+   ],
+   "hold": 5.5,
+   "grab": {
+    "hits": "(\\d+) hit your targets"
+   },
+   "line": "Then it underwrites every listing in the market on all seven strategies. {hits} hit your numbers.",
+   "alts": [
+    "Then it underwrites every listing in the market on all seven strategies, and keeps the ones that hit your numbers."
+   ]
+  },
+  {
+   "id": "map",
+   "do": [
+    {
+     "clear": true
+    }
+   ],
+   "hold": 4,
+   "zoom": false,
+   "line": "Every pin on the map shows its cash flow, so the deals jump out."
+  },
+  {
+   "id": "card",
+   "do": [
+    {
+     "focus": "text:vs \\$\\d+ min",
+     "pick": "parent2"
+    }
+   ],
+   "hold": 5,
+   "grab": {
+    "top_cf": "\\+(\\$[\\d,]+)/mo"
+   },
+   "line": "Each one's fully underwritten. This one clears {top_cf}/mo.",
+   "alts": [
+    "Each one comes fully underwritten. Tap it for the whole analysis."
+   ]
+  },
+  {
+   "id": "alerts",
+   "do": [
+    {
+     "click": "text:^\\s*Filters\\s*\\d*\\s*$"
+    },
+    {
+     "wait": 1200
+    },
+    {
+     "focus": "text:Email me a daily digest",
+     "pick": "parent"
+    }
+   ],
+   "hold": 6,
+   "line": "Save it, and every morning the new matches land in your inbox. Even while you sleep."
+  }
+ ],
+ "wrap": "No other tool searches for cash flow like this.",
+ "end": "Try it free at dealcaddie.ai."
 }

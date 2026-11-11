@@ -1,22 +1,80 @@
 {
-  "audience": "investor",
-  "start": "quick",
-  "title": "A {price_short} {city} {ptype}: every unit's rent, pulled for you.",
-  "blurb": "Multifamily: DealCaddie detects the unit count, pulls a RentCast estimate for every unit, and runs all 7 strategies on the whole building.",
-  "tags": "#multifamily #triplex #duplex #realestateinvesting #househacking #realestateinvestor",
-  "scenes": [
-    {"id": "hook", "do": [{"top": true}, {"wait": 600}, {"focus": "#results-top"}], "hold": 4,
-     "line": "A {price_short} {ptype} in {city}. Three units means three rents to look up."},
-    {"id": "units", "do": [{"tab": "Financials"}, {"focus": "#mf-units-grid", "pick": "card", "scope": true}], "hold": 7,
-     "grab": {"count": "(\\d+) units confirmed"},
-     "line": "DealCaddie confirms the unit count from the listing, and pulls a RentCast estimate for every unit."},
-    {"id": "total", "do": [{"unscope": true}, {"tab": "Cashflow"}, {"focus": "#live-ltr-rent", "pick": "parent2"}], "hold": 5.5,
-     "grab": {"rent": "RENT\\s+(?:Ⓘ\\s+)?(\\$[\\d,]+)/mo", "cf": "MONTHLY CASH FLOW\\s+(\\+?\\$[\\d,]+)/mo"},
-     "line": "That's {rent}/mo in total rent, and {cf}/mo in cash flow after every expense.",
-     "alts": ["Total rent and cash flow, after every expense."]},
-    {"id": "hh", "do": [{"focus": "text:^\\s*House hack\\s*$", "pick": "parent2"}], "hold": 5,
-     "line": "Live in one unit? The house hack numbers are already there too."}
-  ],
-  "wrap": "Every unit, every strategy, in seconds.",
-  "end": "Try it free at dealcaddie.ai."
+ "audience": "investor",
+ "start": "quick",
+ "title": "A {price_short} {city} {ptype}: every unit's rent, pulled for you.",
+ "blurb": "Multifamily: DealCaddie detects the unit count, pulls a RentCast estimate for every unit, and runs all 7 strategies on the whole building.",
+ "tags": "#multifamily #triplex #duplex #realestateinvesting #househacking #realestateinvestor",
+ "scenes": [
+  {
+   "id": "hook",
+   "do": [
+    {
+     "top": true
+    },
+    {
+     "wait": 600
+    },
+    {
+     "focus": "#results-top"
+    }
+   ],
+   "hold": 4,
+   "line": "A {price_short} {ptype} in {city}. More units means more rents to look up."
+  },
+  {
+   "id": "units",
+   "do": [
+    {
+     "tab": "Financials"
+    },
+    {
+     "focus": "#mf-units-grid",
+     "pick": "card",
+     "scope": true
+    }
+   ],
+   "hold": 7,
+   "grab": {
+    "count": "(\\d+) units confirmed"
+   },
+   "line": "DealCaddie confirms the unit count from the listing, and pulls a RentCast estimate for every unit."
+  },
+  {
+   "id": "total",
+   "do": [
+    {
+     "unscope": true
+    },
+    {
+     "tab": "Cashflow"
+    },
+    {
+     "focus": "#live-ltr-rent",
+     "pick": "parent2"
+    }
+   ],
+   "hold": 5.5,
+   "grab": {
+    "rent": "RENT\\s+(?:Ⓘ\\s+)?(\\$[\\d,]+)/mo",
+    "cf": "MONTHLY CASH FLOW\\s+(\\+?\\$[\\d,]+)/mo"
+   },
+   "line": "That's {rent}/mo in total rent, and {cf}/mo in cash flow after every expense.",
+   "alts": [
+    "Total rent and cash flow, after every expense."
+   ]
+  },
+  {
+   "id": "hh",
+   "do": [
+    {
+     "focus": "text:^\\s*House hack\\s*$",
+     "pick": "parent2"
+    }
+   ],
+   "hold": 5,
+   "line": "Live in one unit? The house hack numbers are already there too."
+  }
+ ],
+ "wrap": "Every unit, every strategy, in seconds.",
+ "end": "Try it free at dealcaddie.ai."
 }
