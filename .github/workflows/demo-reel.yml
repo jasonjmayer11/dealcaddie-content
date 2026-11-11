@@ -1,0 +1,81 @@
+name: Narrated demo (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      listing:
+        description: "Zillow URL to demo"
+        required: true
+      voice:
+        description: "Kokoro voice (af_heart, af_bella, am_michael, am_fenrir…)"
+        required: false
+        default: af_heart
+
+permissions:
+  contents: write
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: daily-reel
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/huggingface
+          key: kokoro-v1
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install chromium
+          curl -fsSL --retry 3 -o /tmp/ffmpeg.tar.xz \
+            https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz
+          mkdir -p /tmp/ffmpeg && tar -xf /tmp/ffmpeg.tar.xz -C /tmp/ffmpeg --strip-components=1
+          echo "/tmp/ffmpeg/bin" >> "$GITHUB_PATH"
+          sudo apt-get update -qq && sudo apt-get install -y -qq espeak-ng
+          pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+          pip install --quiet "kokoro>=0.9.4" soundfile pillow numpy
+      - name: Record the analysis
+        env:
+          DC_EMAIL: ${{ secrets.DC_EMAIL }}
+          DC_PASSWORD: ${{ secrets.DC_PASSWORD }}
+        run: node scripts/record_demo.js "${{ github.event.inputs.listing }}" work
+      - name: Script, voice and edit
+        id: build
+        env:
+          VOICE: ${{ github.event.inputs.voice }}
+        run: |
+          SLUG="demo-$(date -u +%Y%m%d-%H%M)"
+          echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
+          mkdir -p dist
+          python3 scripts/narrate.py work "dist/$SLUG.mp4"
+          mv dist/cover.jpg "dist/$SLUG-cover.jpg"
+          cat dist/script.txt; cat dist/meta.json
+      - name: Publish as a release
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.build.outputs.slug }}"
+          [ -z "$TAG" ] && TAG="demo-failed-$(date -u +%Y%m%d-%H%M)"
+          cd work && zip -qr ../captures.zip . -x '*.webm' && cd ..
+          FILES="captures.zip"
+          [ -f "dist/$TAG.mp4" ] && FILES="dist/$TAG.mp4 dist/$TAG-cover.jpg dist/script.txt $FILES"
+          NOTES=dist/caption.txt; [ -f "$NOTES" ] || { echo "build failed" > /tmp/n.txt; NOTES=/tmp/n.txt; }
+          TITLE=$(python3 -c "import json;print(json.load(open('dist/meta.json'))['hook'])" 2>/dev/null || echo "$TAG")
+          gh release create "$TAG" $FILES --prerelease --title "$TITLE" --notes-file "$NOTES"
