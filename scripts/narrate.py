@@ -107,6 +107,7 @@ def speakify(t):
 if STORY:
     v = dict(price_short=short(price), city=city, ptype=ptype, score=score)
     v.update({k: x for k, x in (data.get("vars") or {}).items() if x})
+    if v.get("verdict"): v["verdict"] = v["verdict"].lower().replace("buy", "buy").strip()
     class _Miss(dict):
         def __missing__(self, k): raise KeyError(k)
     lines = []

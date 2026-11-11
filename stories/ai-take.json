@@ -1,23 +1,92 @@
 {
-  "audience": "investor",
-  "start": "quick",
-  "title": "A second opinion on every deal: Caddie's Take on a {price_short} {city} {ptype}.",
-  "blurb": "Caddie's Take: an AI verdict, the call, red flags, market outlook and best strategy — written for this exact deal.",
-  "tags": "#realestateinvesting #ai #realestateinvestor #rentalproperty #dealanalysis",
-  "scenes": [
-    {"id": "hook", "do": [{"top": true}, {"wait": 600}, {"focus": "#results-top"}], "hold": 4,
-     "line": "The numbers say {score} out of 10. But should you actually buy it?"},
-    {"id": "verdict", "do": [{"tab": "AI Take"}, {"waitgone": "Checking the neighborhood"}, {"focus": "text:^\\s*CADDIE'S VERDICT\\s*$", "pick": "card", "scope": true}], "hold": 5.5,
-     "grab": {"verdict": "CADDIE'S VERDICT\\s+(?:✓\\s*)?([A-Z][A-Z ]{2,20})\\b"},
-     "line": "Caddie reads the whole deal and gives you a straight answer: {verdict}.",
-     "alts": ["Caddie reads the whole deal and gives you a straight answer."]},
-    {"id": "flags", "do": [{"focus": "text:^\\s*RED FLAGS\\s*$", "pick": "parent"}], "hold": 6,
-     "line": "It calls out the red flags you'd want to know before you offer — not after."},
-    {"id": "strategy", "do": [{"focus": "text:^\\s*BEST STRATEGY\\s*$", "pick": "parent"}], "hold": 6,
-     "line": "Then it tells you the best strategy for this property, and where the value-add is."},
-    {"id": "ask", "do": [{"unscope": true}, {"top": true}, {"wait": 500}, {"focus": "text:^\\s*Ask\\s*$"}], "hold": 4.5,
-     "line": "Still have a question? Ask Caddie. It sees the exact numbers on your screen."}
-  ],
-  "wrap": "A second opinion on every deal, in seconds.",
-  "end": "Try it free at dealcaddie.ai."
+ "audience": "investor",
+ "start": "quick",
+ "title": "A second opinion on every deal: Caddie's Take on a {price_short} {city} {ptype}.",
+ "blurb": "Caddie's Take: an AI verdict, the call, red flags, market outlook and best strategy — written for this exact deal.",
+ "tags": "#realestateinvesting #ai #realestateinvestor #rentalproperty #dealanalysis",
+ "scenes": [
+  {
+   "id": "hook",
+   "do": [
+    {
+     "top": true
+    },
+    {
+     "wait": 600
+    },
+    {
+     "focus": "#results-top"
+    }
+   ],
+   "hold": 4,
+   "line": "The numbers say {score} out of 10. But should you actually buy it?"
+  },
+  {
+   "id": "verdict",
+   "do": [
+    {
+     "tab": "AI Take"
+    },
+    {
+     "waitgone": "Checking the neighborhood"
+    },
+    {
+     "focus": "text:^\\s*CADDIE'S VERDICT\\s*$",
+     "pick": "card",
+     "scope": true
+    }
+   ],
+   "hold": 5.5,
+   "grab": {
+    "verdict": "\\b(STRONG BUY|BUY|WATCH|PASS)\\s+CADDIE'S VERDICT"
+   },
+   "line": "Caddie reads the whole deal and gives you a straight answer. Here, it's a {verdict}.",
+   "alts": [
+    "Caddie reads the whole deal and gives you a straight answer."
+   ]
+  },
+  {
+   "id": "flags",
+   "do": [
+    {
+     "focus": "text:^\\s*RED FLAGS\\s*$",
+     "pick": "parent"
+    }
+   ],
+   "hold": 6,
+   "line": "It calls out the red flags you'd want to know before you offer — not after."
+  },
+  {
+   "id": "strategy",
+   "do": [
+    {
+     "focus": "text:^\\s*BEST STRATEGY\\s*$",
+     "pick": "parent"
+    }
+   ],
+   "hold": 6,
+   "line": "Then it tells you the best strategy for this property, and where the value-add is."
+  },
+  {
+   "id": "ask",
+   "do": [
+    {
+     "unscope": true
+    },
+    {
+     "top": true
+    },
+    {
+     "wait": 500
+    },
+    {
+     "focus": "text:^\\s*Ask\\s*$"
+    }
+   ],
+   "hold": 4.5,
+   "line": "Still have a question? Ask Caddie. It sees the exact numbers on your screen."
+  }
+ ],
+ "wrap": "A second opinion on every deal, in seconds.",
+ "end": "Try it free at dealcaddie.ai."
 }
