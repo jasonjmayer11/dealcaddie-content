@@ -184,7 +184,16 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
         if (act.tab) { await clickTab(act.tab); await hideIcons(); }
         if (act.top) await page.evaluate(() => { window.scrollTo({ top: 0, behavior: 'smooth' });
           document.querySelectorAll('*').forEach(e => { if (e.scrollTop > 0 && /(auto|scroll)/.test(getComputedStyle(e).overflowY)) e.scrollTo({ top: 0, behavior: 'smooth' }); }); });
-        if (act.goto) { await page.goto(`${BASE}${act.goto}`, { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {}); await hideIcons(); }
+        if (act.goto) {
+          let url = act.goto;
+          if (url.includes('{ids')) {                       // best-scoring saved deals from the Pipeline, for /compare
+            const ids = await page.evaluate(() => [...new Set([...document.querySelectorAll('a[href*="/analysis/"]')]
+              .map(a => (a.getAttribute('href').match(/\/analysis\/(\d+)/) || [])[1]).filter(Boolean))]).catch(() => []);
+            url = url.replace('{ids3}', ids.slice(0, 3).join(',')).replace('{ids2}', ids.slice(0, 2).join(','));
+            console.log('compare ids', url);
+          }
+          await page.goto(`${BASE}${url}`, { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {}); await hideIcons();
+        }
         if (act.click) {
           const t = act.click.startsWith('text:') ? page.getByText(new RegExp(act.click.slice(5), 'i')).first() : page.locator(act.click).first();
           await t.scrollIntoViewIfNeeded().catch(() => {}); await t.click({ timeout: 5000 }).catch(e => console.log('click miss', act.click));

@@ -1,0 +1,22 @@
+{
+  "audience": "investor",
+  "start": "none",
+  "title": "Every deal you're watching, in one list — and it tells you when they sell.",
+  "blurb": "Pipeline: every saved deal with score, cap rate, cash-on-cash, DSCR and cash-flow range, status tracking, and sold/pending/back-on-market tags.",
+  "tags": "#realestateinvesting #realestateinvestor #dealflow #rentalproperty #organization",
+  "scenes": [
+    {"id": "hook", "do": [{"goto": "/dashboard"}, {"wait": 1500}], "hold": 4, "zoom": false,
+     "grab": {"n": "(\\d+) deals saved"},
+     "line": "Watching {n} deals at once? Spreadsheets fall apart fast.", "alts": ["Watching a handful of deals at once? Spreadsheets fall apart fast."]},
+    {"id": "card", "do": [{"focus": "text:^\\s*CF RANGE\\s*$", "pick": "card"}], "hold": 6,
+     "line": "Your pipeline keeps every deal on one card: score, cap rate, cash-on-cash, DSCR, and the cash-flow range across every strategy."},
+    {"id": "sort", "do": [{"click": "text:^\\s*Best score\\s*$"}, {"wait": 800}, {"focus": "text:^\\s*Best score\\s*$", "pick": "parent"}], "hold": 4.5,
+     "line": "Sort by score, cap rate or cash flow, and the best deals rise to the top."},
+    {"id": "status", "do": [{"focus": "text:^\\s*Any status\\s*$", "pick": "parent"}], "hold": 4.5,
+     "line": "Track each one from watching, to offered, to under contract."},
+    {"id": "tags", "do": [{"focus": "text:^\\s*STR Friendly\\s*$", "pick": "parent"}], "hold": 5,
+     "line": "And when a deal goes pending, sells, or comes back on the market, it's tagged right on the card."}
+  ],
+  "wrap": "Your whole deal flow, in one place.",
+  "end": "Try it free at dealcaddie.ai."
+}

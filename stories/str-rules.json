@@ -1,0 +1,22 @@
+{
+  "audience": "investor",
+  "start": "quick",
+  "title": "Airbnb pays the most on this {city} house. There's a catch.",
+  "blurb": "DealCaddie checks short-term rental rules for the city on every analysis and flags restricted markets, so you never underwrite an Airbnb you can't legally run.",
+  "tags": "#airbnb #shorttermrental #strinvesting #realestateinvesting #airbnbhost #{city}",
+  "scenes": [
+    {"id": "hook", "do": [{"top": true}, {"wait": 600}, {"focus": "#results-top"}], "hold": 4,
+     "line": "On this {price_short} {ptype} in {city}, Airbnb pays the most. But there's a catch."},
+    {"id": "strats", "do": [{"tab": "Cashflow"}, {"focus": "text:^\\s*Cashflow by Strategy", "pick": "card"}], "hold": 6,
+     "grab": {"str": "Short-term rental\\s+(\\+?\\$[\\d,]+)", "hh": "House hack\\s+(\\+?\\$[\\d,]+)", "ltr": "Long-term rental\\s+(\\+?\\$[\\d,]+)"},
+     "line": "As an Airbnb it would clear {str}/mo. That's double the long-term rental.",
+     "alts": ["As an Airbnb it clears the most of any strategy."]},
+    {"id": "flag", "do": [{"top": true}, {"wait": 700}, {"focus": "text:^\\s*STR Restricted Market\\s*$"}], "hold": 5.5,
+     "line": "But {city} restricts short-term rentals, and DealCaddie flags it on every analysis."},
+    {"id": "real", "do": [{"tab": "Cashflow"}, {"focus": "text:^\\s*House hack\\s*$", "pick": "parent2"}], "hold": 5,
+     "line": "So you underwrite what you can actually run: as a house hack, {hh}/mo.",
+     "alts": ["So you underwrite what you can actually run."]}
+  ],
+  "wrap": "Know the rules before you buy, not after.",
+  "end": "Try it free at dealcaddie.ai."
+}
