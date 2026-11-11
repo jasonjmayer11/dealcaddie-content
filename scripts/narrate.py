@@ -61,9 +61,9 @@ if rent_total:
                   f"Rent from Rent Cast: {dollars(rent_total)} a month{across}. Taxes and insurance, filled in."))
 if best is not None:
     if restricted and cf.get("str") is not None and cf["str"] > legal[best]:
-        d = (f"Every strategy, side by side. Airbnb pays most, but it's restricted in {city}, and DealCaddie flags it. "
+        d = (f"Airbnb pays most, but it's restricted in {city}, and DealCaddie flags it. "
              f"The real play: {NAMES[best]}, at {'+' if legal[best] >= 0 else '−'}{dollars(abs(legal[best]))}/mo.")
-        s = (f"Every strategy, side by side. AIRBNB pays most, but it's restricted in {city}, and Deal Caddie flags it. "
+        s = (f"AIRBNB pays most, but it's restricted in {city}, and Deal Caddie flags it. "
              f"The real play: {NAMES[best]}, at {signed(legal[best])} a month.")
     elif best == "ltr" or cf.get("ltr") is None:
         d = f"Every strategy, side by side. Best play: {NAMES[best]}, at {'+' if legal[best] >= 0 else '−'}{dollars(abs(legal[best]))}/mo."
@@ -87,7 +87,10 @@ lines.append(("end", "Every number, in seconds. Try it free at dealcaddie.ai.",
 from kokoro import KPipeline
 pipe = KPipeline(lang_code="a")
 def speak(text, speed):
-    parts = [a.numpy() if hasattr(a, "numpy") else np.asarray(a) for _, _, a in pipe(text, voice=VOICE, speed=speed)]
+    parts = []
+    for gs, ps, a in pipe(text, voice=VOICE, speed=speed):
+        print(f"  phonemes: {ps}")
+        parts.append(a.numpy() if hasattr(a, "numpy") else np.asarray(a))
     return np.concatenate(parts).astype(np.float32) if parts else np.zeros(1, np.float32)
 
 GAP = 0.35
