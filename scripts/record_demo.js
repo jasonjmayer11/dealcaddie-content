@@ -168,18 +168,8 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
     const okR = (await focus('#live-ltr-rent', 'parent2')) || (await focus('text:^\\s*Long-Term Rental\\s*$', 'card'));
     console.log('focus rent:', okR);
   }
-  await sleep(HOLD * 0.5);
-  await clickTab('Financials'); await hideIcons();
-  await page.evaluate(() => {                               // taxes/insurance live under "Adjust financing"
-    const t = document.getElementById('fin-toggle');
-    if (t && t.getAttribute('aria-expanded') !== 'true') t.click();
-  }).catch(() => {});
-  await sleep(500);
-  await sleep(700);                                          // let the accordion finish opening before measuring
-  const okT = (await focus('#fin-tax', 'parent2')) || (await focus('#fin-ins', 'parent2'));
-  await sleep(900); await focus('#fin-tax', 'parent2');      // re-aim once the layout has settled
-  console.log('focus tax:', okT);
-  await sleep(HOLD * 0.5);
+  // the LTR card shows the RentCast rent next to expenses (taxes + insurance included) — one steady shot
+  await sleep(HOLD);
   mark('auto', 'end');
 
   // ---- 4. cash flow by strategy ----
