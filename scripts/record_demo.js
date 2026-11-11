@@ -122,12 +122,6 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
   await page.evaluate(() => { if (typeof autoAnalyzeCondition === 'function') autoAnalyzeCondition(); }).catch(() => {});
   await hideIcons();
 
-  // ---- 2. score: the property card at the top ----
-  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
-  mark('score', 'start');
-  await sleep(1200);
-  await focus('#results-top'); await sleep(HOLD); mark('score', 'end');
-
   // gold focus ring on whatever the voice is talking about; scroll it clear of the sticky tab bar
   const focus = (sel, pick = 'self') => page.evaluate(([sel, pick]) => {
     document.querySelectorAll('[data-demo-focus]').forEach(e => { e.style.boxShadow = ''; e.removeAttribute('data-demo-focus'); });
@@ -150,6 +144,12 @@ const HOLD = 9000;                    // ms each section stays on screen (VO lin
     setTimeout(() => { el.style.boxShadow = '0 0 0 3px rgba(201,168,76,.95), 0 0 0 9px rgba(201,168,76,.22)'; }, 450);
     return true;
   }, [sel, pick]).catch(() => false);
+
+  // ---- 2. score: the property card at the top ----
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  mark('score', 'start');
+  await sleep(1200);
+  await focus('#results-top'); await sleep(HOLD); mark('score', 'end');
 
   // ---- 3. auto-filled inputs: rent (RentCast) → taxes + insurance ----
   mark('auto', 'start');
