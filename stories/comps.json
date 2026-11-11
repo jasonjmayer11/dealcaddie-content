@@ -83,5 +83,7 @@
  ],
  "wrap": "Don't overpay. Let the comps set your offer.",
  "end": "Try it free at dealcaddie.ai.",
- "require": "Asking\\s+\\$[\\d.]+K?\\s+\\$\\d+/sqft\\s+\\+\\d+%\\s*▲"
+ "require": "Asking\\s+\\S+\\s+\\$\\d+/sqft\\s+\\+?\\d+%\\s*▲",
+ "requireWait": "Comp avg",
+ "requireLog": "Comp avg[\\s\\S]{0,120}"
 }

@@ -51,7 +51,9 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
         await lp.waitForSelector('#live-score-num', { state: 'attached', timeout: 90000 });
         await lp.waitForLoadState('networkidle', { timeout: 20000 }).catch(() => {});
         await sleep(2500);
+        if (STORY.requireWait) await lp.waitForFunction(t => document.body.innerText.includes(t), STORY.requireWait, { timeout: 45000, polling: 700 }).catch(() => {});
         const txt = await lp.evaluate(() => document.body.innerText);
+        if (STORY.requireLog) console.log('  ' + ((txt.match(new RegExp(STORY.requireLog, 'i')) || ['(no match)'])[0]).replace(/\s+/g, ' '));
         const ok = new RegExp(STORY.require, 'i').test(txt);
         console.log(`candidate ${ok ? 'PASS' : 'skip'}: ${c}`);
         if (ok) { chosen = c; break; }
