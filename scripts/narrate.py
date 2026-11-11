@@ -148,18 +148,37 @@ for (seg, disp, _), t0, dur, a in zip(lines, starts, seg_len, audio):
 
 # ------------------------------------------------------------------ compose: brand canvas, phone, captions
 LOGO = logo_layer(250)
-SCR_H = 1430
+# A real phone keeps content clear of its rounded corners: a status-bar strip on top and a
+# home-indicator strip at the bottom. The recording sits between them, so the app header and the
+# bottom tab bar are never clipped by the corner radius.
+TOP_IN, BOT_IN = 64, 46
+INNER_H = 1440
+SCR_H = INNER_H - TOP_IN - BOT_IN
 SCR_W = int(sw * SCR_H / sh)
 bez = 20
-phone = Image.new("RGBA", (SCR_W + 2 * bez, SCR_H + 2 * bez), (0, 0, 0, 0))
+phone = Image.new("RGBA", (SCR_W + 2 * bez, INNER_H + 2 * bez), (0, 0, 0, 0))
 ImageDraw.Draw(phone).rounded_rectangle([0, 0, phone.width - 1, phone.height - 1], radius=86, fill=(16, 22, 19, 255))
 shadow = Image.new("RGBA", (phone.width + 160, phone.height + 160), (0, 0, 0, 0))
 ImageDraw.Draw(shadow).rounded_rectangle([80, 110, 80 + phone.width, 110 + phone.height], radius=86, fill=(10, 30, 18, 70))
 from PIL import ImageFilter
 shadow = shadow.filter(ImageFilter.GaussianBlur(40))
-PX, PY = (W - phone.width) // 2, 175
-mask = Image.new("L", (SCR_W, SCR_H), 0)
-ImageDraw.Draw(mask).rounded_rectangle([0, 0, SCR_W - 1, SCR_H - 1], radius=68, fill=255)
+PX, PY = (W - phone.width) // 2, 150
+mask = Image.new("L", (SCR_W, INNER_H), 0)
+ImageDraw.Draw(mask).rounded_rectangle([0, 0, SCR_W - 1, INNER_H - 1], radius=68, fill=255)
+ISLAND = (SCR_W // 2 - 70, 18, SCR_W // 2 + 70, 52)
+
+def screen_with_insets(fr):
+    """status-bar + home-indicator strips in the app's own edge colours, island + home bar drawn on."""
+    top_c = fr.getpixel((fr.width // 2, 2)); bot_c = fr.getpixel((fr.width // 2, fr.height - 3))
+    inner = Image.new("RGB", (SCR_W, INNER_H), top_c)
+    ImageDraw.Draw(inner).rectangle([0, INNER_H - BOT_IN, SCR_W, INNER_H], fill=bot_c)
+    inner.paste(fr, (0, TOP_IN))
+    d = ImageDraw.Draw(inner)
+    d.rounded_rectangle(ISLAND, radius=17, fill=(10, 12, 11))
+    lum = sum(bot_c[:3]) / 3
+    d.rounded_rectangle([SCR_W // 2 - 90, INNER_H - 22, SCR_W // 2 + 90, INNER_H - 14], radius=4,
+                        fill=(20, 20, 20) if lum > 128 else (235, 235, 235))
+    return inner
 base = BG.copy().convert("RGBA")
 base.alpha_composite(shadow, (PX - 80, PY - 80))
 base.alpha_composite(phone, (PX, PY))
@@ -196,7 +215,7 @@ for i in range(n_main):
     t = i / FPS
     f = base.copy()
     if last is not None:
-        f.paste(last, (PX + bez, PY + bez), mask)
+        f.paste(screen_with_insets(last), (PX + bez, PY + bez), mask)
     cur = next((c for c in caps if c[0] <= t < c[1] + 0.12), None)
     if cur:
         cl = caption(cur[2])
