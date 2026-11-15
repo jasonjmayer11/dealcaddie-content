@@ -72,5 +72,7 @@
  "cover_sub": "{net} net · {roi} a year vs. 7% index fund",
  "cover_scene": "summary",
  "why": "One rental, held for thirty years, can change your family's future. See exactly how.",
- "ask": "How many rentals would you need to replace your paycheck?"
+ "ask": "How many rentals would you need to replace your paycheck?",
+ "requireWait": "CF Breakeven",
+ "requireLog": "CF Breakeven[\\s\\S]{0,25}"
 }
