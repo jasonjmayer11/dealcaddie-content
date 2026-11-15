@@ -40,7 +40,7 @@
     "rtv": "RENT-TO-VALUE\\s+(?:Ⓘ\\s+)?([\\d.]+%)",
     "irr": "IRR\\s+(?:Ⓘ\\s+)?([\\d.]+%)"
    },
-   "line": "DSCR: {dscr}. Most DSCR lenders want at least one point two five.",
+   "line": "DSCR: {dscr}. Most DSCR lenders want at least 1.25x. This one clears it.",
    "alts": [
     "Here's the DSCR — the number DSCR lenders care about most."
    ]

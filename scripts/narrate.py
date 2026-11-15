@@ -98,6 +98,7 @@ def speakify(t):
     t = re.sub(r"\$(\d+(?:\.\d)?)[Kk]\b", lambda m: f"{m.group(1)} thousand dollars", t)
     t = re.sub(r"(\$[\d,]+)/mo\b", r"\1 a month", t)
     t = re.sub(r"(\$[\d,]+)/sqft\b", r"\1 a square foot", t)
+    t = re.sub(r"(\d(?:\.\d+)?)x\b", r"\1 times", t)                     # 1.28x → "1.28 times"
     t = t.replace("+$", "plus $").replace("−$", "minus $").replace("-$", "minus $")
     t = t.replace("DealCaddie", "Deal Caddie").replace("RentCast", "Rent Cast").replace("BRRRR", "burr")
     for word, ph in (("DSCR", "dˌiɛsˌsiˈɑɹ"), ("PMI", "pˌiɛmˈI"), ("LTV", "ˌɛltiˈvi"), ("PITIA", "pˌitˌiˌIˈA"),
