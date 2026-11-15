@@ -94,5 +94,8 @@
  "cover_sub": "DSCR {dscr} · breaks even at {beo} occupancy",
  "cover_scene": "dscr",
  "why": "Stop waiting on a loan officer to tell you if your deal works. Know before you call.",
- "ask": "What's the lowest DSCR you'd buy at?"
+ "ask": "What's the lowest DSCR you'd buy at?",
+ "require": "DSCR\\s+(?:Ⓘ\\s+)?(1\\.[2-9]\\d?|[2-9]\\.\\d+)x",
+ "requireWait": "DSCR",
+ "requireLog": "DSCR\\s+(?:Ⓘ\\s+)?[\\d.]+x"
 }
