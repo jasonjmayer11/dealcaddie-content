@@ -48,7 +48,12 @@ for ph in M["script"]:
     for u in units: u["t0"] += t; u["t1"] += t
     clips.append((t, a)); phrases.append((t, d, ph, units))
     for ev in ph.get("do", []):                 # "id", "id@0.6" (fraction of the phrase) or "id#3" (as unit 3 is spoken)
-        if "#" in ev:
+        if "~" in ev:                           # "id~word": as the first unit starting with that text is spoken
+            k, _, w_ = ev.partition("~")
+            hit = [u for u in units if u["show"].lower().startswith(w_.lower())]
+            if not hit: sys.exit(f"event {ev}: no unit starts with {w_!r} in {[u['show'] for u in units]}")
+            events[k] = hit[0]["t0"]
+        elif "#" in ev:
             k, _, n = ev.partition("#"); events[k] = units[min(int(n), len(units) - 1)]["t0"]
         else:
             k, _, f = ev.partition("@"); events[k] = t + d * float(f or 0)
@@ -159,6 +164,7 @@ def score(now):
     return s
 
 def fmt(v, kind):
+    if kind == "pct": return f"{v:.1f}%"
     if kind == "money": return ("−" if v < 0 else "") + f"${abs(v):,.0f}"
     if kind == "money_s": return ("−" if v < 0 else "+") + f"${abs(v):,.0f}"
     if kind == "pct_s": return ("−" if v < 0 else "+") + f"{abs(v):.1f}%"
@@ -171,11 +177,13 @@ def property_card(side, now):
     for i, h in enumerate(holes):                          # glow briefly when this side wins a hole
         s = since(f"h{i}w", now)
         if s is not None and s < 1.4 and h["winner"] == side: hi = 1 - s / 1.4
-    fin = since("final", now); champ = fin is not None and M["champion"] == side
+    fin = since("final", now); champ = fin is not None and M.get("champion") == side
     glow = (39, 165, 82, int(150 * hi)) if hi else ((201, 168, 76, 170) if champ else None)
     card, pad = shadowed_card(CARD_W, CARD_H, border=GOLD if champ else LINE, bw=5 if champ else 2, glow=glow)
     ill, doors, gy = building(P["kind"], ILL_W, ILL_H, lights=0.5 + 0.5 * math.sin(now * 1.3) ** 2)
     card.alpha_composite(ill, (pad + 20, pad + 20))
+    if P.get("badge"):
+        bd = pill(P["badge"], fill=FOREST, color=WHITE, size=24, track=0.08); card.alpha_composite(bd, (pad + 36, pad + 36))
     nm = text_layer(P["name"], F_NUM, 46, INK, tracking=-0.02); card.alpha_composite(nm, (pad + 28, pad + 330))
     sp = text_layer(P["spec"], F_MED, 28, MUTED); card.alpha_composite(sp, (pad + 28, pad + 392))
     if champ:
@@ -283,12 +291,16 @@ def scoreboard(now):
 
 TITLE = text_layer(M["title"], F_NUM, 64, INK, tracking=-0.03)
 TAG = text_layer(M.get("tag", "HEAD TO HEAD"), F_NUM, 22, GOLD_D, tracking=0.3)
-FOOT = text_layer(M["footnote"], F_MED, 22, MUTED)
+_fl = wrap(M["footnote"], F_MED, 22, 960)
+FOOT = Image.new("RGBA", (W, 30 * len(_fl)), (0, 0, 0, 0))
+for _i, _l in enumerate(_fl):
+    _t = text_layer(_l, F_MED, 22, MUTED); FOOT.alpha_composite(_t, ((W - _t.width) // 2, 30 * _i))
 BG = gradient_bg().convert("RGBA")
 
 # ------------------------------------------------------------------ frame
 APP = M.get("app_screen", "compare.png")
-PHONE, PPAD = device_layer(os.path.join(ROOT, "assets", "showcase", APP), 560, 900)
+_ap = Image.open(os.path.join(ROOT, "assets", "showcase", APP))
+PHONE, PPAD = device_layer(os.path.join(ROOT, "assets", "showcase", APP), 980 if _ap.width > _ap.height * 0.8 else 560, 900)
 rng = random.Random(3)
 def frame(now):
     f = BG.copy()

@@ -1,0 +1,136 @@
+{
+ "title": "Price Cut vs Seller Credit",
+ "cover": "$6K off the price, or a $6K credit?",
+ "cover_sub": "SAME HOUSE. SAME $6K.",
+ "footnote": "EXAMPLE NUMBERS · asking $300K · 25% down · 7% 30-yr · 3% closing costs · rent $2,500",
+ "app_screen": "offerplan.png",
+ "champion": "a",
+ "end_line": "Build your offer in seconds.",
+ "a": {
+  "kind": "house",
+  "name": "Price Cut",
+  "short": "CUT",
+  "spec": "$294K · no credit",
+  "badge": "−$6K PRICE"
+ },
+ "b": {
+  "kind": "house",
+  "name": "Seller Credit",
+  "short": "CREDIT",
+  "spec": "$300K · $6K toward closing",
+  "badge": "+$6K CREDIT"
+ },
+ "holes": [
+  {
+   "label": "CASH TO CLOSE",
+   "sub": "down payment + closing − credit · lower wins",
+   "a": 82320,
+   "b": 78000,
+   "fmt": "money",
+   "winner": "b"
+  },
+  {
+   "label": "PAYMENT",
+   "sub": "principal + interest · lower wins",
+   "a": 1467,
+   "b": 1497,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "a"
+  },
+  {
+   "label": "CASH FLOW",
+   "sub": "rent minus every cost",
+   "a": 64,
+   "b": 28,
+   "fmt": "money_s",
+   "unit": "/mo",
+   "winner": "a",
+   "signed": true
+  },
+  {
+   "label": "CASH-ON-CASH",
+   "sub": "yearly cash flow ÷ cash you put in",
+   "a": 0.9,
+   "b": 0.4,
+   "fmt": "pct_s",
+   "unit": "per year",
+   "winner": "a",
+   "signed": true
+  }
+ ],
+ "script": [
+  {
+   "voice": "The seller will give you {six thousand.|$6K.} Off the *price,* or as a *credit?*",
+   "do": [
+    "cards~The"
+   ]
+  },
+  {
+   "voice": "Let's put them *head to head.*",
+   "do": [
+    "score~head"
+   ]
+  },
+  {
+   "voice": "Round one, *cash to close.* The credit saves about {forty three hundred|$4,300} up front.",
+   "do": [
+    "h0~Round",
+    "h0a~cash",
+    "h0b~credit",
+    "h0w~$4,300"
+   ]
+  },
+  {
+   "voice": "Round two, the *payment.* The price cut is {thirty dollars|$30} lower.",
+   "do": [
+    "h1~Round",
+    "h1a~payment",
+    "h1b~price",
+    "h1w~$30"
+   ]
+  },
+  {
+   "voice": "Round three, *cash flow.* {sixty four|$64} versus {twenty eight|$28} a month.",
+   "do": [
+    "h2~Round",
+    "h2a~$64",
+    "h2b~$28",
+    "h2w~month"
+   ]
+  },
+  {
+   "voice": "Round four, {cash on cash.|*Cash-on-cash.*} The price cut takes it, {three to one.|3–1.}",
+   "do": [
+    "h3~Round",
+    "h3a~Cash-on-cash",
+    "h3b~The",
+    "h3w~takes",
+    "final~3–1"
+   ]
+  },
+  {
+   "voice": "Short on cash? The *credit* keeps more money in your *pocket.*",
+   "do": [],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie's|*DealCaddie's*} Offer Plan models both, in *seconds.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "$6K off the price, or a $6K seller credit? Here's the math.",
+ "caption": "The seller offers $6K. Off the price, or as a credit? 🤝\n\nSame $6K, different winner depending on what you need most. Head to head:\n\n• Cash to close: the credit saves about $4,300 up front.\n• Payment: the price cut is $30 a month lower.\n• Cash flow: +$64 vs +$28 a month.\n• Cash-on-cash: 0.9% vs 0.4%. Price cut takes it, 3–1.\n\nShort on cash? The credit keeps more money in your pocket.\n\nExample numbers: asking $300K, 25% down, 7% 30-year, 3% closing costs, rent $2,500. Lenders cap seller credits, often at 2% for investment loans.\n\n💬 Price cut or credit: which do you ask for?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateinvesting #negotiation #sellercredit #firsttimehomebuyer #rentalproperty",
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND"
+}

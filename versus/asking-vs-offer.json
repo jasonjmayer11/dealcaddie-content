@@ -1,0 +1,135 @@
+{
+ "title": "Asking vs Smart Offer",
+ "cover": "Pay asking, or make a smart offer?",
+ "cover_sub": "THE COMPS SAY IT'S 9% HIGH",
+ "footnote": "EXAMPLE NUMBERS · comps avg 9% below asking · rent $2,600 · 25% down · 7% 30-yr",
+ "app_screen": "comps.png",
+ "champion": "b",
+ "end_line": "Know your offer before you call.",
+ "a": {
+  "kind": "house",
+  "name": "At Asking",
+  "short": "ASKING",
+  "spec": "$340K · 9% above comps",
+  "badge": "ASKING"
+ },
+ "b": {
+  "kind": "house",
+  "name": "At Offer",
+  "short": "OFFER",
+  "spec": "$315K · in line with comps",
+  "badge": "OFFER"
+ },
+ "holes": [
+  {
+   "label": "PRICE",
+   "sub": "lower wins",
+   "a": 340000,
+   "b": 315000,
+   "fmt": "money",
+   "winner": "b"
+  },
+  {
+   "label": "CASH TO CLOSE",
+   "sub": "down payment + closing · lower wins",
+   "a": 95200,
+   "b": 88200,
+   "fmt": "money",
+   "winner": "b"
+  },
+  {
+   "label": "PAYMENT",
+   "sub": "principal + interest · lower wins",
+   "a": 1697,
+   "b": 1572,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "b"
+  },
+  {
+   "label": "CASH FLOW",
+   "sub": "rent $2,600 minus every cost",
+   "a": -136,
+   "b": 11,
+   "fmt": "money_s",
+   "unit": "/mo",
+   "winner": "b",
+   "signed": true
+  }
+ ],
+ "script": [
+  {
+   "voice": "Asking {three forty.|$340K.} The comps say it's worth *less.*",
+   "do": [
+    "cards~Asking"
+   ]
+  },
+  {
+   "voice": "Asking price versus a *smart offer,* head to head.",
+   "do": [
+    "score~smart"
+   ]
+  },
+  {
+   "voice": "Round one, *price.* {three forty|$340K} versus {three fifteen.|$315K.}",
+   "do": [
+    "h0~Round",
+    "h0a~$340K",
+    "h0b~$315K",
+    "h0w~$315K"
+   ]
+  },
+  {
+   "voice": "Round two, *cash to close.* {seven thousand dollars|$7,000} less up front.",
+   "do": [
+    "h1~Round",
+    "h1a~cash",
+    "h1b~$7,000",
+    "h1w~less"
+   ]
+  },
+  {
+   "voice": "Round three, the *payment.* {a hundred and twenty five dollars|$125} less, every month.",
+   "do": [
+    "h2~Round",
+    "h2a~payment",
+    "h2b~$125",
+    "h2w~every"
+   ]
+  },
+  {
+   "voice": "Round four, *cash flow.* From losing money, to *positive.*",
+   "do": [
+    "h3~Round",
+    "h3a~losing",
+    "h3b~positive",
+    "h3w~positive"
+   ]
+  },
+  {
+   "voice": "A clean *sweep.* That's about {forty five thousand dollars|$45,000} saved over the loan.",
+   "do": [
+    "final~sweep"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} pulls the comps and suggests your *offer,* in seconds.",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "Pay asking, or make a smart offer? The comps say it's 9% high.",
+ "caption": "Asking $340K. The comps say it's worth less. 🏠\n\nOverpaying doesn't hurt once. It hurts every month for 30 years. Head to head:\n\n• Price: $340K vs $315K.\n• Cash to close: $7,000 less up front.\n• Payment: $125 less every month.\n• Cash flow: −$136 vs +$11 a month.\n\nA clean sweep, and about $45,000 saved over the loan.\n\nExample numbers: comps average 9% below asking, rent $2,600, 25% down, 7% 30-year, 3% closing costs.\n\n💬 Do you ever offer at asking?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateinvesting #comps #makeanoffer #negotiation #rentalproperty",
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND"
+}

@@ -1,0 +1,135 @@
+{
+ "title": "15-Year vs 30-Year",
+ "cover": "15-year or 30-year loan?",
+ "cover_sub": "SAME HOUSE. VERY DIFFERENT MONEY.",
+ "footnote": "EXAMPLE NUMBERS · $250K house · 25% down · rent $2,200 · 23% of rent for vacancy, repairs, CapEx, mgmt",
+ "app_screen": "scenarios.png",
+ "champion": null,
+ "end_line": "Compare any two loans in seconds.",
+ "a": {
+  "kind": "house",
+  "name": "30-Year Loan",
+  "short": "30-YR",
+  "spec": "7.0% rate · $250K house",
+  "badge": "30-YR"
+ },
+ "b": {
+  "kind": "house",
+  "name": "15-Year Loan",
+  "short": "15-YR",
+  "spec": "6.4% rate · $250K house",
+  "badge": "15-YR"
+ },
+ "holes": [
+  {
+   "label": "PAYMENT",
+   "sub": "principal + interest · lower wins",
+   "a": 1247,
+   "b": 1623,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "a"
+  },
+  {
+   "label": "CASH FLOW",
+   "sub": "rent $2,200 minus every cost",
+   "a": 107,
+   "b": -268,
+   "fmt": "money_s",
+   "unit": "/mo",
+   "winner": "a",
+   "signed": true
+  },
+  {
+   "label": "TOTAL INTEREST",
+   "sub": "over the life of the loan · lower wins",
+   "a": 261579,
+   "b": 104647,
+   "fmt": "k",
+   "winner": "b"
+  },
+  {
+   "label": "EQUITY BY YEAR 5",
+   "sub": "loan paid down in 5 years",
+   "a": 11003,
+   "b": 43919,
+   "fmt": "k",
+   "winner": "b"
+  }
+ ],
+ "script": [
+  {
+   "voice": "Same house. Same down payment. A *15-year* loan, or a *30?*",
+   "do": [
+    "cards~Same"
+   ]
+  },
+  {
+   "voice": "Let's put them *head to head.*",
+   "do": [
+    "score~head"
+   ]
+  },
+  {
+   "voice": "Round one, the *payment.* {twelve forty seven|$1,247} versus {sixteen twenty three.|$1,623.} The 30-year is *lower.*",
+   "do": [
+    "h0~Round",
+    "h0a~$1,247",
+    "h0b~$1,623",
+    "h0w~lower"
+   ]
+  },
+  {
+   "voice": "Round two, *cash flow.* The 30-year makes {a hundred and seven|$107} a month. The 15-year loses {two sixty eight.|$268.}",
+   "do": [
+    "h1~Round",
+    "h1a~$107",
+    "h1b~$268",
+    "h1w~$268"
+   ]
+  },
+  {
+   "voice": "Round three, *total interest.* {two sixty two thousand|$262K} versus {a hundred and five thousand.|$105K.} The 15-year saves over {a hundred and fifty thousand dollars.|$150K.}",
+   "do": [
+    "h2~Round",
+    "h2a~$262K",
+    "h2b~$105K",
+    "h2w~$150K"
+   ]
+  },
+  {
+   "voice": "Round four, *equity* by year five. {eleven thousand|$11K} versus {forty four thousand.|$44K.} The 15-year *wins.*",
+   "do": [
+    "h3~Round",
+    "h3a~$11K",
+    "h3b~$44K",
+    "h3w~wins"
+   ]
+  },
+  {
+   "voice": "Two all. Cash flow *now,* or a paid-off house *sooner.*",
+   "do": [
+    "final~Two"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} runs both loans side by side, in *seconds.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "15-year or 30-year loan? Same house, very different money.",
+ "caption": "15-year or 30-year? Same house, same down payment. 🏠\n\nThere's no wrong answer, just a different goal. Here's what each one buys you:\n\n• Payment: $1,247 vs $1,623 a month. 30-year wins.\n• Cash flow: +$107 vs −$268 a month. 30-year wins.\n• Total interest: $262K vs $105K. 15-year saves over $150K.\n• Equity by year 5: $11K vs $44K. 15-year wins.\n\nTwo all. Cash flow now, or a paid-off house sooner.\n\nExample numbers: $250K house, 25% down, 7.0% 30-year vs 6.4% 15-year, rent $2,200, 23% of rent set aside for vacancy, repairs, CapEx and management.\n\n💬 Cash flow now or paid off sooner: which would you pick?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateinvesting #mortgage #15yearmortgage #cashflow #rentalproperty",
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND"
+}

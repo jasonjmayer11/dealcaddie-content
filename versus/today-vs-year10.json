@@ -1,0 +1,136 @@
+{
+ "title": "Today vs Year 10",
+ "cover": "Same rental. 10 years later.",
+ "cover_sub": "WHAT TIME DOES FOR YOU",
+ "footnote": "EXAMPLE NUMBERS · 3% yearly growth in rent, value and costs · 25% down · 7% 30-yr fixed",
+ "app_screen": "projections.png",
+ "champion": "b",
+ "end_line": "See the next 30 years in seconds.",
+ "a": {
+  "kind": "house",
+  "name": "Today",
+  "short": "TODAY",
+  "spec": "$250K · rent $2,200",
+  "badge": "YEAR 0"
+ },
+ "b": {
+  "kind": "house",
+  "name": "Year 10",
+  "short": "YEAR 10",
+  "spec": "3% yearly growth",
+  "badge": "YEAR 10"
+ },
+ "holes": [
+  {
+   "label": "RENT",
+   "sub": "per month",
+   "a": 2200,
+   "b": 2957,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "b",
+   "coins": true
+  },
+  {
+   "label": "CASH FLOW",
+   "sub": "the mortgage payment never changes",
+   "a": 107,
+   "b": 573,
+   "fmt": "money_s",
+   "unit": "/mo",
+   "winner": "b",
+   "signed": true
+  },
+  {
+   "label": "VALUE",
+   "sub": "at 3% a year",
+   "a": 250000,
+   "b": 335979,
+   "fmt": "k",
+   "winner": "b"
+  },
+  {
+   "label": "EQUITY",
+   "sub": "value minus loan balance",
+   "a": 62500,
+   "b": 175081,
+   "fmt": "k",
+   "winner": "b"
+  }
+ ],
+ "script": [
+  {
+   "voice": "Same rental. Today, and *ten years* from now.",
+   "do": [
+    "cards~Same"
+   ]
+  },
+  {
+   "voice": "Let's see what *time* does.",
+   "do": [
+    "score~time"
+   ]
+  },
+  {
+   "voice": "Round one, *rent.* {twenty two hundred|$2,200} grows to {twenty nine fifty seven.|$2,957.}",
+   "do": [
+    "h0~Round",
+    "h0a~$2,200",
+    "h0b~$2,957",
+    "h0w~$2,957"
+   ]
+  },
+  {
+   "voice": "Round two, *cash flow.* The mortgage stays the same, so cash flow grows to {five seventy three|$573} a month.",
+   "do": [
+    "h1~Round",
+    "h1a~mortgage",
+    "h1b~$573",
+    "h1w~month"
+   ]
+  },
+  {
+   "voice": "Round three, *value.* {two fifty|$250K} to {three thirty six.|$336K.}",
+   "do": [
+    "h2~Round",
+    "h2a~$250K",
+    "h2b~$336K",
+    "h2w~$336K"
+   ]
+  },
+  {
+   "voice": "Round four, *equity.* {sixty two thousand|$62K} grows to {a hundred seventy five thousand.|$175K.}",
+   "do": [
+    "h3~Round",
+    "h3a~$62K",
+    "h3b~$175K",
+    "h3w~$175K"
+   ]
+  },
+  {
+   "voice": "Year ten *sweeps.* Time is the *deal.*",
+   "do": [
+    "final~Year"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} projects any rental thirty years out, in *seconds.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "Same rental, 10 years later. Here's what time does.",
+ "caption": "Same rental. Today vs 10 years from now. ⏳\n\nBuying the right rental is step one. Holding it is where the wealth builds. Head to head:\n\n• Rent: $2,200 grows to $2,957.\n• Cash flow: +$107 grows to +$573 a month, because the mortgage never changes.\n• Value: $250K to $336K.\n• Equity: $62K grows to $175K.\n\nYear ten sweeps. Time is the deal.\n\nExample numbers: 3% yearly growth in rent, value and costs (not guaranteed), 25% down, 7% 30-year fixed.\n\n💬 How long do you plan to hold your rentals?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateinvesting #buyandhold #wealthbuilding #cashflow #rentalproperty",
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND"
+}

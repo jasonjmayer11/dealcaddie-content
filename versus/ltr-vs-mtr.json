@@ -1,0 +1,161 @@
+{
+ "title": "Long-Term vs Mid-Term",
+ "cover": "Rent it by the year, or by the month?",
+ "cover_sub": "SAME HOUSE. TWO STRATEGIES.",
+ "footnote": "EXAMPLE NUMBERS · $250K · 25% down · 7% 30-yr · MTR: 15% vacancy, $300/mo utilities, $12K furniture",
+ "app_screen": "strategies.png",
+ "champion": "b",
+ "end_line": "Every strategy. One house. Seconds.",
+ "a": {
+  "kind": "house",
+  "name": "Long-Term",
+  "short": "LONG",
+  "spec": "12-month lease · unfurnished",
+  "badge": "LTR"
+ },
+ "b": {
+  "kind": "house",
+  "name": "Mid-Term",
+  "short": "MID",
+  "spec": "1–6 month stays · furnished",
+  "badge": "MTR"
+ },
+ "holes": [
+  {
+   "label": "RENT",
+   "sub": "per month",
+   "a": 2200,
+   "b": 3300,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "b",
+   "coins": true
+  },
+  {
+   "label": "CASH TO START",
+   "sub": "down payment, closing, furniture · lower wins",
+   "a": 70000,
+   "b": 82000,
+   "fmt": "k",
+   "winner": "a"
+  },
+  {
+   "label": "MONTHLY COSTS",
+   "sub": "incl. vacancy, utilities, management · lower wins",
+   "a": 2093,
+   "b": 3082,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "a"
+  },
+  {
+   "label": "CASH FLOW",
+   "sub": "rent minus every cost",
+   "a": 107,
+   "b": 218,
+   "fmt": "money_s",
+   "unit": "/mo",
+   "winner": "b",
+   "signed": true
+  },
+  {
+   "label": "TIEBREAKER  ·  CASH-ON-CASH",
+   "tiebreak": true,
+   "sub": "yearly cash flow ÷ cash you put in",
+   "a": 1.8,
+   "b": 3.2,
+   "fmt": "pct_s",
+   "unit": "per year",
+   "winner": "b",
+   "signed": true
+  }
+ ],
+ "script": [
+  {
+   "voice": "Same house. Rent it by the *year,* or by the *month?*",
+   "do": [
+    "cards~Same"
+   ]
+  },
+  {
+   "voice": "Long-term versus *mid-term,* head to head.",
+   "do": [
+    "score~head"
+   ]
+  },
+  {
+   "voice": "Round one, *rent.* {twenty two hundred|$2,200} versus {thirty three hundred,|$3,300,} furnished.",
+   "do": [
+    "h0~Round",
+    "h0a~$2,200",
+    "h0b~$3,300",
+    "h0w~furnished"
+   ]
+  },
+  {
+   "voice": "Round two, *cash to start.* Furniture adds about {twelve thousand.|$12K.} Long-term wins.",
+   "do": [
+    "h1~Round",
+    "h1a~Furniture",
+    "h1b~$12K",
+    "h1w~Long-term"
+   ]
+  },
+  {
+   "voice": "Round three, *monthly costs.* More empty weeks, plus utilities. Long-term *again.*",
+   "do": [
+    "h2~Round",
+    "h2a~More",
+    "h2b~plus",
+    "h2w~Long-term"
+   ]
+  },
+  {
+   "voice": "Round four, *cash flow.* {a hundred and seven|$107} versus {two eighteen|$218} a month. Mid-term *wins.*",
+   "do": [
+    "h3~Round",
+    "h3a~$107",
+    "h3b~$218",
+    "h3w~Mid-term"
+   ]
+  },
+  {
+   "voice": "Two all. *Tiebreaker.*",
+   "do": [],
+   "pause": 0.1
+  },
+  {
+   "voice": "{cash on cash|*Cash-on-cash*} return. Mid-term takes it, {three to two.|3–2.}",
+   "do": [
+    "h4~Cash",
+    "h4a~return",
+    "h4b~Mid-term",
+    "h4w~takes",
+    "final~3–2"
+   ]
+  },
+  {
+   "voice": "But furnished means more *work.* Check local demand *first.*",
+   "do": [],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} runs every strategy on one house, in *seconds.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "Rent it by the year or by the month? Same house, two strategies.",
+ "caption": "Long-term or mid-term rental? Same house. 🏠\n\nThe strategy can matter as much as the property. Head to head:\n\n• Rent: $2,200 vs $3,300 furnished. Mid-term wins.\n• Cash to start: $70K vs $82K with furniture. Long-term wins.\n• Monthly costs: $2,093 vs $3,082 with vacancy and utilities. Long-term wins.\n• Cash flow: +$107 vs +$218 a month. Mid-term wins.\n• Cash-on-cash: 1.8% vs 3.2%. Mid-term takes it, 3–2.\n\nBut furnished means more work. Check local demand before you buy.\n\nExample numbers: $250K house, 25% down, 7% 30-year; mid-term with 15% vacancy, $300/mo utilities and $12K of furniture.\n\n💬 Would you furnish it, or keep it simple?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateinvesting #midtermrental #travelnurse #cashflow #rentalproperty",
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND"
+}
