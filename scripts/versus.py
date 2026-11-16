@@ -226,10 +226,10 @@ def building(kind, w, h, lights=1.0, accent=FOREST):
 
 # ------------------------------------------------------------------ fixed layout
 A, B = M["a"], M["b"]
-L2 = os.environ.get("LAYOUT", "1") == "2"      # v2 (Nov 16, proposed): roomier header, full-width scoreboard. Default flips to 2 once approved
+L2 = os.environ.get("LAYOUT", "2") == "2"      # v2 (Nov 16, proposed): roomier header, full-width scoreboard. Default flips to 2 once approved
 CARD_W, CARD_H, CARD_Y = (470, 450, 478) if L2 else (470, 470, 470)
 TAG_Y, TITLE_Y, SB_Y = (186, 220, 322) if L2 else (232, 268, 352)
-SB_STYLE = os.environ.get("SB_STYLE", "bar")       # bar | cards (score badge on each card) | rounds (bar + a dot per round)
+SB_STYLE = os.environ.get("SB_STYLE", "rounds")       # bar | cards (score badge on each card) | rounds (bar + a dot per round)
 if SB_STYLE == "cards":
     TAG_Y, TITLE_Y, CARD_Y, CARD_H = 196, 232, 352, 470
 CARD_X = [60, W - 60 - CARD_W]
@@ -261,13 +261,22 @@ def property_card(side, now):
         if s is not None and s < 1.4 and h["winner"] == side: hi = 1 - s / 1.4
     fin = since("final", now); champ = fin is not None and M.get("champion") == side
     glow = (39, 165, 82, int(150 * hi)) if hi else ((201, 168, 76, 170) if champ else None)
-    card, pad = shadowed_card(CARD_W, CARD_H, border=GOLD if champ else LINE, bw=5 if champ else 2, glow=glow)
+    dull = P.get("dull", P["kind"] == "sheet")         # the "without" side: washed out, grey, a little tired
+    hero = P.get("hero", P["kind"] == "phone")         # the DealCaddie side: crisp, green-edged
+    border = GOLD if champ else ((205, 203, 196) if dull else ((39, 165, 82) if hero else LINE))
+    card, pad = shadowed_card(CARD_W, CARD_H, fill=(236, 235, 231) if dull else WHITE, border=border,
+                              bw=5 if champ else (3 if hero else 2), glow=glow)
     ill, doors, gy = building(P["kind"], ILL_W, ILL_H, lights=0.5 + 0.5 * math.sin(now * 1.3) ** 2)
+    if dull:
+        from PIL import ImageEnhance
+        a_ = ill.getchannel("A"); rgb = ill.convert("RGB")
+        rgb = ImageEnhance.Color(rgb).enhance(0.12); rgb = ImageEnhance.Brightness(rgb).enhance(0.9); rgb = ImageEnhance.Contrast(rgb).enhance(0.8)
+        ill = Image.merge("RGBA", (*rgb.split(), a_))
     card.alpha_composite(ill, (pad + 20, pad + 20))
     if P.get("badge"):
-        bd = pill(P["badge"], fill=FOREST, color=WHITE, size=24, track=0.08); card.alpha_composite(bd, (pad + 36, pad + 36))
-    nm = text_layer(P["name"], F_NUM, 46, INK, tracking=-0.02); card.alpha_composite(nm, (pad + 28, pad + 330))
-    sp = text_layer(P["spec"], F_MED, 28, MUTED); card.alpha_composite(sp, (pad + 28, pad + 392))
+        bd = pill(P["badge"], fill=(128, 132, 128) if dull else FOREST, color=WHITE, size=24, track=0.08); card.alpha_composite(bd, (pad + 36, pad + 36))
+    nm = text_layer(P["name"], F_NUM, 46, (120, 124, 120) if dull else INK, tracking=-0.02); card.alpha_composite(nm, (pad + 28, pad + 330))
+    sp = text_layer(P["spec"], F_MED, 28, (150, 152, 148) if dull else MUTED); card.alpha_composite(sp, (pad + 28, pad + 392))
     if champ:
         b = pill("WINNER", fill=GOLD, color=INK, size=24); card.alpha_composite(b, (pad + CARD_W - b.width - 24, pad + 336))
     if SB_STYLE == "cards" and since("score", now) is not None:  # rounds-won badge, top-right of each card
