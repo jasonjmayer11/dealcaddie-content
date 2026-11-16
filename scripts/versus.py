@@ -53,7 +53,11 @@ for ph in M["script"]:
         else:
             k, _, f = ev.partition("@"); events[k] = t + d * float(f or 0)
     t += d + GAP + ph.get("pause", 0.25)
-MAIN = t + 0.4; END = 3.6; TOTAL = MAIN + END
+if "endcard" in events:                         # the CTA line is spoken over the end card
+    MAIN = events["endcard"] - 0.25; END = max(4.2, t + 1.6 - MAIN)
+else:
+    MAIN = t + 0.4; END = 3.6
+TOTAL = MAIN + END
 print(f"voice {MAIN:.1f}s + end {END}s = {TOTAL:.1f}s")
 def since(k, now): return None if k not in events or now < events[k] else now - events[k]
 def prog(k, now, dur=0.6):
@@ -357,6 +361,34 @@ def make_cover():
     place(c, fr, CX, y + 50)
     return c.convert("RGB")
 
+# ------------------------------------------------------------------ end card: logo, line, trial, CTA, store badges
+from reelkit import enter
+BADGES = os.path.join(ROOT, "assets", "badges")
+def end_card(dur):
+    logo = logo_layer(640)
+    line = text_layer(M.get("end_line", "Every number. In seconds."), F_HEAD, 60, INK, tracking=-0.01)
+    trial = pill(M.get("trial", "14-DAY FREE TRIAL"), fill=GOLD, color=INK, size=34, track=0.08)
+    label = text_layer("Try it free  ·  dealcaddie.ai", F_SEMI, 46, WHITE)
+    bw, bh = label.width + 120, 116
+    btn = Image.new("RGBA", (bw + 80, bh + 80), (0, 0, 0, 0)); sh = Image.new("RGBA", btn.size, (0, 0, 0, 0))
+    ImageDraw.Draw(sh).rounded_rectangle([40, 56, 40 + bw, 56 + bh], radius=bh // 2, fill=(3, 62, 36, 90))
+    btn.alpha_composite(sh.filter(ImageFilter.GaussianBlur(18)))
+    ImageDraw.Draw(btn).rounded_rectangle([40, 40, 40 + bw, 40 + bh], radius=bh // 2, fill=FOREST + (255,))
+    btn.alpha_composite(label, (40 + (bw - label.width) // 2, 40 + (bh - label.height) // 2 + 2))
+    bh_ = 112                                              # both store badges at the same height (Apple + Google rule)
+    a = Image.open(os.path.join(BADGES, "app-store-badge@hi.png")).convert("RGBA"); g = Image.open(os.path.join(BADGES, "google-play-badge@hi.png")).convert("RGBA")
+    a = a.resize((int(a.width * bh_ / a.height), bh_), Image.LANCZOS); g = g.resize((int(g.width * bh_ / g.height), bh_), Image.LANCZOS)
+    row = Image.new("RGBA", (a.width + g.width + 36, bh_), (0, 0, 0, 0)); row.alpha_composite(a, (0, 0)); row.alpha_composite(g, (a.width + 36, 0))
+    def fr(tt):
+        f = BG.copy()
+        p, dy = enter(tt, 0.0, dur=0.7, rise=24); place(f, logo, CX, 560 + dy, p, 0.97 + 0.03 * p)
+        p, dy = enter(tt, 0.2); place(f, line, CX, 790 + dy, p)
+        p, dy = enter(tt, 0.35); place(f, trial, CX, 890 + dy, p, 0.9 + 0.1 * p)
+        p, dy = enter(tt, 0.5); place(f, btn, CX, 970 + dy, p)
+        p, dy = enter(tt, 0.7); place(f, row, CX, 1210 + dy, p)
+        return f.convert("RGB")
+    return fr
+
 # ------------------------------------------------------------------ encode
 silent = os.path.join(work, "silent.mp4")
 enc = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
@@ -370,7 +402,7 @@ for i in range(int(LEAD * FPS), int(MAIN * FPS)):
     fr = frame(i / FPS)
     if i - int(LEAD * FPS) < XF: fr = Image.blend(cover, fr, (i - int(LEAD * FPS) + 1) / XF)
     enc.stdin.write(fr.tobytes()); last = fr
-end_fn = render_end_beat(END, line=M.get("end_line", "Every number. In seconds."))
+end_fn = end_card(END)
 for i in range(int(END * FPS)):
     e = end_fn(i / FPS)
     if i < XF: e = Image.blend(last, e, (i + 1) / XF)

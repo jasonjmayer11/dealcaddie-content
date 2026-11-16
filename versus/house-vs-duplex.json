@@ -159,7 +159,14 @@
    "do": [
     "reveal#0"
    ],
-   "pause": 0.6
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
   }
  ],
  "tag": "HEAD TO HEAD",
