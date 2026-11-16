@@ -300,8 +300,12 @@ def hole_panel(i, now, slide):
         while txt and tl.width > 360 and fs_ > 40:
             fs_ -= 6; tl = text_layer(fmt(v, h["fmt"]), F_NUM, fs_, col, tracking=-0.03)
         card.alpha_composite(tl, (int(pad + mx[j] - tl.width / 2), pad + 140 + max(0, (100 - tl.height) // 2)))
-        if h.get("unit"):
-            u = text_layer(h["unit"], F_MED, 26, MUTED); card.alpha_composite(u, (int(pad + mx[j] - u.width / 2), pad + 236))
+        note = h.get(side + "_note") or h.get("unit")
+        if note:                                        # what this side means / how DealCaddie does it
+            fsn = 26; u = text_layer(note, F_MED if side == "a" else F_SEMI, fsn, MUTED if side == "a" else FOREST)
+            while u.width > cw * .46 and fsn > 18:
+                fsn -= 2; u = text_layer(note, F_MED if side == "a" else F_SEMI, fsn, MUTED if side == "a" else FOREST)
+            card.alpha_composite(u, (int(pad + mx[j] - u.width / 2), pad + 240))
         # bar
         bw_full = cw * .38; frac = p if txt else abs(h[side]) / vmax * p
         x0 = pad + mx[j] - bw_full / 2; y0 = pad + 290
@@ -412,9 +416,15 @@ def frame(now):
     if in_bonus and rev < 1:
         k = prog("bonus", now, .5); card, pad = bonus_panel(now)
         place(f, card, 60 - pad + (1 - k) * 900 + card.width / 2, HP_Y - pad + rev * 120, alpha=1 - rev)
+        tag = holes[cur].get("tag", M.get("round_tag"))
+        if tag and k > .6:                              # e.g. "DealCaddie calculates this for you"
+            tg = text_layer(tag.upper(), F_SEMI, 24, GOLD_D, tracking=0.08); place(f, tg, CX, HP_Y + HP_H + 14, alpha=min(1, (k - .6) / .4) * (1 - rev))
     elif cur is not None and rev < 1:
         k = prog(f"h{cur}", now, .5); card, pad = hole_panel(cur, now, k)
         place(f, card, 60 - pad + (1 - k) * 900 + card.width / 2, HP_Y - pad + rev * 120, alpha=1 - rev)
+        tag = holes[cur].get("tag", M.get("round_tag"))
+        if tag and k > .6:                              # e.g. "DealCaddie calculates this for you"
+            tg = text_layer(tag.upper(), F_SEMI, 24, GOLD_D, tracking=0.08); place(f, tg, CX, HP_Y + HP_H + 14, alpha=min(1, (k - .6) / .4) * (1 - rev))
         # outgoing previous hole
         if cur > 0 and k < 1:
             pc, pp = hole_panel(cur - 1, now, 1)
@@ -442,8 +452,7 @@ def frame(now):
         if pt0 - 0.1 <= now < pt0 + pd + GAP + ph.get("pause", 0.25) + ph.get("_hold", 0): cur_ph = units
     if cur_ph:
         cl = caption(cur_ph, now)
-        cy = 1440 if rev < .5 else 1440
-        if rev > .5: cy = 1460
+        cy = 1452 if rev < .5 else 1460
         f.alpha_composite(cl, (0, cy))
     place(f, FOOT, CX, 1690, alpha=0.9 * (1 - rev))
     return f.convert("RGB")

@@ -27,7 +27,8 @@
    "a": 13700,
    "b": 72800,
    "fmt": "money",
-   "winner": "a"
+   "winner": "a",
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "TIME TO FIRST RENT",
@@ -35,7 +36,8 @@
    "a": "5 mo",
    "b": "1 mo",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "tag": null
   },
   {
    "label": "CASH FLOW",
@@ -45,7 +47,8 @@
    "fmt": "money_s",
    "unit": "/mo",
    "winner": "b",
-   "signed": true
+   "signed": true,
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "CASH-ON-CASH",
@@ -55,7 +58,8 @@
    "fmt": "pct_s",
    "unit": "per year",
    "winner": "a",
-   "signed": true
+   "signed": true,
+   "tag": "DealCaddie calculates this for you"
   }
  ],
  "script": [

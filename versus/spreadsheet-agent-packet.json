@@ -29,7 +29,9 @@
    "a": "5",
    "b": "1",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "build, export, brand, attach, send",
+   "b_note": "one tap to share"
   },
   {
    "label": "YOUR BRAND",
@@ -37,7 +39,9 @@
    "a": "by hand",
    "b": "built in",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "paste your logo in",
+   "b_note": "your headshot on every page"
   },
   {
    "label": "CLIENT PICKS",
@@ -45,7 +49,9 @@
    "a": "no",
    "b": "yes",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "they reply to an email",
+   "b_note": "they rank in their portal"
   },
   {
    "label": "QUESTIONS",
@@ -53,7 +59,9 @@
    "a": "email chain",
    "b": "per property",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "one long thread",
+   "b_note": "a thread per listing"
   }
  ],
  "script": [
@@ -70,34 +78,34 @@
    ]
   },
   {
-   "voice": "Round one, *steps.* Build, export, brand, attach, send. *Five,* or *one.*",
+   "voice": "Round one, *steps.* By hand: build, export, brand, attach, send. With {Deal Caddie,|DealCaddie,} one tap shares a branded *report.*",
    "do": [
     "h0~Round",
-    "h0a~Five",
+    "h0a~build",
     "h0b~one",
-    "h0w~one"
+    "h0w~report"
    ]
   },
   {
-   "voice": "Round two, *your brand.* Pasted in by hand, or your headshot on every *page.*",
+   "voice": "Round two, *your brand.* By hand, you paste it in. {Deal Caddie|DealCaddie} puts your headshot on every page, *automatically.*",
    "do": [
     "h1~Round",
-    "h1a~Pasted",
-    "h1b~headshot",
-    "h1w~page"
+    "h1a~paste",
+    "h1b~DealCaddie",
+    "h1w~automatically"
    ]
   },
   {
-   "voice": "Round three, *client picks.* With {Deal Caddie,|DealCaddie,} clients rank their *shortlist.*",
+   "voice": "Round three, *client picks.* By email, they just reply. In {Deal Caddie,|DealCaddie,} clients rank their shortlist in their own *portal.*",
    "do": [
     "h2~Round",
-    "h2a~With",
+    "h2a~reply",
     "h2b~rank",
-    "h2w~shortlist"
+    "h2w~portal"
    ]
   },
   {
-   "voice": "Round four, *questions.* A long email chain, or a message on each *property.*",
+   "voice": "Round four, *questions.* By hand, a long email chain. In {Deal Caddie,|DealCaddie,} a message thread on each *property.*",
    "do": [
     "h3~Round",
     "h3a~long",

@@ -29,7 +29,9 @@
    "a": "1 at a time",
    "b": "3 at once",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "re-type every scenario",
+   "b_note": "opening, target, walk-away"
   },
   {
    "label": "SELLER CREDIT",
@@ -37,7 +39,9 @@
    "a": "by hand",
    "b": "built in",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "extra math by hand",
+   "b_note": "credit math done for you"
   },
   {
    "label": "WALK-AWAY PRICE",
@@ -45,7 +49,9 @@
    "a": "gut feel",
    "b": "calculated",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "a number you hope works",
+   "b_note": "from your return goals"
   },
   {
    "label": "THE HAND-OFF",
@@ -53,7 +59,9 @@
    "a": "screenshot",
    "b": "PDF",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "cropped from your phone",
+   "b_note": "ready for your agent"
   }
  ],
  "script": [
@@ -70,39 +78,39 @@
    ]
   },
   {
-   "voice": "Round one, *prices.* Model one at a time, or opening, target, and walk-away, all *at once.*",
+   "voice": "Round one, *prices.* By hand, you model one price at a time. {Deal Caddie|DealCaddie} builds opening, target, and walk-away, all *at once.*",
    "do": [
     "h0~Round",
-    "h0a~Model",
-    "h0b~opening",
+    "h0a~model",
+    "h0b~builds",
     "h0w~once"
    ]
   },
   {
-   "voice": "Round two, *seller credit.* Do the math by hand, or it's *built in.*",
+   "voice": "Round two, *seller credit.* By hand, more math. {Deal Caddie|DealCaddie} does it *for you.*",
    "do": [
     "h1~Round",
-    "h1a~Do",
-    "h1b~built",
-    "h1w~in."
+    "h1a~more",
+    "h1b~does",
+    "h1w~for"
    ]
   },
   {
-   "voice": "Round three, *walk-away price.* Gut feel, or *calculated.*",
+   "voice": "Round three, *walk-away price.* By hand, it's gut feel. {Deal Caddie|DealCaddie} calculates it from your *numbers.*",
    "do": [
     "h2~Round",
-    "h2a~Gut",
-    "h2b~calculated",
-    "h2w~calculated"
+    "h2a~gut",
+    "h2b~calculates",
+    "h2w~numbers"
    ]
   },
   {
-   "voice": "Round four, *the hand-off.* A screenshot, or a clean {P D F.|*PDF.*}",
+   "voice": "Round four, *the hand-off.* By hand, a screenshot. Or a clean {P D F|*PDF*} ready for your *agent.*",
    "do": [
     "h3~Round",
     "h3a~screenshot",
     "h3b~PDF",
-    "h3w~PDF"
+    "h3w~agent"
    ]
   },
   {

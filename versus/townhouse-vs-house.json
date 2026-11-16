@@ -27,7 +27,8 @@
    "a": 240000,
    "b": 275000,
    "fmt": "money",
-   "winner": "a"
+   "winner": "a",
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "HOA DUES",
@@ -36,7 +37,8 @@
    "b": 0,
    "fmt": "money",
    "unit": "/mo",
-   "winner": "b"
+   "winner": "b",
+   "tag": "DealCaddie pulls real HOA dues"
   },
   {
    "label": "RENT",
@@ -46,7 +48,8 @@
    "fmt": "money",
    "unit": "/mo",
    "winner": "b",
-   "coins": true
+   "coins": true,
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "CASH FLOW",
@@ -56,7 +59,8 @@
    "fmt": "money_s",
    "unit": "/mo",
    "winner": "b",
-   "signed": true
+   "signed": true,
+   "tag": "DealCaddie calculates this for you"
   }
  ],
  "script": [

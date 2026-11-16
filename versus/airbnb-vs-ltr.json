@@ -29,7 +29,8 @@
    "fmt": "money",
    "unit": "/mo",
    "winner": "a",
-   "coins": true
+   "coins": true,
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "MONTHLY COSTS",
@@ -38,7 +39,8 @@
    "b": 2157,
    "fmt": "money",
    "unit": "/mo",
-   "winner": "b"
+   "winner": "b",
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "CASH FLOW",
@@ -48,7 +50,8 @@
    "fmt": "money_s",
    "unit": "/mo",
    "winner": "a",
-   "signed": true
+   "signed": true,
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "RULES RISK",
@@ -56,7 +59,8 @@
    "a": "High",
    "b": "Low",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "tag": "DealCaddie flags STR rules in 35+ markets"
   }
  ],
  "script": [

@@ -27,7 +27,8 @@
    "a": 280000,
    "b": 300000,
    "fmt": "money",
-   "winner": "a"
+   "winner": "a",
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "PAYMENT",
@@ -36,7 +37,8 @@
    "b": 1935,
    "fmt": "money",
    "unit": "/mo",
-   "winner": "a"
+   "winner": "a",
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "RENT",
@@ -46,7 +48,8 @@
    "fmt": "money",
    "unit": "/mo",
    "winner": "b",
-   "coins": true
+   "coins": true,
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "FINAL ROUND  ·  DSCR",
@@ -55,7 +58,8 @@
    "a": 1.02,
    "b": 1.27,
    "fmt": "x",
-   "winner": "b"
+   "winner": "b",
+   "tag": "DealCaddie calculates this for you"
   }
  ],
  "script": [

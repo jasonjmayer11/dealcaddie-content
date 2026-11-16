@@ -29,7 +29,8 @@
    "fmt": "money",
    "unit": "/mo",
    "winner": "b",
-   "coins": true
+   "coins": true,
+   "tag": "DealCaddie projects 30 years out"
   },
   {
    "label": "CASH FLOW",
@@ -39,7 +40,8 @@
    "fmt": "money_s",
    "unit": "/mo",
    "winner": "b",
-   "signed": true
+   "signed": true,
+   "tag": "DealCaddie projects 30 years out"
   },
   {
    "label": "VALUE",
@@ -47,7 +49,8 @@
    "a": 250000,
    "b": 335979,
    "fmt": "k",
-   "winner": "b"
+   "winner": "b",
+   "tag": "DealCaddie projects 30 years out"
   },
   {
    "label": "EQUITY",
@@ -55,7 +58,8 @@
    "a": 62500,
    "b": 175081,
    "fmt": "k",
-   "winner": "b"
+   "winner": "b",
+   "tag": "DealCaddie projects 30 years out"
   }
  ],
  "script": [

@@ -29,7 +29,8 @@
    "fmt": "money",
    "unit": "/mo",
    "winner": "a",
-   "coins": true
+   "coins": true,
+   "tag": "DealCaddie estimates rent for every unit"
   },
   {
    "label": "ONE UNIT EMPTY",
@@ -38,7 +39,8 @@
    "b": 1900,
    "fmt": "money",
    "unit": "/mo",
-   "winner": "a"
+   "winner": "a",
+   "tag": null
   },
   {
    "label": "ROOFS TO REPLACE",
@@ -46,7 +48,8 @@
    "a": "1",
    "b": "2",
    "fmt": "text",
-   "winner": "a"
+   "winner": "a",
+   "tag": null
   },
   {
    "label": "MONTHLY COSTS",
@@ -55,7 +58,8 @@
    "b": 3772,
    "fmt": "money",
    "unit": "/mo",
-   "winner": "b"
+   "winner": "b",
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "CASH FLOW",
@@ -65,7 +69,8 @@
    "fmt": "money_s",
    "unit": "/mo",
    "winner": "a",
-   "signed": true
+   "signed": true,
+   "tag": "DealCaddie calculates this for you"
   }
  ],
  "script": [

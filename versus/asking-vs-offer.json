@@ -27,7 +27,8 @@
    "a": 340000,
    "b": 315000,
    "fmt": "money",
-   "winner": "b"
+   "winner": "b",
+   "tag": "DealCaddie compares asking to the comps"
   },
   {
    "label": "CASH TO CLOSE",
@@ -35,7 +36,8 @@
    "a": 95200,
    "b": 88200,
    "fmt": "money",
-   "winner": "b"
+   "winner": "b",
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "PAYMENT",
@@ -44,7 +46,8 @@
    "b": 1572,
    "fmt": "money",
    "unit": "/mo",
-   "winner": "b"
+   "winner": "b",
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "CASH FLOW",
@@ -54,7 +57,8 @@
    "fmt": "money_s",
    "unit": "/mo",
    "winner": "b",
-   "signed": true
+   "signed": true,
+   "tag": "DealCaddie calculates this for you"
   }
  ],
  "script": [

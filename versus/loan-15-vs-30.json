@@ -28,7 +28,8 @@
    "b": 1623,
    "fmt": "money",
    "unit": "/mo",
-   "winner": "a"
+   "winner": "a",
+   "tag": "DealCaddie compares loans side by side"
   },
   {
    "label": "CASH FLOW",
@@ -38,7 +39,8 @@
    "fmt": "money_s",
    "unit": "/mo",
    "winner": "a",
-   "signed": true
+   "signed": true,
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "TOTAL INTEREST",
@@ -46,7 +48,8 @@
    "a": 261579,
    "b": 104647,
    "fmt": "k",
-   "winner": "b"
+   "winner": "b",
+   "tag": null
   },
   {
    "label": "EQUITY BY YEAR 5",
@@ -54,7 +57,8 @@
    "a": 11003,
    "b": 43919,
    "fmt": "k",
-   "winner": "b"
+   "winner": "b",
+   "tag": null
   }
  ],
  "script": [

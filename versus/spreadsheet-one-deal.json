@@ -29,7 +29,9 @@
    "a": "30–60 min",
    "b": "< 1 min",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "look up, type, check formulas",
+   "b_note": "paste an address, done"
   },
   {
    "label": "NUMBERS YOU LOOK UP",
@@ -37,7 +39,9 @@
    "a": "5",
    "b": "0",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "tax, insurance, rent, comps, HOA",
+   "b_note": "all filled in for you"
   },
   {
    "label": "STRATEGIES CHECKED",
@@ -45,7 +49,9 @@
    "a": "1",
    "b": "7",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "one sheet, one strategy",
+   "b_note": "all run side by side"
   },
   {
    "label": "DEALS PER HOUR",
@@ -53,7 +59,9 @@
    "a": "1–2",
    "b": "30+",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "by hand",
+   "b_note": "screen each in seconds"
   }
  ],
  "script": [
@@ -70,25 +78,25 @@
    ]
   },
   {
-   "voice": "Round one, *time.* Investors say a thorough analysis by hand takes {thirty to sixty|30–60} *minutes.* {Deal Caddie|DealCaddie} takes *seconds.*",
+   "voice": "Round one, *time.* By hand, a thorough analysis takes {thirty to sixty minutes.|30–60 minutes.} With {Deal Caddie,|DealCaddie,} paste an address, and it's done in *seconds.*",
    "do": [
     "h0~Round",
     "h0a~30–60",
-    "h0b~seconds",
+    "h0b~paste",
     "h0w~seconds"
    ]
   },
   {
-   "voice": "Round two, *lookups.* Taxes, insurance, rent, comps, {H O A.|HOA.} Five tabs open, or *zero.*",
+   "voice": "Round two, *lookups.* By hand, you hunt down taxes, insurance, rent, comps, and {H O A.|HOA.} {Deal Caddie|DealCaddie} fills them all in *for you.*",
    "do": [
     "h1~Round",
-    "h1a~Taxes",
-    "h1b~zero",
-    "h1w~zero"
+    "h1a~hunt",
+    "h1b~fills",
+    "h1w~for"
    ]
   },
   {
-   "voice": "Round three, *strategies.* One spreadsheet, one strategy. {Deal Caddie|DealCaddie} runs *seven.*",
+   "voice": "Round three, *strategies.* One spreadsheet runs one. {Deal Caddie|DealCaddie} runs all *seven,* side by side.",
    "do": [
     "h2~Round",
     "h2a~One",
@@ -97,12 +105,12 @@
    ]
   },
   {
-   "voice": "Round four, deals per *hour.* One or two, versus *thirty* or more.",
+   "voice": "Round four, *deals per hour.* One or two by hand. Thirty or more with {Deal Caddie.|*DealCaddie.*}",
    "do": [
     "h3~Round",
     "h3a~One",
-    "h3b~thirty",
-    "h3w~more"
+    "h3b~Thirty",
+    "h3w~DealCaddie"
    ]
   },
   {

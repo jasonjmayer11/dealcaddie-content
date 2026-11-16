@@ -27,7 +27,8 @@
    "a": 82320,
    "b": 78000,
    "fmt": "money",
-   "winner": "b"
+   "winner": "b",
+   "tag": "DealCaddie's Offer Plan models seller credits"
   },
   {
    "label": "PAYMENT",
@@ -36,7 +37,8 @@
    "b": 1497,
    "fmt": "money",
    "unit": "/mo",
-   "winner": "a"
+   "winner": "a",
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "CASH FLOW",
@@ -46,7 +48,8 @@
    "fmt": "money_s",
    "unit": "/mo",
    "winner": "a",
-   "signed": true
+   "signed": true,
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "CASH-ON-CASH",
@@ -56,7 +59,8 @@
    "fmt": "pct_s",
    "unit": "per year",
    "winner": "a",
-   "signed": true
+   "signed": true,
+   "tag": "DealCaddie calculates this for you"
   }
  ],
  "script": [

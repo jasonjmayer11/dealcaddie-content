@@ -29,7 +29,9 @@
    "a": "7",
    "b": "1",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "one sheet per strategy",
+   "b_note": "one analysis, all seven"
   },
   {
    "label": "TIME",
@@ -37,7 +39,9 @@
    "a": "3.5 hrs",
    "b": "< 1 min",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "30 minutes each",
+   "b_note": "all seven at once"
   },
   {
    "label": "RENTS TO RESEARCH",
@@ -45,7 +49,9 @@
    "a": "4",
    "b": "0",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "long, mid, short-term, Section 8",
+   "b_note": "rent estimates filled in"
   },
   {
    "label": "BEST STRATEGY",
@@ -53,7 +59,9 @@
    "a": "you guess",
    "b": "named",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "you decide",
+   "b_note": "Caddie's Take picks the best"
   }
  ],
  "script": [
@@ -70,39 +78,39 @@
    ]
   },
   {
-   "voice": "Round one, *spreadsheets.* Seven of them, or *one.*",
+   "voice": "Round one, *spreadsheets.* By hand, you'd build seven. {Deal Caddie|DealCaddie} runs all seven in *one* analysis.",
    "do": [
     "h0~Round",
-    "h0a~Seven",
-    "h0b~one",
+    "h0a~seven",
+    "h0b~DealCaddie",
     "h0w~one"
    ]
   },
   {
-   "voice": "Round two, *time.* At thirty minutes each, that's {three and a half hours.|3.5 hours.} Or under a *minute.*",
+   "voice": "Round two, *time.* At thirty minutes each, that's {three and a half hours.|3.5 hours.} With {Deal Caddie,|DealCaddie,} under a *minute.*",
    "do": [
     "h1~Round",
     "h1a~3.5",
-    "h1b~under",
+    "h1b~DealCaddie",
     "h1w~minute"
    ]
   },
   {
-   "voice": "Round three, *rents* to research. Long, mid, short-term, and Section 8. *Four,* or *zero.*",
+   "voice": "Round three, *rents.* By hand, you research four different rents. {Deal Caddie|DealCaddie} fills in every one *for you.*",
    "do": [
     "h2~Round",
-    "h2a~Four",
-    "h2b~zero",
-    "h2w~zero"
+    "h2a~four",
+    "h2b~DealCaddie",
+    "h2w~for"
    ]
   },
   {
-   "voice": "Round four, *the winner.* You guess, or Caddie *names* it.",
+   "voice": "Round four, *the winner.* By hand, you guess. In {Deal Caddie,|DealCaddie,} Caddie's Take names the best *strategy.*",
    "do": [
     "h3~Round",
     "h3a~guess",
-    "h3b~Caddie",
-    "h3w~names"
+    "h3b~Caddie's",
+    "h3w~strategy"
    ]
   },
   {

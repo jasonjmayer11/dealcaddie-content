@@ -29,7 +29,9 @@
    "a": "25 hrs",
    "b": "< 2 hrs",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "100 quick screens",
+   "b_note": "about a minute each"
   },
   {
    "label": "WEEKENDS SPENT",
@@ -37,15 +39,19 @@
    "a": "3",
    "b": "0",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "of screening",
+   "b_note": "one evening instead"
   },
   {
    "label": "NEW LISTINGS",
    "sub": "who watches for matches",
-   "a": "You",
-   "b": "Auto",
+   "a": "you search",
+   "b": "your inbox",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "every day, by hand",
+   "b_note": "matches emailed every morning"
   }
  ],
  "script": [
@@ -62,30 +68,30 @@
    ]
   },
   {
-   "voice": "Round one, *time.* By hand, a hundred quick screens is about {twenty five hours.|25 hours.} With {Deal Caddie,|DealCaddie,} under *two.*",
+   "voice": "Round one, *time.* A hundred quick screens by hand is about {twenty five hours.|25 hours.} With {Deal Caddie,|DealCaddie,} each one takes about a minute. Under *two hours.*",
    "do": [
     "h0~Round",
     "h0a~25",
-    "h0b~under",
+    "h0b~each",
     "h0w~two"
    ]
   },
   {
-   "voice": "Round two, *weekends.* That's three of them, gone. Or *none.*",
+   "voice": "Round two, *weekends.* By hand, that's three of them, gone. With {Deal Caddie,|DealCaddie,} one evening, and your weekends are *free.*",
    "do": [
     "h1~Round",
-    "h1a~That's",
-    "h1b~none",
-    "h1w~none"
+    "h1a~that's",
+    "h1b~one",
+    "h1w~free"
    ]
   },
   {
-   "voice": "Round three, *new listings.* By hand, you check every day. The Buy Box checks *for you.*",
+   "voice": "Round three, *new listings.* By hand, you search every day. With {Deal Caddie,|DealCaddie,} set a Buy Box with your cash flow goals, and matching deals land in your inbox every *morning.*",
    "do": [
     "h2~Round",
-    "h2a~By",
-    "h2b~Buy",
-    "h2w~for"
+    "h2a~search",
+    "h2b~set",
+    "h2w~morning"
    ]
   },
   {

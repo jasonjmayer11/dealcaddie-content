@@ -24,7 +24,8 @@
    "a": 300000,
    "b": 325000,
    "fmt": "money",
-   "winner": "a"
+   "winner": "a",
+   "tag": null
   },
   {
    "label": "RENT",
@@ -34,7 +35,8 @@
    "fmt": "money",
    "unit": "/mo",
    "winner": "b",
-   "coins": true
+   "coins": true,
+   "tag": "DealCaddie estimates rent for every unit"
   },
   {
    "label": "MONTHLY COSTS",
@@ -43,7 +45,8 @@
    "b": 2712,
    "fmt": "money",
    "unit": "/mo",
-   "winner": "a"
+   "winner": "a",
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "CASH FLOW",
@@ -53,7 +56,8 @@
    "fmt": "money_s",
    "unit": "/mo",
    "winner": "b",
-   "signed": true
+   "signed": true,
+   "tag": "DealCaddie calculates this for you"
   },
   {
    "label": "TIEBREAKER  ·  CASH-ON-CASH",
@@ -64,7 +68,8 @@
    "fmt": "pct_s",
    "unit": "per year",
    "winner": "b",
-   "signed": true
+   "signed": true,
+   "tag": "DealCaddie calculates this for you"
   }
  ],
  "bonus": {

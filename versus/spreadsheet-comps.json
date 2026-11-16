@@ -29,7 +29,9 @@
    "a": "7",
    "b": "1",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "search, filter, copy, divide…",
+   "b_note": "paste the address"
   },
   {
    "label": "SOLD COMPS",
@@ -37,7 +39,9 @@
    "a": "hunt",
    "b": "pulled",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "sold listings, one by one",
+   "b_note": "nearby sales, pulled for you"
   },
   {
    "label": "PRICE PER SQ FT",
@@ -45,7 +49,9 @@
    "a": "calculator",
    "b": "done",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "do the math yourself",
+   "b_note": "calculated for you"
   },
   {
    "label": "YOUR OFFER",
@@ -53,7 +59,9 @@
    "a": "a guess",
    "b": "a range",
    "fmt": "text",
-   "winner": "b"
+   "winner": "b",
+   "a_note": "gut feel",
+   "b_note": "suggested from the comps"
   }
  ],
  "script": [
@@ -70,39 +78,39 @@
    ]
   },
   {
-   "voice": "Round one, *steps.* Search, filter, copy, divide, average, compare, decide. *Seven* steps, or *one.*",
+   "voice": "Round one, *steps.* By hand: search, filter, copy, divide, average, compare, decide. *Seven* steps. With {Deal Caddie,|DealCaddie,} paste the address. That's *one.*",
    "do": [
     "h0~Round",
     "h0a~Seven",
-    "h0b~one",
+    "h0b~paste",
     "h0w~one"
    ]
   },
   {
-   "voice": "Round two, *sold comps.* You hunt for them, or they're *pulled* for you.",
+   "voice": "Round two, *sold comps.* By hand, you hunt for them one by one. {Deal Caddie|DealCaddie} pulls recent nearby sales *automatically.*",
    "do": [
     "h1~Round",
     "h1a~hunt",
-    "h1b~pulled",
-    "h1w~for"
+    "h1b~pulls",
+    "h1w~automatically"
    ]
   },
   {
-   "voice": "Round three, *price per square foot.* A calculator, or already *done.*",
+   "voice": "Round three, *price per square foot.* By hand, it's you and a calculator. {Deal Caddie|DealCaddie} does the math *for you.*",
    "do": [
     "h2~Round",
     "h2a~calculator",
-    "h2b~done",
-    "h2w~done"
+    "h2b~does",
+    "h2w~for"
    ]
   },
   {
-   "voice": "Round four, *your offer.* A guess, or a suggested *range.*",
+   "voice": "Round four, *your offer.* By hand, it's a guess. {Deal Caddie|DealCaddie} suggests an offer range, based on the *comps.*",
    "do": [
     "h3~Round",
     "h3a~guess",
-    "h3b~suggested",
-    "h3w~range"
+    "h3b~suggests",
+    "h3w~comps"
    ]
   },
   {
