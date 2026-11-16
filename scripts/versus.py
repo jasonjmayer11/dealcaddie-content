@@ -41,11 +41,17 @@ def speak(text):
 
 LEAD, GAP = 0.5, 0.14
 t = LEAD; phrases = []; clips = []; events = {}
+from wordtime import speak_timed
+LEADIN = 0.06                                   # show a word a hair before it's heard
 for ph in M["script"]:
-    a = speak(ph["voice"]); d = len(a) / SR
-    clips.append((t, a)); phrases.append((t, d, ph))
-    for ev in ph.get("do", []):                 # "id" or "id@0.6" (fraction of the phrase)
-        k, _, f = ev.partition("@"); events[k] = t + d * float(f or 0)
+    a, units = speak_timed(ph["voice"]); d = len(a) / SR
+    for u in units: u["t0"] += t; u["t1"] += t
+    clips.append((t, a)); phrases.append((t, d, ph, units))
+    for ev in ph.get("do", []):                 # "id", "id@0.6" (fraction of the phrase) or "id#3" (as unit 3 is spoken)
+        if "#" in ev:
+            k, _, n = ev.partition("#"); events[k] = units[min(int(n), len(units) - 1)]["t0"]
+        else:
+            k, _, f = ev.partition("@"); events[k] = t + d * float(f or 0)
     t += d + GAP + ph.get("pause", 0.25)
 MAIN = t + 0.4; END = 3.6; TOTAL = MAIN + END
 print(f"voice {MAIN:.1f}s + end {END}s = {TOTAL:.1f}s")
@@ -177,7 +183,7 @@ HP_Y, HP_H = 990, 380
 def hole_panel(i, now, slide):
     h = holes[i]; card, pad = shadowed_card(W - 120, HP_H)
     g = ImageDraw.Draw(card)
-    head = pill(f"HOLE {i + 1}  ·  {h['label']}" if not h.get("tiebreak") else h["label"], size=26)
+    head = pill(f"{M.get('round_word', 'ROUND')} {i + 1}  ·  {h['label']}" if not h.get("tiebreak") else h["label"], size=26)
     fl = flag_icon(30); head2 = Image.new("RGBA", (head.width + 40, head.height), (0, 0, 0, 0))
     ImageDraw.Draw(head2).rounded_rectangle([0, 0, head2.width - 1, head2.height - 1], radius=head.height // 2, fill=FOREST)
     head2.alpha_composite(fl, (18, (head.height - 30) // 2)); head2.alpha_composite(head.crop((14, 0, head.width, head.height)), (44, 0))
@@ -227,21 +233,35 @@ def bonus_panel(now):
     return card, pad
 
 # ------------------------------------------------------------------ captions (spoken phrase, word by word, *accent*)
-def caption(text, k, size=60):
-    words = text.split(); n = len(words); shown = math.ceil(k * n)
-    rows, cur = [], []
-    for w_ in words:
-        if cur and text_layer(" ".join(x.replace("*", "") for x in cur + [w_]), F_HEAD, size, INK).width > 940: rows.append(cur); cur = [w_]
-        else: cur.append(w_)
+_lay_cache = {}
+def _word(show, acc, size):
+    key = (show, acc, size)
+    if key not in _lay_cache:
+        _lay_cache[key] = text_layer(show, F_HEAD, size, FOREST if acc else INK, tracking=-0.01)
+    return _lay_cache[key]
+
+def caption(units, now, size=60, max_rows=2):
+    """Each word appears the moment it is spoken; long lines page, two rows at a time."""
+    rows, cur, wsum = [], [], 0
+    for u in units:
+        l = _word(u["show"], u["accent"], size)
+        if cur and wsum + 16 + l.width > 940: rows.append(cur); cur, wsum = [], 0
+        cur.append((u, l)); wsum += (16 if len(cur) > 1 else 0) + l.width
     if cur: rows.append(cur)
-    im = Image.new("RGBA", (W, int(size * 1.2) * len(rows)), (0, 0, 0, 0)); idx = 0
-    for r, row in enumerate(rows):
-        lays = []
-        for w_ in row:
-            lays.append((text_layer(w_.replace("*", ""), F_HEAD, size, FOREST if "*" in w_ else INK, tracking=-0.01), idx < shown)); idx += 1
-        x = (W - sum(l.width for l, _ in lays) - 16 * (len(lays) - 1)) // 2
-        for l, on in lays:
-            if on: im.alpha_composite(l, (x, r * int(size * 1.2)))
+    pages = [rows[i:i + max_rows] for i in range(0, len(rows), max_rows)]
+    page = pages[0]
+    for pg in pages:
+        if pg[0][0][0]["t0"] - LEADIN <= now: page = pg
+    lh = int(size * 1.2); im = Image.new("RGBA", (W, lh * len(page) + 20), (0, 0, 0, 0))
+    for r, row in enumerate(page):
+        x = (W - sum(l.width for _, l in row) - 16 * (len(row) - 1)) // 2
+        for u, l in row:
+            s_ = now - (u["t0"] - LEADIN)
+            if s_ >= 0:
+                k = ease_out(s_ / 0.16); y = r * lh + int((1 - k) * 14)
+                lay = l if k >= .999 else l.copy()
+                if k < .999: lay.putalpha(lay.getchannel("A").point(lambda v, k=k: int(v * k)))
+                im.alpha_composite(lay, (x, y))
             x += l.width + 16
     return im
 
@@ -258,7 +278,7 @@ def scoreboard(now):
     return card, pad
 
 TITLE = text_layer(M["title"], F_NUM, 64, INK, tracking=-0.03)
-TAG = text_layer("MATCH PLAY", F_NUM, 22, GOLD_D, tracking=0.3)
+TAG = text_layer(M.get("tag", "HEAD TO HEAD"), F_NUM, 22, GOLD_D, tracking=0.3)
 FOOT = text_layer(M["footnote"], F_MED, 22, MUTED)
 BG = gradient_bg().convert("RGBA")
 
@@ -313,10 +333,10 @@ def frame(now):
         place(f, PHONE, CX, 470 - PPAD + (1 - rev) * 300, alpha=rev)
     # caption
     cur_ph = None
-    for pt0, pd, ph in phrases:
-        if pt0 - 0.05 <= now < pt0 + pd + GAP + ph.get("pause", 0.25): cur_ph = (pt0, pd, ph)
+    for pt0, pd, ph, units in phrases:
+        if pt0 - 0.1 <= now < pt0 + pd + GAP + ph.get("pause", 0.25): cur_ph = units
     if cur_ph:
-        pt0, pd, ph = cur_ph; cl = caption(ph["text"], min(1, (now - pt0) / max(.1, pd) * 1.1))
+        cl = caption(cur_ph, now)
         cy = 1440 if rev < .5 else 1440
         if rev > .5: cy = 1460
         f.alpha_composite(cl, (0, cy))
