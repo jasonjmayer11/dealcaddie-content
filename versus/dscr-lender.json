@@ -1,0 +1,140 @@
+{
+ "title": "Will the Lender Say Yes?",
+ "cover": "Two rentals. Only one gets the loan.",
+ "cover_sub": "THE DSCR TEST",
+ "footnote": "EXAMPLE NUMBERS · 25% down · 7.25% 30-yr DSCR loan · DSCR = rent ÷ (principal, interest, taxes, insurance)",
+ "app_screen": "strategies.png",
+ "champion": "b",
+ "end_line": "Know the lender's answer first.",
+ "a": {
+  "kind": "house",
+  "name": "House A",
+  "short": "HOUSE A",
+  "spec": "$280K · rent $1,850",
+  "badge": "A"
+ },
+ "b": {
+  "kind": "house",
+  "name": "House B",
+  "short": "HOUSE B",
+  "spec": "$300K · rent $2,450",
+  "badge": "B"
+ },
+ "holes": [
+  {
+   "label": "PRICE",
+   "sub": "lower wins",
+   "a": 280000,
+   "b": 300000,
+   "fmt": "money",
+   "winner": "a"
+  },
+  {
+   "label": "PAYMENT",
+   "sub": "incl. taxes + insurance · lower wins",
+   "a": 1814,
+   "b": 1935,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "a"
+  },
+  {
+   "label": "RENT",
+   "sub": "per month",
+   "a": 1850,
+   "b": 2450,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "b",
+   "coins": true
+  },
+  {
+   "label": "FINAL ROUND  ·  DSCR",
+   "tiebreak": true,
+   "sub": "rent ÷ payment · lenders want about 1.25",
+   "a": 1.02,
+   "b": 1.27,
+   "fmt": "x",
+   "winner": "b"
+  }
+ ],
+ "script": [
+  {
+   "voice": "Two rentals. Which one will a *lender* say yes to?",
+   "do": [
+    "cards~Two"
+   ]
+  },
+  {
+   "voice": "Let's put them *head to head.*",
+   "do": [
+    "score~head"
+   ]
+  },
+  {
+   "voice": "Round one, *price.* House A is {twenty thousand dollars|$20K} *cheaper.*",
+   "do": [
+    "h0~Round",
+    "h0a~House",
+    "h0b~$20K",
+    "h0w~cheaper"
+   ]
+  },
+  {
+   "voice": "Round two, the *payment.* With taxes and insurance, A is lower *again.*",
+   "do": [
+    "h1~Round",
+    "h1a~With",
+    "h1b~insurance",
+    "h1w~again"
+   ]
+  },
+  {
+   "voice": "Round three, *rent.* House B rents for {six hundred dollars|$600} more a month.",
+   "do": [
+    "h2~Round",
+    "h2a~House",
+    "h2b~$600",
+    "h2w~more"
+   ]
+  },
+  {
+   "voice": "Final round, {D S C R.|*DSCR.*} Rent divided by the payment. Lenders want about {one point two five.|1.25.}",
+   "do": [
+    "h3~Final"
+   ]
+  },
+  {
+   "voice": "A scores {one point oh two.|1.02.} B scores {one point two seven.|1.27.} Only B gets the *loan.*",
+   "do": [
+    "h3a~1.02",
+    "h3b~1.27",
+    "h3w~Only",
+    "final~loan"
+   ]
+  },
+  {
+   "voice": "Cheaper isn't better if the bank says *no.*",
+   "do": [],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} shows the {D S C R|*DSCR*} on every deal, in *seconds.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "Two rentals. Only one gets the loan. (The DSCR test)",
+ "caption": "Two rentals. Only one passes the lender's test. 🏦\n\nThe cheaper house wins on paper, then loses where it counts. Head to head:\n\n• Price: $280K vs $300K. House A wins.\n• Payment with taxes + insurance: $1,814 vs $1,935. House A wins.\n• Rent: $1,850 vs $2,450. House B wins.\n• DSCR (rent ÷ payment): 1.02 vs 1.27. Lenders want about 1.25. Only B gets the loan.\n\nCheaper isn't better if the bank says no.\n\nExample numbers: 25% down, 7.25% 30-year DSCR loan; lender requirements vary.\n\n💬 Have you ever had a lender say no on a rental?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateinvesting #dscrloan #rentalproperty #investorloans #cashflow",
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND"
+}

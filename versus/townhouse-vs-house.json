@@ -1,0 +1,137 @@
+{
+ "title": "Townhouse vs House",
+ "cover": "The townhouse is $35K cheaper. Better rental?",
+ "cover_sub": "WATCH THE HOA",
+ "footnote": "EXAMPLE NUMBERS · 25% down · 7% 30-yr · expenses 23% of rent (18% for the townhouse, the HOA covers the exterior)",
+ "app_screen": "rank.png",
+ "champion": "b",
+ "end_line": "Send clients a shortlist they can rank.",
+ "a": {
+  "kind": "townhouse",
+  "name": "Townhouse",
+  "short": "TOWNHOUSE",
+  "spec": "$240K · HOA $325/mo",
+  "badge": "TOWNHOUSE"
+ },
+ "b": {
+  "kind": "house",
+  "name": "House",
+  "short": "HOUSE",
+  "spec": "$275K · no HOA",
+  "badge": "HOUSE"
+ },
+ "holes": [
+  {
+   "label": "PRICE",
+   "sub": "lower wins",
+   "a": 240000,
+   "b": 275000,
+   "fmt": "money",
+   "winner": "a"
+  },
+  {
+   "label": "HOA DUES",
+   "sub": "per month · lower wins",
+   "a": 325,
+   "b": 0,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "b"
+  },
+  {
+   "label": "RENT",
+   "sub": "per month",
+   "a": 2100,
+   "b": 2350,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "b",
+   "coins": true
+  },
+  {
+   "label": "CASH FLOW",
+   "sub": "rent minus every cost",
+   "a": -91,
+   "b": 65,
+   "fmt": "money_s",
+   "unit": "/mo",
+   "winner": "b",
+   "signed": true
+  }
+ ],
+ "script": [
+  {
+   "voice": "The townhouse is {thirty five thousand|$35K} cheaper. Is it the better *rental?*",
+   "do": [
+    "cards~The"
+   ]
+  },
+  {
+   "voice": "Let's put them *head to head.*",
+   "do": [
+    "score~head"
+   ]
+  },
+  {
+   "voice": "Round one, *price.* The townhouse *wins.*",
+   "do": [
+    "h0~Round",
+    "h0a~price",
+    "h0b~townhouse",
+    "h0w~wins"
+   ]
+  },
+  {
+   "voice": "Round two, {H O A|*HOA*} dues. {three twenty five|$325} a month, versus *zero.*",
+   "do": [
+    "h1~Round",
+    "h1a~$325",
+    "h1b~zero",
+    "h1w~zero"
+   ]
+  },
+  {
+   "voice": "Round three, *rent.* The house rents for {two fifty|$250} more.",
+   "do": [
+    "h2~Round",
+    "h2a~house",
+    "h2b~$250",
+    "h2w~more"
+   ]
+  },
+  {
+   "voice": "Round four, *cash flow.* The townhouse *loses* {ninety one|$91} a month. The house makes {sixty five.|$65.}",
+   "do": [
+    "h3~Round",
+    "h3a~$91",
+    "h3b~$65",
+    "h3w~$65"
+   ]
+  },
+  {
+   "voice": "House wins, {three to one.|3–1.} Cheaper isn't always *cheaper.*",
+   "do": [
+    "final~House"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} pulls the real {H O A|HOA} dues. Agents can send it as a shortlist clients *rank.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "The townhouse is $35K cheaper. Is it the better rental?",
+ "caption": "The townhouse is $35K cheaper. Better rental? 🏘️\n\nA lower price can hide a higher monthly bill. Head to head:\n\n• Price: $240K vs $275K. Townhouse wins.\n• HOA dues: $325 vs $0 a month. House wins.\n• Rent: $2,100 vs $2,350. House wins.\n• Cash flow: −$91 vs +$65 a month. House wins, 3–1.\n\nCheaper isn't always cheaper. Always check the HOA.\n\nExample numbers: 25% down, 7% 30-year, expenses at 23% of rent (18% for the townhouse because the HOA covers the exterior).\n\n💬 Would you buy a rental with an HOA?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateinvesting #hoa #townhouse #realestateagent #rentalproperty",
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND"
+}

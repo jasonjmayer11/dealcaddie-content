@@ -119,12 +119,33 @@ def building(kind, w, h, lights=1.0, accent=FOREST):
     g.rounded_rectangle([0, gy, W2 - 1, H2 - 1], radius=26 * S, fill=(150, 200, 160)); g.rectangle([0, gy, W2 - 1, gy + 30 * S], fill=(150, 200, 160))
     g.rectangle([0, gy, W2, gy + 8 * S], fill=(120, 182, 135))
     wall = (246, 240, 226); trim = (60, 72, 64); roof = (54, 66, 60)
-    if kind == "house":
+    def gable(x0, x1, by0, peak):
+        g.polygon([(x0 - 14 * S, by0 + 4 * S), ((x0 + x1) / 2, peak), (x1 + 14 * S, by0 + 4 * S)], fill=roof)
+        g.rectangle([x0, by0, x1, gy], fill=wall, outline=trim, width=3 * S)
+    wy = lambda by0: by0 + (gy - by0) * .22
+    if kind in ("house", "fixer"):
         bx0, bx1, by0 = W2 * .2, W2 * .8, H2 * .44
         g.rectangle([W2 * .64, H2 * .18, W2 * .70, H2 * .34], fill=(150, 90, 70))                     # chimney
         g.polygon([(bx0 - 22 * S, by0 + 4 * S), (W2 * .5, H2 * .16), (bx1 + 22 * S, by0 + 4 * S)], fill=roof)
+        if kind == "fixer": wall = (214, 204, 186)
         g.rectangle([bx0, by0, bx1, gy], fill=wall, outline=trim, width=3 * S)
-        doors = [W2 * .5]; wins = [(W2 * .31, by0 + (gy - by0) * .22), (W2 * .69, by0 + (gy - by0) * .22)]
+        doors = [W2 * .5]; wins = [(W2 * .31, wy(by0)), (W2 * .69, wy(by0))]
+    elif kind == "two":
+        doors, wins = [], []
+        for c in (.27, .73):
+            x0, x1, by0 = W2 * (c - .19), W2 * (c + .19), H2 * .50
+            gable(x0, x1, by0, H2 * .26); doors.append(W2 * c); wins.append((W2 * (c - .11), wy(by0))); wins.append((W2 * (c + .11), wy(by0)))
+    elif kind == "townhouse":
+        doors, wins = [], []
+        for k, c in enumerate((.2, .5, .8)):
+            x0, x1, by0 = W2 * (c - .15), W2 * (c + .15), H2 * .36
+            gable(x0, x1, by0, H2 * .16); doors.append(W2 * c); wins.append((W2 * c, wy(by0)))
+    elif kind == "triplex":
+        bx0, bx1, by0 = W2 * .05, W2 * .95, H2 * .40
+        g.polygon([(bx0 - 14 * S, by0 + 4 * S), (W2 * .2, H2 * .2), (W2 * .35, by0 - 8 * S), (W2 * .5, H2 * .2), (W2 * .65, by0 - 8 * S), (W2 * .8, H2 * .2), (bx1 + 14 * S, by0 + 4 * S)], fill=roof)
+        g.rectangle([bx0, by0, bx1, gy], fill=wall, outline=trim, width=3 * S)
+        for xx in (.35, .65): g.line([(W2 * xx, by0), (W2 * xx, gy)], fill=trim, width=3 * S)
+        doors = [W2 * .2, W2 * .5, W2 * .8]; wins = [(W2 * x, wy(by0)) for x in (.2, .5, .8)]
     else:
         bx0, bx1, by0 = W2 * .08, W2 * .92, H2 * .40
         g.polygon([(bx0 - 18 * S, by0 + 4 * S), (W2 * .27, H2 * .18), (W2 * .5, by0 - 10 * S), (W2 * .73, H2 * .18), (bx1 + 18 * S, by0 + 4 * S)], fill=roof)
@@ -132,19 +153,25 @@ def building(kind, w, h, lights=1.0, accent=FOREST):
         g.line([(W2 * .5, by0), (W2 * .5, gy)], fill=trim, width=3 * S)                                 # party wall
         doors = [W2 * .30, W2 * .70]
         wins = [(W2 * .17, by0 + (gy - by0) * .22), (W2 * .41, by0 + (gy - by0) * .22), (W2 * .59, by0 + (gy - by0) * .22), (W2 * .83, by0 + (gy - by0) * .22)]
-    lw = 40 * S if kind == "house" else 30 * S
+    lw = 40 * S if kind in ("house", "fixer") else 30 * S
+    if kind == "fixer": lights = 0
     lit = tuple(int(a + (b - a) * lights) for a, b in zip((190, 210, 220), (255, 222, 140)))
     for x, y in wins:
         g.rectangle([x - lw / 2, y, x + lw / 2, y + lw * .9], fill=lit, outline=trim, width=2 * S)
         g.line([(x, y), (x, y + lw * .9)], fill=trim, width=2 * S); g.line([(x - lw / 2, y + lw * .45), (x + lw / 2, y + lw * .45)], fill=trim, width=2 * S)
+        if kind == "fixer":                                                                         # boarded up
+            for k in (-1, 1): g.line([(x - lw * .6, y + lw * (.45 + .25 * k)), (x + lw * .6, y + lw * (.45 - .25 * k))], fill=(160, 120, 80), width=6 * S)
     dw, dh = 34 * S, 62 * S
     for i, x in enumerate(doors):
-        g.rounded_rectangle([x - dw / 2, gy - dh, x + dw / 2, gy], radius=6 * S, fill=accent)
+        dc = accent if not (kind == "townhouse" and i != 1) else (120, 130, 124)
+        g.rounded_rectangle([x - dw / 2, gy - dh, x + dw / 2, gy], radius=6 * S, fill=dc)
         g.ellipse([x + dw * .22, gy - dh * .5, x + dw * .36, gy - dh * .5 + 4 * S], fill=GOLD)
-        if len(doors) > 1:
-            lab = text_layer("AB"[i], F_NUM, 15 * S, WHITE); im.alpha_composite(lab, (int(x - lab.width / 2), int(gy - dh + 8 * S)))
+        if kind in ("duplex", "triplex"):
+            lab = text_layer("ABC"[i], F_NUM, 15 * S, WHITE); im.alpha_composite(lab, (int(x - lab.width / 2), int(gy - dh + 8 * S)))
         g.rectangle([x - dw / 2 - 6 * S, gy, x + dw / 2 + 6 * S, gy + 6 * S], fill=(205, 198, 182))
-    for tx in ([W2 * .08] if kind == "house" else []):                                              # tree
+    if kind == "townhouse":                                                                         # "for sale" sign on the middle unit
+        g.rectangle([W2 * .62, gy - 46 * S, W2 * .625, gy], fill=trim); g.rectangle([W2 * .585, gy - 46 * S, W2 * .70, gy - 26 * S], fill=GOLD)
+    for tx in ([W2 * .08] if kind in ("house", "fixer") else []):                                              # tree
         g.rectangle([tx - 4 * S, gy - 50 * S, tx + 4 * S, gy], fill=(110, 80, 55))
         g.ellipse([tx - 26 * S, gy - 96 * S, tx + 26 * S, gy - 40 * S], fill=(70, 150, 95))
     return im.resize((w, h), Image.LANCZOS), [x / S for x in doors], gy / S
@@ -165,6 +192,8 @@ def score(now):
 
 def fmt(v, kind):
     if kind == "pct": return f"{v:.1f}%"
+    if kind == "x": return f"{v:.2f}x"
+    if kind == "text": return str(v)
     if kind == "money": return ("−" if v < 0 else "") + f"${abs(v):,.0f}"
     if kind == "money_s": return ("−" if v < 0 else "+") + f"${abs(v):,.0f}"
     if kind == "pct_s": return ("−" if v < 0 else "+") + f"{abs(v):.1f}%"
@@ -203,23 +232,25 @@ def hole_panel(i, now, slide):
     if h.get("sub"):
         s = text_layer(h["sub"], F_MED, 24, MUTED); card.alpha_composite(s, (pad + (W - 120 - s.width) // 2, pad + 92))
     cw = W - 120; mx = [cw * .25, cw * .75]
-    vmax = max(abs(h["a"]), abs(h["b"])) or 1
+    txt = h["fmt"] == "text"
+    vmax = 1 if txt else (max(abs(h["a"]), abs(h["b"])) or 1)
     for j, side in enumerate("ab"):
         p = prog(f"h{i}{side}", now, 0.9)
         if p <= 0: continue
-        v = h[side] * p; won = since(f"h{i}w", now) is not None and h["winner"] == side
+        v = h[side] if txt else h[side] * p; won = since(f"h{i}w", now) is not None and h["winner"] == side
         lost = since(f"h{i}w", now) is not None and h["winner"] not in (side, "tie")
-        col = (RED if h[side] < 0 else INK) if h.get("signed") else INK
+        neg = (not txt) and h[side] < 0
+        col = (RED if neg else INK) if h.get("signed") else INK
         if lost: col = tuple(int(c * .45 + 200 * .55) for c in col)
         tl = text_layer(fmt(v, h["fmt"]), F_NUM, 84, col, tracking=-0.03)
         card.alpha_composite(tl, (int(pad + mx[j] - tl.width / 2), pad + 140))
         if h.get("unit"):
             u = text_layer(h["unit"], F_MED, 26, MUTED); card.alpha_composite(u, (int(pad + mx[j] - u.width / 2), pad + 236))
         # bar
-        bw_full = cw * .38; frac = abs(h[side]) / vmax * p
+        bw_full = cw * .38; frac = p if txt else abs(h[side]) / vmax * p
         x0 = pad + mx[j] - bw_full / 2; y0 = pad + 290
         g.rounded_rectangle([x0, y0, x0 + bw_full, y0 + 22], radius=11, fill=(236, 233, 224))
-        bc = (TURF if won else ((RED if h[side] < 0 else (170, 178, 172)) if lost else (GREEN if h[side] >= 0 or not h.get("signed") else RED)))
+        bc = (TURF if won else ((RED if neg else (170, 178, 172)) if lost else (GREEN if not neg or not h.get("signed") else RED)))
         if frac > 0.02: g.rounded_rectangle([x0, y0, x0 + bw_full * frac, y0 + 22], radius=11, fill=bc)
         if won:
             k = ease_out(since(f"h{i}w", now) / 0.35); cb = check_badge(int(76 * (0.6 + 0.4 * k)))
@@ -278,15 +309,17 @@ def caption(units, now, size=60, max_rows=2):
     return im
 
 # ------------------------------------------------------------------ scoreboard + title
+_SB_LA = text_layer(A["short"], F_SEMI, 28, (200, 225, 210), tracking=0.08)
+_SB_LB = text_layer(B["short"], F_SEMI, 28, (200, 225, 210), tracking=0.08)
+_SB_W = max(560, 2 * max(_SB_LA.width, _SB_LB.width) + 2 * 34 + 2 * 120)
 def scoreboard(now):
-    s = score(now); card, pad = shadowed_card(560, 96, r=48, fill=FOREST, border=FOREST)
-    la = text_layer(A["short"], F_SEMI, 28, (200, 225, 210), tracking=0.08); lb = text_layer(B["short"], F_SEMI, 28, (200, 225, 210), tracking=0.08)
-    card.alpha_composite(la, (pad + 34, pad + 34)); card.alpha_composite(lb, (pad + 560 - 34 - lb.width, pad + 34))
-    for side, x in (("a", 220), ("b", 340)):
+    s = score(now); SW = _SB_W; card, pad = shadowed_card(SW, 96, r=48, fill=FOREST, border=FOREST)
+    card.alpha_composite(_SB_LA, (pad + 34, pad + 34)); card.alpha_composite(_SB_LB, (pad + SW - 34 - _SB_LB.width, pad + 34))
+    for side, x in (("a", SW / 2 - 60), ("b", SW / 2 + 60)):
         last = max([events.get(f"h{i}w", -9) for i, h in enumerate(holes) if h["winner"] == side] + [-9])
         pop = 1 + 0.35 * max(0, 1 - (now - last) / 0.4) if now >= last else 1
         n = text_layer(str(s[side]), F_NUM, int(54 * pop), GOLD); card.alpha_composite(n, (int(pad + x - n.width / 2), int(pad + 48 - n.height / 2)))
-    d = text_layer("–", F_NUM, 40, (200, 225, 210)); card.alpha_composite(d, (pad + 280 - d.width // 2, pad + 22))
+    d = text_layer("–", F_NUM, 40, (200, 225, 210)); card.alpha_composite(d, (int(pad + SW / 2 - d.width / 2), pad + 22))
     return card, pad
 
 TITLE = text_layer(M["title"], F_NUM, 64, INK, tracking=-0.03)
@@ -361,7 +394,7 @@ def frame(now):
 
 # ------------------------------------------------------------------ cover (thumbnail + 0.5 s lead)
 def make_cover():
-    snap = events.get("h3w", 6) + 1.0
+    snap = events.get(f"h{len(holes) - 1}w", 6) + 0.8
     fr = frame(snap).convert("RGBA").crop((0, 462, W, 1390))
     fr = fr.resize((int(W * .86), int(fr.height * .86)), Image.LANCZOS)
     c = BG.copy(); place(c, logo_layer(300), CX, 140)

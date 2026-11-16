@@ -1,0 +1,140 @@
+{
+ "title": "BRRRR vs Buy & Hold",
+ "cover": "Fix up a fixer, or buy it move-in ready?",
+ "cover_sub": "SAME EQUITY. VERY DIFFERENT CASH.",
+ "footnote": "EXAMPLE NUMBERS · ARV $260K · refi at 75% (7.25%) · turnkey 25% down (7%) · rent $2,300 · 23% of rent for expenses",
+ "app_screen": "analysis.png",
+ "champion": null,
+ "end_line": "Run the BRRRR math in seconds.",
+ "a": {
+  "kind": "fixer",
+  "name": "BRRRR",
+  "short": "BRRRR",
+  "spec": "$160K fixer + $40K rehab",
+  "badge": "FIXER"
+ },
+ "b": {
+  "kind": "house",
+  "name": "Buy & Hold",
+  "short": "HOLD",
+  "spec": "$260K · move-in ready",
+  "badge": "TURNKEY"
+ },
+ "holes": [
+  {
+   "label": "CASH LEFT IN THE DEAL",
+   "sub": "after the refinance · lower wins",
+   "a": 13700,
+   "b": 72800,
+   "fmt": "money",
+   "winner": "a"
+  },
+  {
+   "label": "TIME TO FIRST RENT",
+   "sub": "lower wins",
+   "a": "5 mo",
+   "b": "1 mo",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "CASH FLOW",
+   "sub": "rent $2,300 minus every cost",
+   "a": 82,
+   "b": 115,
+   "fmt": "money_s",
+   "unit": "/mo",
+   "winner": "b",
+   "signed": true
+  },
+  {
+   "label": "CASH-ON-CASH",
+   "sub": "yearly cash flow ÷ cash left in",
+   "a": 7.2,
+   "b": 1.9,
+   "fmt": "pct_s",
+   "unit": "per year",
+   "winner": "a",
+   "signed": true
+  }
+ ],
+ "script": [
+  {
+   "voice": "Fix up a *fixer,* or buy one *move-in ready?*",
+   "do": [
+    "cards~Fix"
+   ]
+  },
+  {
+   "voice": "{burr|*BRRRR*} versus *buy and hold,* head to head.",
+   "do": [
+    "score~buy"
+   ]
+  },
+  {
+   "voice": "Round one, *cash left in the deal.* {burr|BRRRR} leaves {thirteen seven|$13,700} in. Buy and hold, {seventy two eight.|$72,800.}",
+   "do": [
+    "h0~Round",
+    "h0a~$13,700",
+    "h0b~$72,800",
+    "h0w~$72,800"
+   ]
+  },
+  {
+   "voice": "Round two, *time to first rent.* The rehab takes months. Turnkey rents *right away.*",
+   "do": [
+    "h1~Round",
+    "h1a~rehab",
+    "h1b~Turnkey",
+    "h1w~right"
+   ]
+  },
+  {
+   "voice": "Round three, *cash flow.* {eighty two|$82} versus {a hundred fifteen|$115} a month.",
+   "do": [
+    "h2~Round",
+    "h2a~$82",
+    "h2b~$115",
+    "h2w~month"
+   ]
+  },
+  {
+   "voice": "Round four, {cash on cash.|*Cash-on-cash.*} {seven point two percent|7.2%} versus {one point nine.|1.9%.}",
+   "do": [
+    "h3~Round",
+    "h3a~7.2%",
+    "h3b~1.9%",
+    "h3w~1.9%"
+   ]
+  },
+  {
+   "voice": "Two all. Both end with about {sixty five thousand|$65K} in *equity.*",
+   "do": [
+    "final~Two"
+   ]
+  },
+  {
+   "voice": "{burr|*BRRRR*} uses far less of your cash. It just takes more *work,* and more *risk.*",
+   "do": [],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} runs the {burr|*BRRRR*} math on any listing, in *seconds.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "BRRRR vs buy and hold: same equity, very different cash.",
+ "caption": "Fix up a fixer, or buy it move-in ready? 🔨\n\nBoth end with about $65K of equity. The difference is how much of YOUR cash it takes. Head to head:\n\n• Cash left in the deal: $13,700 vs $72,800. BRRRR wins.\n• Time to first rent: ~5 months vs ~1. Buy & hold wins.\n• Cash flow: +$82 vs +$115 a month. Buy & hold wins.\n• Cash-on-cash: 7.2% vs 1.9%. BRRRR wins.\n\nTwo all. BRRRR frees up your cash for the next deal. It just takes more work and more risk.\n\nExample numbers: $160K purchase + $40K rehab, ARV $260K, refinance at 75% LTV at 7.25%; turnkey $260K at 25% down and 7%; rent $2,300.\n\n💬 Team BRRRR or team turnkey?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#brrrr #realestateinvesting #rentalproperty #fixerupper #cashflow",
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND"
+}

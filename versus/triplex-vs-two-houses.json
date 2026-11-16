@@ -1,0 +1,155 @@
+{
+ "title": "Triplex vs Two Houses",
+ "cover": "$450K to spend. One triplex, or two houses?",
+ "cover_sub": "MORE DOORS, LESS RISK?",
+ "footnote": "EXAMPLE NUMBERS · 25% down · 7% 30-yr · one loan vs two · 23% of rent for vacancy, repairs, CapEx, mgmt",
+ "app_screen": "compare.png",
+ "champion": "a",
+ "end_line": "Every unit's rent. In seconds.",
+ "a": {
+  "kind": "triplex",
+  "name": "Triplex",
+  "short": "TRIPLEX",
+  "spec": "$450K · 3 × $1,350 rent",
+  "badge": "TRIPLEX"
+ },
+ "b": {
+  "kind": "two",
+  "name": "Two Houses",
+  "short": "2 HOUSES",
+  "spec": "$225K each · $1,900 rent",
+  "badge": "2 HOUSES"
+ },
+ "holes": [
+  {
+   "label": "RENT",
+   "sub": "per month, all units",
+   "a": 4050,
+   "b": 3800,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "a",
+   "coins": true
+  },
+  {
+   "label": "ONE UNIT EMPTY",
+   "sub": "rent still coming in",
+   "a": 2700,
+   "b": 1900,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "a"
+  },
+  {
+   "label": "ROOFS TO REPLACE",
+   "sub": "lower wins",
+   "a": "1",
+   "b": "2",
+   "fmt": "text",
+   "winner": "a"
+  },
+  {
+   "label": "MONTHLY COSTS",
+   "sub": "mortgage, tax, insurance, upkeep · lower wins",
+   "a": 3839,
+   "b": 3772,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "b"
+  },
+  {
+   "label": "CASH FLOW",
+   "sub": "rent minus every cost",
+   "a": 211,
+   "b": 28,
+   "fmt": "money_s",
+   "unit": "/mo",
+   "winner": "a",
+   "signed": true
+  }
+ ],
+ "script": [
+  {
+   "voice": "{four fifty|$450K} to spend. One *triplex,* or *two houses?*",
+   "do": [
+    "cards~$450K"
+   ]
+  },
+  {
+   "voice": "Let's put them *head to head.*",
+   "do": [
+    "score~head"
+   ]
+  },
+  {
+   "voice": "Round one, *rent.* {forty fifty|$4,050} versus {thirty eight hundred.|$3,800.}",
+   "do": [
+    "h0~Round",
+    "h0a~$4,050",
+    "h0b~$3,800",
+    "h0w~$3,800"
+   ]
+  },
+  {
+   "voice": "Round two, *one unit empty.* The triplex still collects two thirds of its rent. Two houses, *half.*",
+   "do": [
+    "h1~Round",
+    "h1a~triplex",
+    "h1b~Two",
+    "h1w~half"
+   ]
+  },
+  {
+   "voice": "Round three, *roofs* to replace. One, versus *two.*",
+   "do": [
+    "h2~Round",
+    "h2a~One",
+    "h2b~two",
+    "h2w~two"
+   ]
+  },
+  {
+   "voice": "Round four, *monthly costs.* The houses are a little *cheaper.*",
+   "do": [
+    "h3~Round",
+    "h3a~The",
+    "h3b~houses",
+    "h3w~cheaper"
+   ]
+  },
+  {
+   "voice": "Round five, *cash flow.* {two eleven|$211} versus {twenty eight|$28} a month.",
+   "do": [
+    "h4~Round",
+    "h4a~$211",
+    "h4b~$28",
+    "h4w~month"
+   ]
+  },
+  {
+   "voice": "Triplex wins, {four to one.|4–1.}",
+   "do": [
+    "final~Triplex"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} pulls the rent for every unit, and compares them side by side, in *seconds.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "$450K to spend: one triplex or two houses?",
+ "caption": "$450K to spend. One triplex or two houses? 🏢 vs 🏠🏠\n\nMore doors under one roof can mean less risk when a unit sits empty. Head to head:\n\n• Rent: $4,050 vs $3,800 a month. Triplex wins.\n• One unit empty: $2,700 vs $1,900 still coming in. Triplex wins.\n• Roofs to replace: 1 vs 2. Triplex wins.\n• Monthly costs: $3,839 vs $3,772. Houses win.\n• Cash flow: +$211 vs +$28 a month. Triplex wins, 4–1.\n\nExample numbers: 25% down, 7% 30-year, one loan vs two, 23% of rent set aside for vacancy, repairs, CapEx and management.\n\n💬 Triplex or two houses: which would you buy?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#multifamily #triplex #realestateinvesting #rentalproperty #cashflow",
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND"
+}

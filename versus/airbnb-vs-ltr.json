@@ -1,0 +1,137 @@
+{
+ "title": "Airbnb vs Long-Term",
+ "cover": "Airbnb or a long-term lease?",
+ "cover_sub": "THE BIGGEST NUMBER ISN'T ALWAYS ALLOWED",
+ "footnote": "EXAMPLE NUMBERS · $260K · 25% down · 7% 30-yr · STR: 60% booked, $265/night, 35% for cleaning, fees, mgmt + $400 utilities",
+ "app_screen": "aitake.png",
+ "champion": null,
+ "end_line": "Check the rules before the numbers.",
+ "a": {
+  "kind": "house",
+  "name": "Airbnb",
+  "short": "AIRBNB",
+  "spec": "60% booked · $265/night",
+  "badge": "STR"
+ },
+ "b": {
+  "kind": "house",
+  "name": "Long-Term",
+  "short": "LONG",
+  "spec": "12-month lease · $2,200/mo",
+  "badge": "LTR"
+ },
+ "holes": [
+  {
+   "label": "REVENUE",
+   "sub": "per month",
+   "a": 4834,
+   "b": 2200,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "a",
+   "coins": true
+  },
+  {
+   "label": "MONTHLY COSTS",
+   "sub": "cleaning, fees, utilities, upkeep · lower wins",
+   "a": 4311,
+   "b": 2157,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "b"
+  },
+  {
+   "label": "CASH FLOW",
+   "sub": "revenue minus every cost",
+   "a": 523,
+   "b": 43,
+   "fmt": "money_s",
+   "unit": "/mo",
+   "winner": "a",
+   "signed": true
+  },
+  {
+   "label": "RULES RISK",
+   "sub": "permits, caps and bans vary by city · lower wins",
+   "a": "High",
+   "b": "Low",
+   "fmt": "text",
+   "winner": "b"
+  }
+ ],
+ "script": [
+  {
+   "voice": "Same house. *Airbnb,* or a *long-term lease?*",
+   "do": [
+    "cards~Same"
+   ]
+  },
+  {
+   "voice": "Let's put them *head to head.*",
+   "do": [
+    "score~head"
+   ]
+  },
+  {
+   "voice": "Round one, *revenue.* About {forty eight hundred|$4,834} a month on Airbnb, versus {twenty two hundred.|$2,200.}",
+   "do": [
+    "h0~Round",
+    "h0a~$4,834",
+    "h0b~$2,200",
+    "h0w~$2,200"
+   ]
+  },
+  {
+   "voice": "Round two, *costs.* Cleaning, fees, utilities. Long-term is *cheaper* to run.",
+   "do": [
+    "h1~Round",
+    "h1a~Cleaning",
+    "h1b~Long-term",
+    "h1w~cheaper"
+   ]
+  },
+  {
+   "voice": "Round three, *cash flow.* {five twenty three|$523} versus {forty three|$43} a month.",
+   "do": [
+    "h2~Round",
+    "h2a~$523",
+    "h2b~$43",
+    "h2w~month"
+   ]
+  },
+  {
+   "voice": "Round four, *the rules.* Many cities cap, permit, or ban short-term rentals.",
+   "do": [
+    "h3~Round",
+    "h3a~Many",
+    "h3b~permit",
+    "h3w~ban"
+   ]
+  },
+  {
+   "voice": "Two all. The best number means nothing if it's not *allowed.*",
+   "do": [
+    "final~Two"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} flags short-term rental rules in {more than thirty five|35+} markets, before you *buy.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "Airbnb or a long-term lease? The biggest number isn't always allowed.",
+ "caption": "Same house. Airbnb or a long-term lease? 🏡\n\nShort-term rentals can win big on paper. Then the city weighs in. Head to head:\n\n• Revenue: ~$4,834 vs $2,200 a month. Airbnb wins.\n• Costs: $4,311 vs $2,157 a month. Long-term wins.\n• Cash flow: +$523 vs +$43 a month. Airbnb wins.\n• Rules risk: many cities cap, permit or ban STRs. Long-term wins.\n\nTwo all. The best number means nothing if it's not allowed. Check the local rules before you buy.\n\nExample numbers: $260K house, 25% down, 7% 30-year; Airbnb at 60% occupancy and $265/night with 35% for cleaning, platform fees and management plus $400 utilities.\n\n💬 Would you run it as an Airbnb or keep it long-term?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#airbnbhost #shorttermrental #realestateinvesting #str #cashflow",
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND"
+}
