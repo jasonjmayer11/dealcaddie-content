@@ -4,21 +4,21 @@
  "champion": "b",
  "a": {
   "kind": "sheet",
-  "name": "Spreadsheet",
-  "short": "SPREADSHEET",
-  "spec": "by hand",
+  "name": "Without",
+  "short": "WITHOUT",
+  "spec": "scrolling listings",
   "badge": "BY HAND"
  },
  "b": {
   "kind": "phone",
   "name": "DealCaddie",
-  "short": "DEALCADDIE",
+  "short": "WITH",
   "spec": "paste an address",
   "badge": "AUTO"
  },
- "title": "Spreadsheet vs DealCaddie",
+ "title": "Without vs With DealCaddie",
  "cover": "Look at 100 listings to find 1 deal?",
- "cover_sub": "BY HAND OR DEALCADDIE",
+ "cover_sub": "WITHOUT VS WITH DEALCADDIE",
  "footnote": "BY HAND: BiggerPockets investors report 10–15 min for a quick first pass, and ~100 properties looked at per deal bought · DEALCADDIE: under a minute per address",
  "app_screen": "deals.png",
  "end_line": "Let the deals come to you.",
@@ -56,9 +56,9 @@
    ]
   },
   {
-   "voice": "By hand, or with {Deal Caddie?|*DealCaddie?*}",
+   "voice": "Without {Deal Caddie,|*DealCaddie,*} or *with* it?",
    "do": [
-    "score~By"
+    "score~Without"
    ]
   },
   {

@@ -5,7 +5,7 @@ On-brand look (cream canvas, forest green, gold, white app-style cards), illustr
 a golf scoreboard, count-up numbers, coins, and the app revealed at the end.
 Each matchup is data (versus/<name>.json). Usage: python3 scripts/versus.py versus/x.json out.mp4
 """
-import json, math, os, random, subprocess, sys, wave, zlib
+import json, math, os, random, re, subprocess, sys, wave, zlib
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
@@ -40,6 +40,7 @@ def speak(text):
                            _k(text, voice=os.environ.get("VOICE", "af_heart"), speed=float(os.environ.get("VOICE_SPEED", 1.05)))]).astype(np.float32)
 
 LEAD, GAP = 0.5, 0.14
+WIN_HOLD = float(os.environ.get("WIN_HOLD", 1.3))
 t = LEAD; phrases = []; clips = []; events = {}
 from wordtime import speak_timed
 LEADIN = 0.06                                   # show a word a hair before it's heard
@@ -47,17 +48,20 @@ for ph in M["script"]:
     a, units = speak_timed(ph["voice"]); d = len(a) / SR
     for u in units: u["t0"] += t; u["t1"] += t
     clips.append((t, a)); phrases.append((t, d, ph, units))
+    cursor = 0                                  # "~" events are matched in order: each search starts at the previous hit
     for ev in ph.get("do", []):                 # "id", "id@0.6" (fraction of the phrase) or "id#3" (as unit 3 is spoken)
-        if "~" in ev:                           # "id~word": as the first unit starting with that text is spoken
+        if "~" in ev:                           # "id~word": as the next unit starting with that text is spoken
             k, _, w_ = ev.partition("~")
-            hit = [u for u in units if u["show"].lower().startswith(w_.lower())]
-            if not hit: sys.exit(f"event {ev}: no unit starts with {w_!r} in {[u['show'] for u in units]}")
-            events[k] = hit[0]["t0"]
+            hit = [i for i, u in enumerate(units) if i >= cursor and u["show"].lower().startswith(w_.lower())]
+            if not hit: sys.exit(f"event {ev}: no unit from #{cursor} starts with {w_!r} in {[u['show'] for u in units]}")
+            cursor = hit[0]; events[k] = units[cursor]["t0"]
         elif "#" in ev:
             k, _, n = ev.partition("#"); events[k] = units[min(int(n), len(units) - 1)]["t0"]
         else:
             k, _, f = ev.partition("@"); events[k] = t + d * float(f or 0)
-    t += d + GAP + ph.get("pause", 0.25)
+    wins_here = any(re.match(r"h\d+w[~#@]?", e) for e in ph.get("do", []))
+    ph["_hold"] = WIN_HOLD if wins_here else 0
+    t += d + GAP + ph.get("pause", 0.25) + ph["_hold"]   # let each round's result land
 if "endcard" in events:                         # the CTA line is spoken over the end card
     MAIN = events["endcard"] - 0.25; END = max(4.2, t + 1.6 - MAIN)
 else:
@@ -283,6 +287,12 @@ def hole_panel(i, now, slide):
         if p <= 0: continue
         v = h[side] if txt else h[side] * p; won = since(f"h{i}w", now) is not None and h["winner"] == side
         lost = since(f"h{i}w", now) is not None and h["winner"] not in (side, "tie")
+        if won:                                         # winner's half lights up and stays lit while the result sinks in
+            kk = ease_out(since(f"h{i}w", now) / 0.4)
+            hl = Image.new("RGBA", card.size, (0, 0, 0, 0))
+            ImageDraw.Draw(hl).rounded_rectangle([pad + mx[j] - cw * .235, pad + 118, pad + mx[j] + cw * .235, pad + HP_H - 26],
+                                                 radius=26, fill=(39, 165, 82, int(34 * kk)), outline=(39, 165, 82, int(200 * kk)), width=4)
+            card.alpha_composite(hl)
         neg = (not txt) and h[side] < 0
         col = (RED if neg else INK) if h.get("signed") else INK
         if lost: col = tuple(int(c * .45 + 200 * .55) for c in col)
@@ -429,7 +439,7 @@ def frame(now):
     # caption
     cur_ph = None
     for pt0, pd, ph, units in phrases:
-        if pt0 - 0.1 <= now < pt0 + pd + GAP + ph.get("pause", 0.25): cur_ph = units
+        if pt0 - 0.1 <= now < pt0 + pd + GAP + ph.get("pause", 0.25) + ph.get("_hold", 0): cur_ph = units
     if cur_ph:
         cl = caption(cur_ph, now)
         cy = 1440 if rev < .5 else 1440
@@ -505,7 +515,7 @@ vw = os.path.join(work, "voice.wav")
 with wave.open(vw, "wb") as w_:
     w_.setnchannels(1); w_.setsampwidth(2); w_.setframerate(SR); w_.writeframes((voice * 32767).astype(np.int16).tobytes())
 tracks = sorted(x[:-4] for x in os.listdir(os.path.join(ROOT, "music")) if x.endswith(".m4a"))
-track = os.environ.get("MUSIC_TRACK") or tracks[zlib.crc32(M["cover"].encode()) % len(tracks)]
+track = os.environ.get("MUSIC_TRACK") or M.get("music") or tracks[zlib.crc32(M["cover"].encode()) % len(tracks)]
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", silent, "-i", vw, "-stream_loop", "-1", "-i", os.path.join(ROOT, "music", track + ".m4a"),
                 "-filter_complex", f"[2:a]volume=0.11,afade=t=out:st={TOTAL - 1.5:.2f}:d=1.5,atrim=0:{TOTAL:.2f}[m];"
                 "[1:a]aresample=48000,highpass=f=70,acompressor=threshold=-18dB:ratio=3:attack=5:release=80[v];"

@@ -4,21 +4,21 @@
  "champion": "b",
  "a": {
   "kind": "sheet",
-  "name": "Spreadsheet",
-  "short": "SPREADSHEET",
+  "name": "Without",
+  "short": "WITHOUT",
   "spec": "by hand",
   "badge": "BY HAND"
  },
  "b": {
   "kind": "phone",
   "name": "DealCaddie",
-  "short": "DEALCADDIE",
+  "short": "WITH",
   "spec": "paste an address",
   "badge": "AUTO"
  },
- "title": "Spreadsheet vs DealCaddie",
+ "title": "Without vs With DealCaddie",
  "cover": "You love the house. What do you offer?",
- "cover_sub": "BY HAND OR DEALCADDIE",
+ "cover_sub": "WITHOUT VS WITH DEALCADDIE",
  "footnote": "DEALCADDIE OFFER PLAN: opening, target and walk-away prices, seller credit, and a PDF you can hand your agent",
  "app_screen": "offerplan.png",
  "end_line": "Walk in knowing your numbers.",
@@ -64,7 +64,7 @@
    ]
   },
   {
-   "voice": "Spreadsheet versus {Deal Caddie.|*DealCaddie.*}",
+   "voice": "Without {Deal Caddie,|*DealCaddie,*} versus *with* it.",
    "do": [
     "score~versus"
    ]
@@ -73,7 +73,7 @@
    "voice": "Round one, *prices.* Model one at a time, or opening, target, and walk-away, all *at once.*",
    "do": [
     "h0~Round",
-    "h0a~one",
+    "h0a~Model",
     "h0b~opening",
     "h0w~once"
    ]

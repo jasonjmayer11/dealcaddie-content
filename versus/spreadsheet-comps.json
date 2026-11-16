@@ -4,21 +4,21 @@
  "champion": "b",
  "a": {
   "kind": "sheet",
-  "name": "Spreadsheet",
-  "short": "SPREADSHEET",
+  "name": "Without",
+  "short": "WITHOUT",
   "spec": "Zillow tabs + calculator",
   "badge": "BY HAND"
  },
  "b": {
   "kind": "phone",
   "name": "DealCaddie",
-  "short": "DEALCADDIE",
+  "short": "WITH",
   "spec": "paste an address",
   "badge": "AUTO"
  },
- "title": "Spreadsheet vs DealCaddie",
+ "title": "Without vs With DealCaddie",
  "cover": "Is it overpriced? Pull the comps.",
- "cover_sub": "BY HAND OR DEALCADDIE",
+ "cover_sub": "WITHOUT VS WITH DEALCADDIE",
  "footnote": "STEPS BY HAND: our breakdown of a typical manual comp pull · DEALCADDIE: sold comps, $/sqft and a suggested offer range on every analysis",
  "app_screen": "comps.png",
  "end_line": "Let the comps set your offer.",
