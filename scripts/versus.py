@@ -226,7 +226,9 @@ def building(kind, w, h, lights=1.0, accent=FOREST):
 
 # ------------------------------------------------------------------ fixed layout
 A, B = M["a"], M["b"]
-CARD_W, CARD_H, CARD_Y = 470, 470, 470
+L2 = os.environ.get("LAYOUT", "1") == "2"      # v2 (Nov 16, proposed): roomier header, full-width scoreboard. Default flips to 2 once approved
+CARD_W, CARD_H, CARD_Y = (470, 450, 478) if L2 else (470, 470, 470)
+TAG_Y, TITLE_Y, SB_Y = (186, 220, 322) if L2 else (232, 268, 352)
 CARD_X = [60, W - 60 - CARD_W]
 ILL_W, ILL_H = CARD_W - 40, 290
 holes = M["holes"]
@@ -371,15 +373,18 @@ def caption(units, now, size=60, max_rows=2):
 # ------------------------------------------------------------------ scoreboard + title
 _SB_LA = text_layer(A["short"], F_SEMI, 28, (200, 225, 210), tracking=0.08)
 _SB_LB = text_layer(B["short"], F_SEMI, 28, (200, 225, 210), tracking=0.08)
-_SB_W = max(560, 2 * max(_SB_LA.width, _SB_LB.width) + 2 * 34 + 2 * 120)
+_SB_W = (W - 120) if L2 else max(560, 2 * max(_SB_LA.width, _SB_LB.width) + 2 * 34 + 2 * 120)
+_SB_H = 108 if L2 else 96
 def scoreboard(now):
-    s = score(now); SW = _SB_W; card, pad = shadowed_card(SW, 96, r=48, fill=FOREST, border=FOREST)
-    card.alpha_composite(_SB_LA, (pad + 34, pad + 34)); card.alpha_composite(_SB_LB, (pad + SW - 34 - _SB_LB.width, pad + 34))
-    for side, x in (("a", SW / 2 - 60), ("b", SW / 2 + 60)):
+    s = score(now); SW = _SB_W; SH = _SB_H; card, pad = shadowed_card(SW, SH, r=SH // 2, fill=FOREST, border=FOREST)
+    ly = (SH - _SB_LA.height) // 2
+    card.alpha_composite(_SB_LA, (pad + 48, pad + ly)); card.alpha_composite(_SB_LB, (pad + SW - 48 - _SB_LB.width, pad + ly))
+    gap = 78 if L2 else 60; fs = 66 if L2 else 54
+    for side, x in (("a", SW / 2 - gap), ("b", SW / 2 + gap)):
         last = max([events.get(f"h{i}w", -9) for i, h in enumerate(holes) if h["winner"] == side] + [-9])
         pop = 1 + 0.35 * max(0, 1 - (now - last) / 0.4) if now >= last else 1
-        n = text_layer(str(s[side]), F_NUM, int(54 * pop), GOLD); card.alpha_composite(n, (int(pad + x - n.width / 2), int(pad + 48 - n.height / 2)))
-    d = text_layer("–", F_NUM, 40, (200, 225, 210)); card.alpha_composite(d, (int(pad + SW / 2 - d.width / 2), pad + 22))
+        n = text_layer(str(s[side]), F_NUM, int(fs * pop), GOLD); card.alpha_composite(n, (int(pad + x - n.width / 2), int(pad + SH / 2 - n.height / 2)))
+    d = text_layer("–", F_NUM, 44, (200, 225, 210)); card.alpha_composite(d, (int(pad + SW / 2 - d.width / 2), int(pad + SH / 2 - d.height / 2)))
     return card, pad
 
 TITLE = text_layer(M["title"], F_NUM, 64, INK, tracking=-0.03)
@@ -398,8 +403,8 @@ rng = random.Random(3)
 def frame(now):
     f = BG.copy()
     intro = prog("cards", now, 0.7); rev = prog("reveal", now, 0.9)
-    place(f, TAG, CX, 232, alpha=min(1, now / .3)); place(f, TITLE, CX, 268)
-    sb, sp = scoreboard(now); place(f, sb, CX, 352 - sp, alpha=prog("score", now, .5))
+    place(f, TAG, CX, TAG_Y, alpha=min(1, now / .3)); place(f, TITLE, CX, TITLE_Y)
+    sb, sp = scoreboard(now); place(f, sb, CX, SB_Y - sp, alpha=prog("score", now, .5))
     # property cards (slide up; slide away at reveal)
     pos = {}
     for j, side in enumerate("ab"):
@@ -496,6 +501,10 @@ def end_card(dur):
         p, dy = enter(tt, 0.6); place(f, row, CX, 1110 + dy, p)
         return f.convert("RGB")
     return fr
+
+if os.environ.get("STILL"):                      # preview: STILL=<seconds or hN> writes one frame as PNG and exits
+    st_ = os.environ["STILL"]; t_ = events[st_] + 1.0 if st_ in events else float(st_)
+    frame(t_).save(out_mp4[:-4] + ".png"); print("still", t_); sys.exit(0)
 
 # ------------------------------------------------------------------ encode
 silent = os.path.join(work, "silent.mp4")
