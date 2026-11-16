@@ -1,0 +1,132 @@
+{
+ "title": "Spreadsheet vs DealCaddie",
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND",
+ "cover": "Spreadsheet or DealCaddie?",
+ "cover_sub": "SAME LISTING. HOW LONG?",
+ "footnote": "BY HAND: what experienced investors report on BiggerPockets (30–60 min for a thorough analysis) · DEALCADDIE: under a minute per address",
+ "app_screen": "analysis.png",
+ "champion": "b",
+ "end_line": "Every number. In seconds.",
+ "a": {
+  "kind": "sheet",
+  "name": "Spreadsheet",
+  "short": "SPREADSHEET",
+  "spec": "by hand · 5 tabs open",
+  "badge": "BY HAND"
+ },
+ "b": {
+  "kind": "phone",
+  "name": "DealCaddie",
+  "short": "DEALCADDIE",
+  "spec": "paste an address",
+  "badge": "AUTO"
+ },
+ "holes": [
+  {
+   "label": "TIME FOR ONE DEAL",
+   "sub": "a thorough analysis · lower wins",
+   "a": "30–60 min",
+   "b": "< 1 min",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "NUMBERS YOU LOOK UP",
+   "sub": "tax, insurance, rent, comps, HOA · lower wins",
+   "a": "5",
+   "b": "0",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "STRATEGIES CHECKED",
+   "sub": "long-term, mid-term, Airbnb, Section 8, house hack, BRRRR, flip",
+   "a": "1",
+   "b": "7",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "DEALS PER HOUR",
+   "sub": "first-pass screening",
+   "a": "1–2",
+   "b": "30+",
+   "fmt": "text",
+   "winner": "b"
+  }
+ ],
+ "script": [
+  {
+   "voice": "Same rental listing. A *spreadsheet,* or {Deal Caddie?|*DealCaddie?*}",
+   "do": [
+    "cards~Same"
+   ]
+  },
+  {
+   "voice": "Let's put them *head to head.*",
+   "do": [
+    "score~head"
+   ]
+  },
+  {
+   "voice": "Round one, *time.* Investors say a thorough analysis by hand takes {thirty to sixty|30–60} *minutes.* {Deal Caddie|DealCaddie} takes *seconds.*",
+   "do": [
+    "h0~Round",
+    "h0a~30–60",
+    "h0b~seconds",
+    "h0w~seconds"
+   ]
+  },
+  {
+   "voice": "Round two, *lookups.* Taxes, insurance, rent, comps, {H O A.|HOA.} Five tabs open, or *zero.*",
+   "do": [
+    "h1~Round",
+    "h1a~Taxes",
+    "h1b~zero",
+    "h1w~zero"
+   ]
+  },
+  {
+   "voice": "Round three, *strategies.* One spreadsheet, one strategy. {Deal Caddie|DealCaddie} runs *seven.*",
+   "do": [
+    "h2~Round",
+    "h2a~One",
+    "h2b~DealCaddie",
+    "h2w~seven"
+   ]
+  },
+  {
+   "voice": "Round four, deals per *hour.* One or two, versus *thirty* or more.",
+   "do": [
+    "h3~Round",
+    "h3a~One",
+    "h3b~thirty",
+    "h3w~more"
+   ]
+  },
+  {
+   "voice": "Clean *sweep.* Spend your time on the deals that are *worth it.*",
+   "do": [
+    "final~Clean"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*}: paste an address, get every number, in *seconds.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "Spreadsheet or DealCaddie? Same listing, very different time.",
+ "caption": "Spreadsheet or DealCaddie? Same rental listing. ⏱️\n\nYour time is the one thing you can't buy more of. Head to head:\n\n• Time for one deal: 30–60 minutes by hand vs under a minute.\n• Numbers you look up yourself: taxes, insurance, rent, comps, HOA. 5 vs 0.\n• Strategies checked: 1 vs 7.\n• Deals screened in an hour: 1–2 vs 30+.\n\nClean sweep. Spend your time on the deals that are worth it.\n\nTime by hand is what experienced investors report on BiggerPockets for a thorough analysis. Beginners often say 2–4 hours.\n\n💬 How long does your deal analysis take?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateinvesting #spreadsheet #productivity #rentalproperty #dealanalysis"
+}

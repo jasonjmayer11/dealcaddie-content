@@ -119,6 +119,50 @@ def building(kind, w, h, lights=1.0, accent=FOREST):
     g.rounded_rectangle([0, gy, W2 - 1, H2 - 1], radius=26 * S, fill=(150, 200, 160)); g.rectangle([0, gy, W2 - 1, gy + 30 * S], fill=(150, 200, 160))
     g.rectangle([0, gy, W2, gy + 8 * S], fill=(120, 182, 135))
     wall = (246, 240, 226); trim = (60, 72, 64); roof = (54, 66, 60)
+    if kind in ("sheet", "phone"):                                                                   # Spreadsheet vs DealCaddie series
+        ink = (60, 72, 64); desk = (222, 206, 180)
+        g.rounded_rectangle([0, gy, W2 - 1, H2 - 1], radius=26 * S, fill=desk); g.rectangle([0, gy, W2 - 1, gy + 30 * S], fill=desk)
+        g.rectangle([0, gy, W2, gy + 6 * S], fill=(200, 182, 152))
+        if kind == "sheet":                                                                          # laptop with a messy spreadsheet
+            lx0, ly0, lx1, ly1 = W2 * .12, H2 * .12, W2 * .88, H2 * .74
+            g.rounded_rectangle([lx0, ly0, lx1, ly1], radius=10 * S, fill=(40, 46, 44))
+            sx0, sy0, sx1, sy1 = lx0 + 10 * S, ly0 + 10 * S, lx1 - 10 * S, ly1 - 10 * S
+            g.rectangle([sx0, sy0, sx1, sy1], fill=(255, 255, 255))
+            g.rectangle([sx0, sy0, sx1, sy0 + 14 * S], fill=(33, 115, 70))
+            rows, cols = 9, 6; cw_, rh = (sx1 - sx0) / cols, (sy1 - sy0 - 14 * S) / rows
+            for r in range(rows + 1): g.line([(sx0, sy0 + 14 * S + r * rh), (sx1, sy0 + 14 * S + r * rh)], fill=(210, 214, 212), width=S)
+            for c in range(cols + 1): g.line([(sx0 + c * cw_, sy0 + 14 * S), (sx0 + c * cw_, sy1)], fill=(210, 214, 212), width=S)
+            rnd = __import__("random").Random(5)
+            for r in range(rows):
+                for c in range(cols):
+                    if rnd.random() < .55:
+                        x = sx0 + c * cw_ + 4 * S; y = sy0 + 14 * S + r * rh + rh * .35
+                        g.rectangle([x, y, x + cw_ * rnd.uniform(.3, .75), y + rh * .3], fill=(170, 176, 172))
+            ex, ey = sx0 + 3 * cw_, sy0 + 14 * S + 5 * rh                                            # the error cell
+            g.rectangle([ex, ey, ex + cw_, ey + rh], fill=(252, 220, 216), outline=RED, width=2 * S)
+            et = text_layer("#REF!", F_NUM, int(rh * .55), RED); im.alpha_composite(et, (int(ex + (cw_ - et.width) / 2), int(ey + (rh - et.height) / 2)))
+            g.polygon([(W2 * .04, ly1), (W2 * .96, ly1), (W2 * .9, ly1 + 14 * S), (W2 * .1, ly1 + 14 * S)], fill=(90, 98, 94))
+            for k, (cx_, cy_) in enumerate([(.86, .16)]):                                            # sticky note
+                g.rectangle([W2 * cx_ - 22 * S, H2 * cy_, W2 * cx_ + 22 * S, H2 * cy_ + 40 * S], fill=(255, 226, 120))
+        else:                                                                                        # phone running DealCaddie
+            px0, py0, px1, py1 = W2 * .34, H2 * .06, W2 * .66, H2 * .94
+            g.rounded_rectangle([px0, py0, px1, py1], radius=22 * S, fill=(20, 26, 22))
+            sx0, sy0, sx1, sy1 = px0 + 6 * S, py0 + 6 * S, px1 - 6 * S, py1 - 6 * S
+            g.rounded_rectangle([sx0, sy0, sx1, sy1], radius=17 * S, fill=(250, 247, 240))
+            g.rounded_rectangle([sx0, sy0, sx1, sy0 + (sy1 - sy0) * .38], radius=17 * S, fill=(26, 92, 53))
+            cx_, cy_, r_ = (sx0 + sx1) / 2, sy0 + (sy1 - sy0) * .2, 24 * S
+            g.ellipse([cx_ - r_, cy_ - r_, cx_ + r_, cy_ + r_], fill=(0, 0, 0, 0), outline=GOLD, width=4 * S)
+            sc = text_layer("7.5", F_NUM, 17 * S, WHITE); im.alpha_composite(sc, (int(cx_ - sc.width / 2), int(cy_ - sc.height / 2)))
+            for k in range(5):
+                y = sy0 + (sy1 - sy0) * (.46 + k * .1)
+                g.rounded_rectangle([sx0 + 8 * S, y, sx1 - 8 * S, y + 14 * S], radius=5 * S, fill=WHITE, outline=(226, 222, 210), width=S)
+                g.rectangle([sx0 + 12 * S, y + 4 * S, sx0 + 40 * S, y + 9 * S], fill=(190, 196, 192))
+                g.rectangle([sx1 - 30 * S, y + 4 * S, sx1 - 12 * S, y + 9 * S], fill=TURF)
+            for (bx, by) in ((.18, .3), (.82, .55), (.2, .78)):                                       # little sparkles
+                x, y = W2 * bx, H2 * by
+                g.polygon([(x, y - 9 * S), (x + 3 * S, y - 3 * S), (x + 9 * S, y), (x + 3 * S, y + 3 * S), (x, y + 9 * S), (x - 3 * S, y + 3 * S), (x - 9 * S, y), (x - 3 * S, y - 3 * S)], fill=GOLD)
+        return im.resize((w, h), Image.LANCZOS), [w * .5], h * .9
+
     def gable(x0, x1, by0, peak):
         g.polygon([(x0 - 14 * S, by0 + 4 * S), ((x0 + x1) / 2, peak), (x1 + 14 * S, by0 + 4 * S)], fill=roof)
         g.rectangle([x0, by0, x1, gy], fill=wall, outline=trim, width=3 * S)
