@@ -367,8 +367,7 @@ BADGES = os.path.join(ROOT, "assets", "badges")
 def end_card(dur):
     logo = logo_layer(640)
     line = text_layer(M.get("end_line", "Every number. In seconds."), F_HEAD, 60, INK, tracking=-0.01)
-    trial = pill(M.get("trial", "14-DAY FREE TRIAL"), fill=GOLD, color=INK, size=34, track=0.08)
-    label = text_layer("Try it free  ·  dealcaddie.ai", F_SEMI, 46, WHITE)
+    label = text_layer(M.get("cta", "14 days free  ·  dealcaddie.ai"), F_SEMI, 46, WHITE)
     bw, bh = label.width + 120, 116
     btn = Image.new("RGBA", (bw + 80, bh + 80), (0, 0, 0, 0)); sh = Image.new("RGBA", btn.size, (0, 0, 0, 0))
     ImageDraw.Draw(sh).rounded_rectangle([40, 56, 40 + bw, 56 + bh], radius=bh // 2, fill=(3, 62, 36, 90))
@@ -383,9 +382,8 @@ def end_card(dur):
         f = BG.copy()
         p, dy = enter(tt, 0.0, dur=0.7, rise=24); place(f, logo, CX, 560 + dy, p, 0.97 + 0.03 * p)
         p, dy = enter(tt, 0.2); place(f, line, CX, 790 + dy, p)
-        p, dy = enter(tt, 0.35); place(f, trial, CX, 890 + dy, p, 0.9 + 0.1 * p)
-        p, dy = enter(tt, 0.5); place(f, btn, CX, 970 + dy, p)
-        p, dy = enter(tt, 0.7); place(f, row, CX, 1210 + dy, p)
+        p, dy = enter(tt, 0.4); place(f, btn, CX, 880 + dy, p)
+        p, dy = enter(tt, 0.6); place(f, row, CX, 1110 + dy, p)
         return f.convert("RGB")
     return fr
 
