@@ -1,0 +1,33 @@
+{
+  "title": "House vs Duplex",
+  "cover": "House or duplex? Same budget.",
+  "cover_sub": "WHICH ONE CASH FLOWS?",
+  "footnote": "EXAMPLE NUMBERS · 25% down · 7% 30-yr · 23% of rent for vacancy, repairs, CapEx, mgmt",
+  "app_screen": "compare.png",
+  "champion": "b",
+  "a": {"kind": "house", "name": "The House", "short": "HOUSE", "spec": "3 bd · 2 ba · $300K"},
+  "b": {"kind": "duplex", "name": "The Duplex", "short": "DUPLEX", "spec": "2 × 2 bd units · $325K"},
+  "holes": [
+    {"label": "PRICE", "sub": "lower wins", "a": 300000, "b": 325000, "fmt": "money", "winner": "a"},
+    {"label": "RENT", "sub": "per month", "a": 2100, "b": 2750, "fmt": "money", "unit": "/mo", "winner": "b", "coins": true},
+    {"label": "MONTHLY COSTS", "sub": "mortgage, tax, insurance, upkeep · lower wins", "a": 2375, "b": 2712, "fmt": "money", "unit": "/mo", "winner": "a"},
+    {"label": "CASH FLOW", "sub": "rent minus every cost", "a": -275, "b": 38, "fmt": "money_s", "unit": "/mo", "winner": "b", "signed": true},
+    {"label": "TIEBREAKER  ·  CASH-ON-CASH", "tiebreak": true, "sub": "yearly cash flow ÷ cash you put in", "a": -3.9, "b": 0.5, "fmt": "pct_s", "unit": "per year", "winner": "b", "signed": true}
+  ],
+  "bonus": {"label": "BONUS: LIVE IN UNIT A", "covered": 1350, "covered_label": "Unit B rent", "total": 1622, "total_label": "Mortgage payment",
+            "result": "Your tenant pays 83% of it"},
+  "end_line": "Compare any two deals in seconds.",
+  "script": [
+    {"text": "Same budget. A *house,* or a *duplex?*", "voice": "Same budget. A house, or a duplex?", "do": ["cards@0.1"]},
+    {"text": "Let's play it *hole by hole.*", "voice": "Let's play it, hole by hole.", "do": ["score@0.2"]},
+    {"text": "Hole one, *price.* The house is cheaper.", "voice": "Hole one, price. Three hundred thousand, versus three twenty five. The house is cheaper.", "do": ["h0@0", "h0a@0.25", "h0b@0.5", "h0w@0.85"]},
+    {"text": "Hole two, *rent.* Two units beat one.", "voice": "Hole two, rent. Twenty one hundred a month, versus twenty seven fifty. Two units beat one.", "do": ["h1@0", "h1a@0.2", "h1b@0.45", "h1w@0.82"]},
+    {"text": "Hole three, *monthly costs.* House again.", "voice": "Hole three, monthly costs. Mortgage, taxes, insurance and upkeep. The house costs less to run.", "do": ["h2@0", "h2a@0.4", "h2b@0.55", "h2w@0.85"]},
+    {"text": "Hole four, *cash flow.* The house loses *$275* a month.", "voice": "Hole four, cash flow. The house loses two seventy five a month. The duplex stays positive.", "do": ["h3@0", "h3a@0.35", "h3b@0.72", "h3w@0.9"]},
+    {"text": "Two all. *Tiebreaker.*", "voice": "Two all. Tiebreaker.", "pause": 0.1},
+    {"text": "*Cash-on-cash* return. Duplex takes it, *3 and 2.*", "voice": "Cash on cash return. The duplex takes it, three and two.", "do": ["h4@0", "h4a@0.2", "h4b@0.4", "h4w@0.6", "final@0.85"]},
+    {"text": "And if you *live in one unit,*", "voice": "And if you live in one unit,", "do": ["bonus@0"], "pause": 0.05},
+    {"text": "the other rent covers *most of your mortgage.*", "voice": "the other unit's rent covers most of your mortgage.", "do": ["bonus_fill@0"], "pause": 0.6},
+    {"text": "*DealCaddie* runs both, side by side, *in seconds.*", "voice": "Deal Caddie runs both, side by side, in seconds.", "do": ["reveal@0"], "pause": 0.6}
+  ]
+}

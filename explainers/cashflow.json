@@ -1,0 +1,251 @@
+{
+ "cover": "Why your *profitable* rental loses money",
+ "cover_sub": "The 6 costs new investors forget",
+ "title": "Why your 'profitable' rental loses money",
+ "app_screen": "analysis.png",
+ "diagram": {
+  "rent": 2000,
+  "costs": [
+   {
+    "id": "mortgage",
+    "label": "Mortgage",
+    "short": "Mortgage",
+    "amount": 1300,
+    "note": "principal + interest"
+   },
+   {
+    "id": "tax",
+    "label": "Property tax",
+    "short": "Tax",
+    "amount": 250
+   },
+   {
+    "id": "ins",
+    "label": "Insurance",
+    "short": "Ins.",
+    "amount": 125
+   },
+   {
+    "id": "vac",
+    "label": "Vacancy",
+    "short": "Vacancy",
+    "amount": 100,
+    "note": "about 5% of rent"
+   },
+   {
+    "id": "rep",
+    "label": "Repairs",
+    "short": "Repairs",
+    "amount": 100,
+    "note": "about 5% of rent"
+   },
+   {
+    "id": "capex",
+    "label": "CapEx",
+    "short": "CapEx",
+    "amount": 150,
+    "note": "roof, HVAC, water heater"
+   },
+   {
+    "id": "mgmt",
+    "label": "Management",
+    "short": "Mgmt",
+    "amount": 160,
+    "note": "about 8% of rent"
+   }
+  ]
+ },
+ "scenes": [
+  {
+   "panel": "cashflow",
+   "label": "THE MATH MOST PEOPLE DO",
+   "cam": [
+    [
+     0,
+     0.32,
+     0.5,
+     1.25
+    ],
+    [
+     1,
+     0.5,
+     0.5,
+     1.0
+    ]
+   ],
+   "phrases": [
+    {
+     "text": "Rent is *$2,000.* The mortgage is *$1,300.*",
+     "voice": "Rent is two thousand dollars a month. The mortgage is thirteen hundred.",
+     "do": [
+      "rent",
+      "mortgage"
+     ]
+    },
+    {
+     "text": "So you make *$700* a month. Right?",
+     "voice": "So you make seven hundred a month. Right?",
+     "do": []
+    }
+   ]
+  },
+  {
+   "panel": "cashflow",
+   "label": "WHERE THE MONEY GOES",
+   "cam": [
+    [
+     0,
+     0.72,
+     0.36,
+     1.3
+    ],
+    [
+     0.55,
+     0.72,
+     0.64,
+     1.3
+    ],
+    [
+     0.85,
+     0.5,
+     0.5,
+     1.0
+    ],
+    [
+     1,
+     0.5,
+     0.5,
+     1.0
+    ]
+   ],
+   "phrases": [
+    {
+     "text": "Then come *taxes* and *insurance.*",
+     "voice": "Then come property taxes, and insurance.",
+     "do": [
+      "tax",
+      "ins"
+     ]
+    },
+    {
+     "text": "Months it sits *empty.* Things that *break.*",
+     "voice": "The months it sits empty. The things that break.",
+     "do": [
+      "vac",
+      "rep"
+     ]
+    },
+    {
+     "text": "Saving for the *roof* and the *furnace.*",
+     "voice": "Saving for the next roof and furnace.",
+     "do": [
+      "capex"
+     ]
+    },
+    {
+     "text": "And a *property manager.*",
+     "voice": "And a property manager, even if that's you.",
+     "do": [
+      "mgmt"
+     ]
+    },
+    {
+     "text": "Your $700 is now *\u2212$185.*",
+     "voice": "Your seven hundred dollars is now negative one eighty five.",
+     "do": []
+    }
+   ]
+  },
+  {
+   "panel": "bars",
+   "label": "THE MATH THAT'S REAL",
+   "cam": [
+    [
+     0,
+     0.5,
+     0.5,
+     1.0
+    ],
+    [
+     0.7,
+     0.62,
+     0.42,
+     1.2
+    ],
+    [
+     1,
+     0.62,
+     0.42,
+     1.2
+    ]
+   ],
+   "phrases": [
+    {
+     "text": "*$2,000* in. *$2,185* out.",
+     "voice": "Two thousand in. Twenty one eighty five out.",
+     "do": [
+      "bars"
+     ]
+    },
+    {
+     "text": "Every month, you *pay to own it.*",
+     "voice": "Every month, you pay to own it.",
+     "do": [
+      "gap"
+     ]
+    }
+   ]
+  },
+  {
+   "stat": "7.6%",
+   "label": "WHY IT MATTERS",
+   "source": "U.S. rental vacancy rate, Q3 2026 \u00b7 U.S. Census Bureau",
+   "phrases": [
+    {
+     "text": "About *7.6%* of U.S. rentals sat *empty* last quarter.",
+     "voice": "About seven point six percent of U.S. rentals sat empty last quarter.",
+     "do": []
+    },
+    {
+     "text": "Vacancy isn't a maybe. *Budget for it.*",
+     "voice": "Vacancy isn't a maybe. Budget for it.",
+     "do": []
+    }
+   ],
+   "grid": 8,
+   "grid_label": "Roughly 8 empty units for every 100"
+  },
+  {
+   "panel": "reveal",
+   "label": "THE SHORTCUT",
+   "cam": [
+    [
+     0,
+     0.5,
+     0.5,
+     1.0
+    ],
+    [
+     1,
+     0.5,
+     0.45,
+     1.08
+    ]
+   ],
+   "phrases": [
+    {
+     "text": "*DealCaddie* counts every one of these for you.",
+     "voice": "Deal Caddie counts every one of these for you.",
+     "do": [
+      "reveal"
+     ]
+    },
+    {
+     "text": "Paste an address. See the *real* cash flow.",
+     "voice": "Paste an address, and see the real cash flow in seconds.",
+     "do": []
+    }
+   ]
+  }
+ ]
+}
