@@ -229,7 +229,7 @@ def screen_with_insets(fr):
                         fill=(20, 20, 20) if lum > 128 else (235, 235, 235))
     return inner
 base = BG.copy().convert("RGBA")
-place(base, LOGO, W // 2, 62)
+# no top logo: Instagram/TikTok overlay the account name + audio label there (it collided). Brand lives on the cover + end card.
 def ease_out(k): k = min(1.0, max(0.0, k)); return 1 - (1 - k) ** 3
 def phone_dy(t):                         # opening move: the phone rises into place over the first second
     return int(760 * (1 - ease_out(t / 0.95)))
