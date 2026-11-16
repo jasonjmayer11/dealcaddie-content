@@ -420,4 +420,7 @@ subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", silent, "-i", vw, "-
                 "[1:a]aresample=48000,highpass=f=70,acompressor=threshold=-18dB:ratio=3:attack=5:release=80[v];"
                 "[v][m]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-15:TP=-1.5[a]",
                 "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-shortest", out_mp4], check=True)
+d_ = os.path.dirname(out_mp4)
+if M.get("caption"): open(os.path.join(d_, "caption.txt"), "w").write(M["caption"])
+open(os.path.join(d_, "title.txt"), "w").write(M.get("post_title") or M["title"])
 print(f"wrote {out_mp4} ({TOTAL:.1f}s, music {track})")
