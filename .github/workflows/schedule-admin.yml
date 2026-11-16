@@ -1,0 +1,28 @@
+name: Scheduled posts (list / cancel)
+
+# Run by Claude to swap a scheduled post for a better one Jason approved in chat.
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "list or cancel"
+        required: true
+        default: list
+      job_id:
+        description: "Upload-Post job_id to cancel"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          UPLOAD_POST_API_KEY: ${{ secrets.UPLOAD_POST_API_KEY }}
+        run: |
+          pip install --quiet requests
+          python3 scripts/schedule_admin.py "${{ github.event.inputs.action }}" "${{ github.event.inputs.job_id }}"
