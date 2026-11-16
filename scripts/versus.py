@@ -229,6 +229,9 @@ A, B = M["a"], M["b"]
 L2 = os.environ.get("LAYOUT", "1") == "2"      # v2 (Nov 16, proposed): roomier header, full-width scoreboard. Default flips to 2 once approved
 CARD_W, CARD_H, CARD_Y = (470, 450, 478) if L2 else (470, 470, 470)
 TAG_Y, TITLE_Y, SB_Y = (186, 220, 322) if L2 else (232, 268, 352)
+SB_STYLE = os.environ.get("SB_STYLE", "bar")       # bar | cards (score badge on each card) | rounds (bar + a dot per round)
+if SB_STYLE == "cards":
+    TAG_Y, TITLE_Y, CARD_Y, CARD_H = 196, 232, 352, 470
 CARD_X = [60, W - 60 - CARD_W]
 ILL_W, ILL_H = CARD_W - 40, 290
 holes = M["holes"]
@@ -267,10 +270,20 @@ def property_card(side, now):
     sp = text_layer(P["spec"], F_MED, 28, MUTED); card.alpha_composite(sp, (pad + 28, pad + 392))
     if champ:
         b = pill("WINNER", fill=GOLD, color=INK, size=24); card.alpha_composite(b, (pad + CARD_W - b.width - 24, pad + 336))
+    if SB_STYLE == "cards" and since("score", now) is not None:  # rounds-won badge, top-right of each card
+        sc_ = score(now)[side]; D = 104
+        last = max([events.get(f"h{i}w", -9) for i, h in enumerate(holes) if h["winner"] == side] + [-9])
+        pop = 1 + 0.3 * max(0, 1 - (now - last) / 0.45) if now >= last else 1
+        bd = Image.new("RGBA", (D, D), (0, 0, 0, 0)); gb = ImageDraw.Draw(bd)
+        gb.ellipse([0, 0, D - 1, D - 1], fill=FOREST, outline=GOLD if champ else WHITE, width=5)
+        n_ = text_layer(str(sc_), F_NUM, 50, GOLD); bd.alpha_composite(n_, ((D - n_.width) // 2, 14))
+        w_ = text_layer("WON", F_SEMI, 16, (200, 225, 210), tracking=0.12); bd.alpha_composite(w_, ((D - w_.width) // 2, D - 32))
+        if pop > 1: bd = bd.resize((int(D * pop), int(D * pop)), Image.LANCZOS)
+        card.alpha_composite(bd, (pad + CARD_W - 22 - bd.width + (bd.width - D) // 2, pad + 22 - (bd.width - D) // 2))
     return card, pad, doors, gy
 
 # ------------------------------------------------------------------ hole panel (bottom card)
-HP_Y, HP_H = 990, 380
+HP_Y, HP_H = (900 if SB_STYLE == "cards" else 990), 380
 def hole_panel(i, now, slide):
     h = holes[i]; card, pad = shadowed_card(W - 120, HP_H)
     g = ImageDraw.Draw(card)
@@ -380,11 +393,23 @@ def scoreboard(now):
     ly = (SH - _SB_LA.height) // 2
     card.alpha_composite(_SB_LA, (pad + 48, pad + ly)); card.alpha_composite(_SB_LB, (pad + SW - 48 - _SB_LB.width, pad + ly))
     gap = 78 if L2 else 60; fs = 66 if L2 else 54
+    if SB_STYLE == "rounds": gap = SW / 2 - _SB_LA.width - 48 - 70
     for side, x in (("a", SW / 2 - gap), ("b", SW / 2 + gap)):
         last = max([events.get(f"h{i}w", -9) for i, h in enumerate(holes) if h["winner"] == side] + [-9])
         pop = 1 + 0.35 * max(0, 1 - (now - last) / 0.4) if now >= last else 1
         n = text_layer(str(s[side]), F_NUM, int(fs * pop), GOLD); card.alpha_composite(n, (int(pad + x - n.width / 2), int(pad + SH / 2 - n.height / 2)))
-    d = text_layer("–", F_NUM, 44, (200, 225, 210)); card.alpha_composite(d, (int(pad + SW / 2 - d.width / 2), int(pad + SH / 2 - d.height / 2)))
+    if SB_STYLE == "rounds":                          # one dot per round, filled in the winner's colour as it's decided
+        n_r = len(holes); R = 15; stepx = 50; x0 = pad + SW / 2 - stepx * (n_r - 1) / 2
+        gd = ImageDraw.Draw(card)
+        for i, h in enumerate(holes):
+            cxr = x0 + i * stepx; cyr = pad + SH / 2
+            if since(f"h{i}w", now) is not None:
+                col = TURF if h["winner"] == "b" else ((150, 162, 156) if h["winner"] == "a" else GOLD)
+                gd.ellipse([cxr - R, cyr - R, cxr + R, cyr + R], fill=col)
+            else:
+                gd.ellipse([cxr - R, cyr - R, cxr + R, cyr + R], outline=(110, 150, 125), width=3)
+    else:
+        d = text_layer("–", F_NUM, 44, (200, 225, 210)); card.alpha_composite(d, (int(pad + SW / 2 - d.width / 2), int(pad + SH / 2 - d.height / 2)))
     return card, pad
 
 TITLE = text_layer(M["title"], F_NUM, 64, INK, tracking=-0.03)
@@ -404,7 +429,8 @@ def frame(now):
     f = BG.copy()
     intro = prog("cards", now, 0.7); rev = prog("reveal", now, 0.9)
     place(f, TAG, CX, TAG_Y, alpha=min(1, now / .3)); place(f, TITLE, CX, TITLE_Y)
-    sb, sp = scoreboard(now); place(f, sb, CX, SB_Y - sp, alpha=prog("score", now, .5))
+    if SB_STYLE != "cards":
+        sb, sp = scoreboard(now); place(f, sb, CX, SB_Y - sp, alpha=prog("score", now, .5))
     # property cards (slide up; slide away at reveal)
     pos = {}
     for j, side in enumerate("ab"):
@@ -457,7 +483,7 @@ def frame(now):
         if pt0 - 0.1 <= now < pt0 + pd + GAP + ph.get("pause", 0.25) + ph.get("_hold", 0): cur_ph = units
     if cur_ph:
         cl = caption(cur_ph, now)
-        cy = 1452 if rev < .5 else 1460
+        cy = HP_Y + HP_H + 82 if rev < .5 else 1460
         f.alpha_composite(cl, (0, cy))
     place(f, FOOT, CX, 1690, alpha=0.9 * (1 - rev))
     return f.convert("RGB")
