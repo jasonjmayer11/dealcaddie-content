@@ -1,0 +1,132 @@
+{
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND",
+ "champion": "b",
+ "a": {
+  "kind": "sheet",
+  "name": "Spreadsheet",
+  "short": "SPREADSHEET",
+  "spec": "by hand",
+  "badge": "BY HAND"
+ },
+ "b": {
+  "kind": "phone",
+  "name": "DealCaddie",
+  "short": "DEALCADDIE",
+  "spec": "paste an address",
+  "badge": "AUTO"
+ },
+ "title": "Spreadsheet vs DealCaddie",
+ "cover": "You love the house. What do you offer?",
+ "cover_sub": "BY HAND OR DEALCADDIE",
+ "footnote": "DEALCADDIE OFFER PLAN: opening, target and walk-away prices, seller credit, and a PDF you can hand your agent",
+ "app_screen": "offerplan.png",
+ "end_line": "Walk in knowing your numbers.",
+ "holes": [
+  {
+   "label": "PRICES MODELED",
+   "sub": "opening, target, walk-away",
+   "a": "1 at a time",
+   "b": "3 at once",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "SELLER CREDIT",
+   "sub": "the math",
+   "a": "by hand",
+   "b": "built in",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "WALK-AWAY PRICE",
+   "sub": "where you stop",
+   "a": "gut feel",
+   "b": "calculated",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "THE HAND-OFF",
+   "sub": "to your agent",
+   "a": "screenshot",
+   "b": "PDF",
+   "fmt": "text",
+   "winner": "b"
+  }
+ ],
+ "script": [
+  {
+   "voice": "You love the house. Now, what do you *offer?*",
+   "do": [
+    "cards~You"
+   ]
+  },
+  {
+   "voice": "Spreadsheet versus {Deal Caddie.|*DealCaddie.*}",
+   "do": [
+    "score~versus"
+   ]
+  },
+  {
+   "voice": "Round one, *prices.* Model one at a time, or opening, target, and walk-away, all *at once.*",
+   "do": [
+    "h0~Round",
+    "h0a~one",
+    "h0b~opening",
+    "h0w~once"
+   ]
+  },
+  {
+   "voice": "Round two, *seller credit.* Do the math by hand, or it's *built in.*",
+   "do": [
+    "h1~Round",
+    "h1a~Do",
+    "h1b~built",
+    "h1w~in."
+   ]
+  },
+  {
+   "voice": "Round three, *walk-away price.* Gut feel, or *calculated.*",
+   "do": [
+    "h2~Round",
+    "h2a~Gut",
+    "h2b~calculated",
+    "h2w~calculated"
+   ]
+  },
+  {
+   "voice": "Round four, *the hand-off.* A screenshot, or a clean {P D F.|*PDF.*}",
+   "do": [
+    "h3~Round",
+    "h3a~screenshot",
+    "h3b~PDF",
+    "h3w~PDF"
+   ]
+  },
+  {
+   "voice": "Clean *sweep.* Walk in knowing your *numbers.*",
+   "do": [
+    "final~Clean"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie's|*DealCaddie's*} Offer Plan builds all three prices, in *seconds.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "You love the house. What do you offer? By hand vs DealCaddie.",
+ "caption": "You love the house. What do you offer? 🤝\n\nWalk in knowing your numbers. Head to head:\n\n• Prices modeled: one at a time, or opening, target and walk-away at once.\n• Seller credit: math by hand, or built in.\n• Walk-away price: gut feel, or calculated.\n• The hand-off: a screenshot, or a clean PDF for your agent.\n\nClean sweep.\n\n💬 Do you set a walk-away price before you offer?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateinvesting #makeanoffer #negotiation #firsttimehomebuyer #rentalproperty"
+}

@@ -1,0 +1,115 @@
+{
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND",
+ "champion": "b",
+ "a": {
+  "kind": "sheet",
+  "name": "Spreadsheet",
+  "short": "SPREADSHEET",
+  "spec": "by hand",
+  "badge": "BY HAND"
+ },
+ "b": {
+  "kind": "phone",
+  "name": "DealCaddie",
+  "short": "DEALCADDIE",
+  "spec": "paste an address",
+  "badge": "AUTO"
+ },
+ "title": "Spreadsheet vs DealCaddie",
+ "cover": "Look at 100 listings to find 1 deal?",
+ "cover_sub": "BY HAND OR DEALCADDIE",
+ "footnote": "BY HAND: BiggerPockets investors report 10–15 min for a quick first pass, and ~100 properties looked at per deal bought · DEALCADDIE: under a minute per address",
+ "app_screen": "deals.png",
+ "end_line": "Let the deals come to you.",
+ "holes": [
+  {
+   "label": "TIME TO SCREEN 100",
+   "sub": "quick first pass · lower wins",
+   "a": "25 hrs",
+   "b": "< 2 hrs",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "WEEKENDS SPENT",
+   "sub": "at about 8 hours each · lower wins",
+   "a": "3",
+   "b": "0",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "NEW LISTINGS",
+   "sub": "who watches for matches",
+   "a": "You",
+   "b": "Auto",
+   "fmt": "text",
+   "winner": "b"
+  }
+ ],
+ "script": [
+  {
+   "voice": "One good deal. Investors say you look at about a *hundred* listings to find it.",
+   "do": [
+    "cards~One"
+   ]
+  },
+  {
+   "voice": "By hand, or with {Deal Caddie?|*DealCaddie?*}",
+   "do": [
+    "score~By"
+   ]
+  },
+  {
+   "voice": "Round one, *time.* By hand, a hundred quick screens is about {twenty five hours.|25 hours.} With {Deal Caddie,|DealCaddie,} under *two.*",
+   "do": [
+    "h0~Round",
+    "h0a~25",
+    "h0b~under",
+    "h0w~two"
+   ]
+  },
+  {
+   "voice": "Round two, *weekends.* That's three of them, gone. Or *none.*",
+   "do": [
+    "h1~Round",
+    "h1a~That's",
+    "h1b~none",
+    "h1w~none"
+   ]
+  },
+  {
+   "voice": "Round three, *new listings.* By hand, you check every day. The Buy Box checks *for you.*",
+   "do": [
+    "h2~Round",
+    "h2a~By",
+    "h2b~Buy",
+    "h2w~for"
+   ]
+  },
+  {
+   "voice": "Clean *sweep.* Spend your weekends on the *good* ones.",
+   "do": [
+    "final~Clean"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} screens new listings against your numbers, *automatically.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "Look at 100 listings to find 1 deal? Not by hand.",
+ "caption": "Investors say you look at ~100 listings to find 1 good deal. ⏱️\n\nThat's a lot of weekends. Head to head:\n\n• Time to screen 100: ~25 hours by hand vs under 2.\n• Weekends spent: 3 vs 0.\n• New listings: you check every day, or the Buy Box checks for you.\n\nClean sweep. Spend your weekends on the good ones.\n\nBy-hand times are what investors report on BiggerPockets (10–15 minutes for a quick first pass).\n\n💬 How many listings do you look at before you make an offer?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateinvesting #dealflow #productivity #rentalproperty #timefreedom"
+}

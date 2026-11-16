@@ -1,0 +1,132 @@
+{
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND",
+ "champion": "b",
+ "a": {
+  "kind": "sheet",
+  "name": "Sheet + Email",
+  "short": "SPREADSHEET",
+  "spec": "build, export, attach",
+  "badge": "BY HAND"
+ },
+ "b": {
+  "kind": "phone",
+  "name": "DealCaddie",
+  "short": "DEALCADDIE",
+  "spec": "Agent plan",
+  "badge": "AGENT"
+ },
+ "title": "Spreadsheet vs DealCaddie",
+ "cover": "Agents: your investor client wants numbers.",
+ "cover_sub": "BY HAND OR DEALCADDIE",
+ "footnote": "STEPS BY HAND: our breakdown of a typical manual client packet · DEALCADDIE Agent plan: branded packets, share pages and a client portal",
+ "app_screen": "portal.png",
+ "end_line": "Be the agent investors keep.",
+ "holes": [
+  {
+   "label": "STEPS",
+   "sub": "build, export, brand, attach, send · lower wins",
+   "a": "5",
+   "b": "1",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "YOUR BRAND",
+   "sub": "on every page",
+   "a": "by hand",
+   "b": "built in",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "CLIENT PICKS",
+   "sub": "rank the shortlist",
+   "a": "no",
+   "b": "yes",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "QUESTIONS",
+   "sub": "where they land",
+   "a": "email chain",
+   "b": "per property",
+   "fmt": "text",
+   "winner": "b"
+  }
+ ],
+ "script": [
+  {
+   "voice": "Agents. Your investor client wants *numbers* on three listings.",
+   "do": [
+    "cards~Agents"
+   ]
+  },
+  {
+   "voice": "Spreadsheet and email, versus {Deal Caddie.|*DealCaddie.*}",
+   "do": [
+    "score~versus"
+   ]
+  },
+  {
+   "voice": "Round one, *steps.* Build, export, brand, attach, send. *Five,* or *one.*",
+   "do": [
+    "h0~Round",
+    "h0a~Five",
+    "h0b~one",
+    "h0w~one"
+   ]
+  },
+  {
+   "voice": "Round two, *your brand.* Pasted in by hand, or your headshot on every *page.*",
+   "do": [
+    "h1~Round",
+    "h1a~Pasted",
+    "h1b~headshot",
+    "h1w~page"
+   ]
+  },
+  {
+   "voice": "Round three, *client picks.* With {Deal Caddie,|DealCaddie,} clients rank their *shortlist.*",
+   "do": [
+    "h2~Round",
+    "h2a~With",
+    "h2b~rank",
+    "h2w~shortlist"
+   ]
+  },
+  {
+   "voice": "Round four, *questions.* A long email chain, or a message on each *property.*",
+   "do": [
+    "h3~Round",
+    "h3a~long",
+    "h3b~message",
+    "h3w~property"
+   ]
+  },
+  {
+   "voice": "Clean *sweep.* Be the agent investors can't work *without.*",
+   "do": [
+    "final~Clean"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} for agents. Branded packets and a client portal, in *seconds.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "Agents: your investor client wants numbers. By hand vs DealCaddie.",
+ "caption": "Agents: your investor client wants numbers on 3 listings. 📊\n\nBe the agent investors can't work without. Head to head:\n\n• Steps: build, export, brand, attach, send (5) vs 1.\n• Your brand: pasted in by hand, or your headshot on every page.\n• Client picks: clients rank their shortlist.\n• Questions: a long email chain, or a message on each property.\n\nClean sweep. Get your evenings back.\n\n💬 Agents: how do you send numbers to investor clients today?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateagent #realtor #investorfriendly #realestateinvesting #productivity"
+}

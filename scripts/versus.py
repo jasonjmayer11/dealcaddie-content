@@ -286,8 +286,10 @@ def hole_panel(i, now, slide):
         neg = (not txt) and h[side] < 0
         col = (RED if neg else INK) if h.get("signed") else INK
         if lost: col = tuple(int(c * .45 + 200 * .55) for c in col)
-        tl = text_layer(fmt(v, h["fmt"]), F_NUM, 84, col, tracking=-0.03)
-        card.alpha_composite(tl, (int(pad + mx[j] - tl.width / 2), pad + 140))
+        fs_ = 84; tl = text_layer(fmt(v, h["fmt"]), F_NUM, fs_, col, tracking=-0.03)
+        while txt and tl.width > 360 and fs_ > 40:
+            fs_ -= 6; tl = text_layer(fmt(v, h["fmt"]), F_NUM, fs_, col, tracking=-0.03)
+        card.alpha_composite(tl, (int(pad + mx[j] - tl.width / 2), pad + 140 + max(0, (100 - tl.height) // 2)))
         if h.get("unit"):
             u = text_layer(h["unit"], F_MED, 26, MUTED); card.alpha_composite(u, (int(pad + mx[j] - u.width / 2), pad + 236))
         # bar
@@ -503,7 +505,7 @@ vw = os.path.join(work, "voice.wav")
 with wave.open(vw, "wb") as w_:
     w_.setnchannels(1); w_.setsampwidth(2); w_.setframerate(SR); w_.writeframes((voice * 32767).astype(np.int16).tobytes())
 tracks = sorted(x[:-4] for x in os.listdir(os.path.join(ROOT, "music")) if x.endswith(".m4a"))
-track = os.environ.get("MUSIC_TRACK") or tracks[zlib.crc32(M["title"].encode()) % len(tracks)]
+track = os.environ.get("MUSIC_TRACK") or tracks[zlib.crc32(M["cover"].encode()) % len(tracks)]
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", silent, "-i", vw, "-stream_loop", "-1", "-i", os.path.join(ROOT, "music", track + ".m4a"),
                 "-filter_complex", f"[2:a]volume=0.11,afade=t=out:st={TOTAL - 1.5:.2f}:d=1.5,atrim=0:{TOTAL:.2f}[m];"
                 "[1:a]aresample=48000,highpass=f=70,acompressor=threshold=-18dB:ratio=3:attack=5:release=80[v];"

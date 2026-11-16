@@ -1,0 +1,132 @@
+{
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND",
+ "champion": "b",
+ "a": {
+  "kind": "sheet",
+  "name": "Spreadsheet",
+  "short": "SPREADSHEET",
+  "spec": "Zillow tabs + calculator",
+  "badge": "BY HAND"
+ },
+ "b": {
+  "kind": "phone",
+  "name": "DealCaddie",
+  "short": "DEALCADDIE",
+  "spec": "paste an address",
+  "badge": "AUTO"
+ },
+ "title": "Spreadsheet vs DealCaddie",
+ "cover": "Is it overpriced? Pull the comps.",
+ "cover_sub": "BY HAND OR DEALCADDIE",
+ "footnote": "STEPS BY HAND: our breakdown of a typical manual comp pull · DEALCADDIE: sold comps, $/sqft and a suggested offer range on every analysis",
+ "app_screen": "comps.png",
+ "end_line": "Let the comps set your offer.",
+ "holes": [
+  {
+   "label": "STEPS",
+   "sub": "search, filter, copy, divide, average, compare, decide",
+   "a": "7",
+   "b": "1",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "SOLD COMPS",
+   "sub": "recent nearby sales",
+   "a": "hunt",
+   "b": "pulled",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "PRICE PER SQ FT",
+   "sub": "the math",
+   "a": "calculator",
+   "b": "done",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "YOUR OFFER",
+   "sub": "what to open at",
+   "a": "a guess",
+   "b": "a range",
+   "fmt": "text",
+   "winner": "b"
+  }
+ ],
+ "script": [
+  {
+   "voice": "Is it *overpriced?* Pull the comps by hand, or with {Deal Caddie?|*DealCaddie?*}",
+   "do": [
+    "cards~Is"
+   ]
+  },
+  {
+   "voice": "Let's put them *head to head.*",
+   "do": [
+    "score~head"
+   ]
+  },
+  {
+   "voice": "Round one, *steps.* Search, filter, copy, divide, average, compare, decide. *Seven* steps, or *one.*",
+   "do": [
+    "h0~Round",
+    "h0a~Seven",
+    "h0b~one",
+    "h0w~one"
+   ]
+  },
+  {
+   "voice": "Round two, *sold comps.* You hunt for them, or they're *pulled* for you.",
+   "do": [
+    "h1~Round",
+    "h1a~hunt",
+    "h1b~pulled",
+    "h1w~for"
+   ]
+  },
+  {
+   "voice": "Round three, *price per square foot.* A calculator, or already *done.*",
+   "do": [
+    "h2~Round",
+    "h2a~calculator",
+    "h2b~done",
+    "h2w~done"
+   ]
+  },
+  {
+   "voice": "Round four, *your offer.* A guess, or a suggested *range.*",
+   "do": [
+    "h3~Round",
+    "h3a~guess",
+    "h3b~suggested",
+    "h3w~range"
+   ]
+  },
+  {
+   "voice": "Clean *sweep.* Don't overpay. Let the comps set your *offer.*",
+   "do": [
+    "final~Clean"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} pulls the comps and suggests an offer range, on every *analysis.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "Is it overpriced? Comps by hand vs DealCaddie.",
+ "caption": "Is it overpriced? Pull the comps. 🔎\n\nSeven steps by hand, or one. Head to head:\n\n• Steps: search, filter, copy, divide, average, compare, decide (7) vs paste an address (1).\n• Sold comps: you hunt for them, or they're pulled for you.\n• Price per sq ft: a calculator, or already done.\n• Your offer: a guess, or a suggested range.\n\nClean sweep. Don't overpay. Let the comps set your offer.\n\n💬 Do you pull your own comps?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateinvesting #comps #makeanoffer #productivity #rentalproperty"
+}

@@ -22,6 +22,8 @@ VOICE = os.environ.get("VOICE") or "af_heart"
 SPEED = float(os.environ.get("VOICE_SPEED") or 1.05)
 _onnx = _pipe = _tok = None
 
+SAY = {"airbnb": ("Air-bee-en-bee",)}       # words the TTS mangles -> how to say them (shown unchanged)
+
 def parse(voice):
     """-> spoken text, units [(spoken_words[], show, accent)]"""
     units = []
@@ -32,6 +34,7 @@ def parse(voice):
             show = m.group(3); spoken = [show]
         acc = "*" in show
         show = show.replace("*", ""); spoken = [w.replace("*", "") for w in spoken]
+        spoken = [SAY.get(re.sub(r"[^\w]", "", w).lower(), (None,))[0] and re.sub(r"(?i)airbnb", SAY["airbnb"][0], w) or w for w in spoken]
         if units and not re.search(r"\w", show):          # bare punctuation after a {..|..} group
             ps, pshow, pacc = units[-1]; units[-1] = (ps[:-1] + [ps[-1] + show] if ps else ps, pshow + show, pacc); continue
         units.append((spoken, show, acc))

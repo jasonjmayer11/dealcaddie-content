@@ -1,0 +1,132 @@
+{
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND",
+ "champion": "b",
+ "a": {
+  "kind": "sheet",
+  "name": "Spreadsheet",
+  "short": "SPREADSHEET",
+  "spec": "one sheet per strategy",
+  "badge": "BY HAND"
+ },
+ "b": {
+  "kind": "phone",
+  "name": "DealCaddie",
+  "short": "DEALCADDIE",
+  "spec": "paste an address",
+  "badge": "AUTO"
+ },
+ "title": "Spreadsheet vs DealCaddie",
+ "cover": "One house. Seven ways to run it.",
+ "cover_sub": "BY HAND OR DEALCADDIE",
+ "footnote": "BY HAND: 30 min per strategy, the low end of what investors report on BiggerPockets · DEALCADDIE: all 7 strategies on every analysis",
+ "app_screen": "strategies.png",
+ "end_line": "Seven strategies. One tap.",
+ "holes": [
+  {
+   "label": "SPREADSHEETS",
+   "sub": "one per strategy · lower wins",
+   "a": "7",
+   "b": "1",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "TIME",
+   "sub": "at 30 minutes each · lower wins",
+   "a": "3.5 hrs",
+   "b": "< 1 min",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "RENTS TO RESEARCH",
+   "sub": "long, mid, short-term + Section 8 · lower wins",
+   "a": "4",
+   "b": "0",
+   "fmt": "text",
+   "winner": "b"
+  },
+  {
+   "label": "BEST STRATEGY",
+   "sub": "which one wins",
+   "a": "you guess",
+   "b": "named",
+   "fmt": "text",
+   "winner": "b"
+  }
+ ],
+ "script": [
+  {
+   "voice": "Long-term, mid-term, Airbnb, Section 8, house hack, {burr,|BRRRR,} flip. *Seven* ways to run one house.",
+   "do": [
+    "cards~Long-term"
+   ]
+  },
+  {
+   "voice": "Spreadsheet versus {Deal Caddie.|*DealCaddie.*}",
+   "do": [
+    "score~versus"
+   ]
+  },
+  {
+   "voice": "Round one, *spreadsheets.* Seven of them, or *one.*",
+   "do": [
+    "h0~Round",
+    "h0a~Seven",
+    "h0b~one",
+    "h0w~one"
+   ]
+  },
+  {
+   "voice": "Round two, *time.* At thirty minutes each, that's {three and a half hours.|3.5 hours.} Or under a *minute.*",
+   "do": [
+    "h1~Round",
+    "h1a~3.5",
+    "h1b~under",
+    "h1w~minute"
+   ]
+  },
+  {
+   "voice": "Round three, *rents* to research. Long, mid, short-term, and Section 8. *Four,* or *zero.*",
+   "do": [
+    "h2~Round",
+    "h2a~Four",
+    "h2b~zero",
+    "h2w~zero"
+   ]
+  },
+  {
+   "voice": "Round four, *the winner.* You guess, or Caddie *names* it.",
+   "do": [
+    "h3~Round",
+    "h3a~guess",
+    "h3b~Caddie",
+    "h3w~names"
+   ]
+  },
+  {
+   "voice": "Clean *sweep.* Know your best strategy before you *offer.*",
+   "do": [
+    "final~Clean"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} runs all seven, side by side, in *seconds.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "One house, seven strategies. By hand vs DealCaddie.",
+ "caption": "Long-term, mid-term, Airbnb, Section 8, house hack, BRRRR, flip. 7 ways to run one house. 🏠\n\nMost investors only run one. Head to head:\n\n• Spreadsheets: 7 vs 1.\n• Time: ~3.5 hours vs under a minute.\n• Rents to research: 4 vs 0.\n• Best strategy: you guess, or Caddie names it.\n\nClean sweep. Know your best strategy before you offer.\n\nBy-hand time uses 30 minutes per strategy, the low end of what investors report on BiggerPockets.\n\n💬 Which strategy do you run first?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateinvesting #rentalproperty #airbnb #section8 #productivity"
+}
