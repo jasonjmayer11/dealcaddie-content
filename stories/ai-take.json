@@ -86,7 +86,8 @@
      "wait": 1000
     },
     {
-     "focus": "#analyst-panel"
+     "focus": "#analyst-input",
+     "pick": "parent"
     }
    ],
    "hold": 4,
@@ -128,7 +129,8 @@
      "eval": "(()=>{const m=document.getElementById('analyst-messages');const k=[...m.children].filter(e=>e.offsetParent);const u=k[k.length-2];if(u)m.scrollTop+=u.getBoundingClientRect().top-m.getBoundingClientRect().top-8;return k.length})()"
     },
     {
-     "focus": "#analyst-panel"
+     "focus": "#analyst-messages > div:last-child",
+     "pick": "self"
     }
    ],
    "hold": 6,
