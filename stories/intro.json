@@ -1,0 +1,260 @@
+{
+ "audience": "investor",
+ "start": "search",
+ "max_len": 75,
+ "title": "Is it a deal? Stop guessing. Meet DealCaddie.",
+ "blurb": "DealCaddie analyzes any rental listing in seconds: rent, taxes and insurance filled in, every strategy side by side, comps, a straight AI verdict, and deals that find you every morning.",
+ "tags": "#realestateinvesting #rentalproperty #cashflow #realestateinvestor #dealanalysis",
+ "scenes": [
+  {
+   "id": "score",
+   "do": [
+    {
+     "top": true
+    },
+    {
+     "wait": 600
+    },
+    {
+     "focus": "#results-top"
+    }
+   ],
+   "hold": 4,
+   "line": "A {price_short} {ptype} in {city}: deal score, {score} out of 10."
+  },
+  {
+   "id": "auto",
+   "do": [
+    {
+     "tab": "Cashflow"
+    },
+    {
+     "focus": "#live-ltr-rent",
+     "pick": "parent2"
+    }
+   ],
+   "hold": 4,
+   "line": "Rent, taxes and insurance are filled in for you."
+  },
+  {
+   "id": "strategies",
+   "do": [
+    {
+     "focus": "text:^\\s*Cashflow by Strategy",
+     "pick": "card"
+    }
+   ],
+   "hold": 6,
+   "line": "Every strategy, side by side. Best play here: {best_name}, at {best_cf}/mo.",
+   "alts": [
+    "Every strategy, side by side: long-term, Airbnb, Section 8, house hack and more."
+   ]
+  },
+  {
+   "id": "comps",
+   "do": [
+    {
+     "tab": "Comps"
+    },
+    {
+     "focus": "text:^\\s*Comparable Sales",
+     "pick": "card",
+     "scope": true
+    }
+   ],
+   "hold": 4.5,
+   "needs_focus": true,
+   "line": "Recent sales nearby show if the price is fair."
+  },
+  {
+   "id": "aitake",
+   "do": [
+    {
+     "unscope": true
+    },
+    {
+     "tab": "AI Take"
+    },
+    {
+     "waitgone": "Checking the neighborhood"
+    },
+    {
+     "focus": "text:^\\s*CADDIE'S VERDICT\\s*$",
+     "pick": "card"
+    }
+   ],
+   "hold": 5,
+   "needs_focus": true,
+   "line": "And Caddie gives you a straight answer, red flags included."
+  },
+  {
+   "id": "deals",
+   "do": [
+    {
+     "unscope": true
+    },
+    {
+     "eval": "(async()=>{const L=await (await fetch('/api/buy-boxes',{credentials:'same-origin'})).json();const bs=(L||[]).filter(b=>/cleveland/i.test(JSON.stringify(b.markets||'')+' '+(b.name||'')+' '+(b.region_label||'')));if(!bs.length)return 'NO CLEVELAND BOX: '+(L||[]).map(b=>b.id+':'+b.name).join(', ');const b=bs[bs.length-1];const j=await (await fetch('/api/buy-boxes/'+b.id+'/map',{credentials:'same-origin'})).json();const rs=(j.rows||[]).filter(r=>r.lat!=null);const good=rs.filter(r=>/analyzed|passed|below_criteria/.test(r.screen_status||''));const use=good.length>=3?good:rs;const med=a=>{a=a.slice().sort((x,y)=>x-y);return a[a.length>>1]};if(use.length)localStorage.setItem('dc_deals_view_'+b.id,JSON.stringify({lat:med(use.map(r=>r.lat)),lng:med(use.map(r=>r.lng)),z:13,t:Date.now()}));localStorage.setItem('dc_deals_drawer','peek');localStorage.setItem('dc_pin_mode','cf');window.__cleBox=b.id;sessionStorage.setItem('cleBox',b.id);return 'box '+b.id+' '+b.name+' rows '+rs.length+' good '+good.length})()"
+    },
+    {
+     "goto": "/deals"
+    },
+    {
+     "waitfn": "!!(window.dcBuyBox && window.dcBuyBox.boxes().length)",
+     "timeout": 60000
+    },
+    {
+     "eval": "(()=>{const id=+sessionStorage.getItem('cleBox');if(window.dcBuyBox.currentId()!==id)window.dcBuyBox.select(id);return 'selected '+id})()"
+    },
+    {
+     "wait": 2500
+    },
+    {
+     "waitfn": "(()=>{const s=(document.getElementById('dl-sum')||{}).innerText||'';return /hit your targets|\\d+ listings?/.test(s)})()",
+     "timeout": 90000
+    },
+    {
+     "waitfn": "!/Scoring your strongest/i.test(document.body.innerText)",
+     "timeout": 240000
+    },
+    {
+     "wait": 2500
+    },
+    {
+     "eval": "'drawer '+document.getElementById('dl-drawer').dataset.state+' · '+document.getElementById('dl-market').innerText+' · '+document.getElementById('dl-sum').innerText.replace(/\\s+/g,' ')"
+    },
+    {
+     "clear": true
+    }
+   ],
+   "hold": 6.5,
+   "zoom": false,
+   "line": "Want the deals to come to you? DealCaddie underwrites every listing in your market, and pins each one with its cash flow."
+  },
+  {
+   "id": "email",
+   "do": [
+    {
+     "clear": true
+    },
+    {
+     "html": "assets/email/digest-cleveland.html"
+    },
+    {
+     "wait": 900
+    }
+   ],
+   "during": [
+    {
+     "wait": 500
+    },
+    {
+     "scroll": {
+      "by": 900,
+      "ms": 3600
+     }
+    }
+   ],
+   "hold": 5,
+   "zoom": false,
+   "line": "New matches land in your inbox every morning."
+  },
+  {
+   "id": "problem1",
+   "do": [
+    {
+     "clear": true
+    },
+    {
+     "html": "assets/intro/spreadsheet.html"
+    },
+    {
+     "wait": 900
+    }
+   ],
+   "during": [
+    {
+     "wait": 1200
+    },
+    {
+     "scroll": {
+      "by": 260,
+      "ms": 4500
+     }
+    }
+   ],
+   "hold": 7,
+   "zoom": false,
+   "line": "Analyzing a rental the old way takes an hour: a spreadsheet, a dozen browser tabs, and a lot of guessing."
+  },
+  {
+   "id": "problem2",
+   "do": [],
+   "during": [
+    {
+     "scroll": {
+      "by": 330,
+      "ms": 4500
+     }
+    }
+   ],
+   "hold": 6,
+   "zoom": false,
+   "line": "Rent, taxes, insurance, repairs, every strategy. And most deals still aren't worth it."
+  },
+  {
+   "id": "close",
+   "do": [
+    {
+     "goto": "/deals"
+    },
+    {
+     "waitfn": "!!(window.dcBuyBox && window.dcBuyBox.boxes().length)",
+     "timeout": 60000
+    },
+    {
+     "eval": "(()=>{const id=+sessionStorage.getItem('cleBox');if(id&&window.dcBuyBox.currentId()!==id)window.dcBuyBox.select(id);return 'selected '+id})()"
+    },
+    {
+     "wait": 2500
+    },
+    {
+     "waitfn": "(()=>{const s=(document.getElementById('dl-sum')||{}).innerText||'';return /hit your targets|\\d+ listings?/.test(s)})()",
+     "timeout": 90000
+    },
+    {
+     "wait": 1500
+    },
+    {
+     "clear": true
+    }
+   ],
+   "hold": 5,
+   "zoom": false,
+   "line": "Stop guessing. Know if it's a deal before you make an offer."
+  }
+ ],
+ "extra_lines": {
+  "paste": "DealCaddie does it in seconds. Just paste the listing link."
+ },
+ "order": [
+  "problem1",
+  "problem2",
+  "paste",
+  "score",
+  "auto",
+  "strategies",
+  "comps",
+  "aitake",
+  "deals",
+  "email",
+  "close"
+ ],
+ "wrap": "",
+ "end": "Try it free at dealcaddie.ai.",
+ "cover": "Is it a deal? Know in seconds.",
+ "cover_sub": "Paste any listing. Every number, done for you.",
+ "cover_scene": "strategies",
+ "why": "Analyzing a rental by hand takes an hour, and most deals aren't worth it. DealCaddie does it in seconds.",
+ "ask": "How do you analyze deals today? 👇"
+}

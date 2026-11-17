@@ -116,6 +116,9 @@ def say_names(t):
 
 if STORY:
     v = dict(price_short=short(price), city=city, ptype=ptype, score=score)
+    if rent_total: v["rent"] = dollars(rent_total)
+    if best is not None:
+        v["best_name"] = NAMES[best]; v["best_cf"] = ("+" if legal[best] >= 0 else "−") + dollars(abs(legal[best]))
     v.update({k: x for k, x in (data.get("vars") or {}).items() if x})
     if v.get("verdict"): v["verdict"] = v["verdict"].lower().replace("buy", "buy").strip()
     class _Miss(dict):
@@ -134,6 +137,13 @@ if STORY:
             lines.append((sc["id"], txt, speakify(txt)))
         elif not sc.get("needs_focus") or not (mk.get(sc["id"]) or {}).get("missed"):
             print(f"scene {sc['id']}: no line (missing numbers) — dropped")
+    # lines for segments recorded outside the scene list (the on-camera paste of a "search" story)
+    for sid, ln in (STORY.get("extra_lines") or {}).items():
+        lines.append((sid, ln, speakify(ln)))
+    if STORY.get("order"):                       # play scenes in story order, not recording order
+        rank = {sid: i for i, sid in enumerate(STORY["order"])}
+        lines = [l for l in lines if l[0] in rank]
+        lines.sort(key=lambda l: rank[l[0]])
     wrap_line = STORY.get("wrap", "DealCaddie runs every number for you in seconds.")
     if wrap_line:
         lines.append(("wrap", wrap_line, speakify(wrap_line)))
@@ -159,6 +169,7 @@ def speak(text, speed):
     return (np.concatenate(parts).astype(np.float32) if parts else np.zeros(1, np.float32)), words
 
 GAP = 0.35
+if STORY and STORY.get("max_len"): MAX_LEN = float(STORY["max_len"])
 _sc = {sc["id"]: sc for sc in (STORY or {}).get("scenes", [])}
 gaps = [float(_sc.get(seg, {}).get("gap", GAP)) for seg, _, _ in lines]     # "gap": 0.1 chains lines tightly
 for attempt in range(3):

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<!-- "The old way": a deliberately messy rental spreadsheet, shown in the phone frame for the intro video. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rental Analysis v7 FINAL (2).xlsx</title>
+<style>
+  body { margin:0; background:#f3f3f3; font-family:-apple-system,'Segoe UI',Arial,sans-serif; color:#222; }
+  .tabs { display:flex; gap:6px; overflow:hidden; padding:10px 8px 8px; background:#dfe3e8; }
+  .tab { flex:none; font-size:11px; background:#fff; border-radius:8px 8px 0 0; padding:7px 9px; color:#444; white-space:nowrap; box-shadow:0 1px 0 #c7ccd2; }
+  .tab.on { background:#fff; font-weight:600; color:#111; }
+  .tab .x { color:#999; margin-left:5px; }
+  .xl { background:#1d6f42; color:#fff; padding:10px 12px; font-size:14px; font-weight:600; display:flex; justify-content:space-between; align-items:center; }
+  .xl small { font-weight:400; opacity:.85; font-size:11px; }
+  .fx { background:#fff; border-bottom:1px solid #d5d5d5; font-family:Consolas,Menlo,monospace; font-size:12px; padding:7px 10px; color:#333; white-space:nowrap; overflow:hidden; }
+  .fx b { color:#1d6f42; margin-right:8px; font-family:-apple-system,Arial; }
+  table { border-collapse:collapse; width:100%; background:#fff; font-size:13px; table-layout:fixed; }
+  td, th { border:1px solid #dadada; padding:7px 6px; height:22px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  th { background:#f0f0f0; color:#666; font-weight:500; font-size:11px; }
+  td.n { width:26px; background:#f0f0f0; color:#777; text-align:center; font-size:11px; }
+  td.h { font-weight:700; background:#e9f2ec; }
+  td.r { text-align:right; font-family:Consolas,Menlo,monospace; }
+  .err { color:#c00; font-weight:700; }
+  .todo { background:#fff3a6; color:#7a5d00; font-style:italic; }
+  .red { background:#ffd9d6; }
+  .note { position:relative; }
+  .note::after { content:''; position:absolute; top:0; right:0; border-top:7px solid #d13; border-left:7px solid transparent; }
+  .sheets { position:sticky; bottom:0; display:flex; gap:2px; background:#e8e8e8; border-top:1px solid #ccc; padding:6px 4px; overflow:hidden; }
+  .sh { flex:none; font-size:11px; padding:6px 9px; background:#f7f7f7; border:1px solid #ccc; border-radius:3px; }
+  .sh.on { background:#fff; color:#1d6f42; font-weight:700; border-bottom:2px solid #1d6f42; }
+</style>
+</head>
+<body>
+  <div class="tabs">
+    <span class="tab on">Zillow – listing<span class="x">×</span></span>
+    <span class="tab">RentCast<span class="x">×</span></span>
+    <span class="tab">County assessor<span class="x">×</span></span>
+    <span class="tab">Insurance quote<span class="x">×</span></span>
+    <span class="tab">Airbnb comps<span class="x">×</span></span>
+    <span class="tab">Redfin sold<span class="x">×</span></span>
+  </div>
+  <div class="xl">Rental Analysis v7 FINAL (2).xlsx <small>Saving…</small></div>
+  <div class="fx"><b>fx</b>=IFERROR((B8-SUM(B10:B17))/B4,"check this")</div>
+  <table>
+    <tr><th style="width:26px"></th><th>A</th><th style="width:34%">B</th><th style="width:30%">C</th></tr>
+    <tr><td class="n">1</td><td class="h" colspan="3">123 Main St — is it a deal??</td></tr>
+    <tr><td class="n">2</td><td>Price</td><td class="r">$175,000</td><td>from listing</td></tr>
+    <tr><td class="n">3</td><td>Down (25%)</td><td class="r">$43,750</td><td></td></tr>
+    <tr><td class="n">4</td><td>Cash to close</td><td class="r err">#REF!</td><td class="todo">fix</td></tr>
+    <tr><td class="n">5</td><td>Rate</td><td class="r">7.0%</td><td class="todo">call lender?</td></tr>
+    <tr><td class="n">6</td><td>Payment</td><td class="r">$873</td><td></td></tr>
+    <tr><td class="n">7</td><td class="h" colspan="3">Income</td></tr>
+    <tr><td class="n">8</td><td>Rent</td><td class="r todo">???</td><td class="todo note">look up comps</td></tr>
+    <tr><td class="n">9</td><td class="h" colspan="3">Expenses</td></tr>
+    <tr><td class="n">10</td><td>Taxes</td><td class="r err">#N/A</td><td class="todo">county site down</td></tr>
+    <tr><td class="n">11</td><td>Insurance</td><td class="r todo">$???</td><td class="todo">waiting on quote</td></tr>
+    <tr><td class="n">12</td><td>HOA</td><td class="r">$0?</td><td></td></tr>
+    <tr><td class="n">13</td><td>Vacancy</td><td class="r">5%</td><td>or 8%?</td></tr>
+    <tr><td class="n">14</td><td>Repairs</td><td class="r">5%</td><td></td></tr>
+    <tr><td class="n">15</td><td>CapEx</td><td class="r todo">??</td><td class="note">roof age?</td></tr>
+    <tr><td class="n">16</td><td>Management</td><td class="r">8%</td><td></td></tr>
+    <tr><td class="n">17</td><td>Rehab</td><td class="r todo">$20–60K?</td><td class="todo">look at photos</td></tr>
+    <tr><td class="n">18</td><td class="h" colspan="3">Results</td></tr>
+    <tr><td class="n">19</td><td>Cash flow</td><td class="r err red">#VALUE!</td><td></td></tr>
+    <tr><td class="n">20</td><td>Cap rate</td><td class="r err">#DIV/0!</td><td></td></tr>
+    <tr><td class="n">21</td><td>Cash-on-cash</td><td class="r err">#REF!</td><td></td></tr>
+    <tr><td class="n">22</td><td>Airbnb?</td><td class="r todo">new tab</td><td class="todo">is it even legal?</td></tr>
+    <tr><td class="n">23</td><td>Section 8?</td><td class="r todo">new tab</td><td class="todo">find HUD rent</td></tr>
+    <tr><td class="n">24</td><td>Max offer</td><td class="r todo">?</td><td></td></tr>
+    <tr><td class="n">25</td><td></td><td></td><td></td></tr>
+    <tr><td class="n">26</td><td></td><td></td><td></td></tr>
+    <tr><td class="n">27</td><td></td><td></td><td></td></tr>
+    <tr><td class="n">28</td><td></td><td></td><td></td></tr>
+  </table>
+  <div class="sheets">
+    <span class="sh on">LTR</span><span class="sh">STR</span><span class="sh">MTR</span><span class="sh">Sec 8</span><span class="sh">BRRRR</span><span class="sh">Comps</span><span class="sh">Copy of LTR</span>
+  </div>
+</body>
+</html>
