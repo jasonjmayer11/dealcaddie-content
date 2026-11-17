@@ -153,6 +153,22 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
   // start the photo rehab estimate now so it is ready by the time we get there
   if (!STORY || STORY.rehab) await page.evaluate(() => { if (typeof autoAnalyzeCondition === 'function') autoAnalyzeCondition(); }).catch(() => {});
   await hideIcons();
+  const grabData = () => page.evaluate(() => {
+    const v = id => { const e = document.getElementById(id); return e ? String(e.value || '').replace(/[^0-9.]/g, '') : ''; };
+    const tx = id => { const e = document.getElementById(id); return e ? e.textContent.replace(/\s+/g, ' ').trim() : ''; };
+    const strategies = {};
+    for (const k of ['ltr', 'mtr', 'str', 's8', 'hh', 'brrrr']) strategies[k] = tx('tab-cf-' + k);
+    const units = [...document.querySelectorAll('[id^="mf-unit-box-"]')].map(b => ((b.querySelector('input') || {}).value || '').replace(/[^0-9.]/g, '')).filter(r => +r > 0);
+    const body = document.body.innerText;
+    const el = document.getElementById('cond-rehab'); const spans = el ? el.querySelectorAll('span') : [];
+    return {
+      score: tx('live-score-num'), price: v('fin-price'), ltrRent: v('ltr-rent'), tax: v('fin-tax'), ins: v('fin-ins'),
+      units, strategies, strRestricted: /STR Restricted Market/i.test(body),
+      cityLine: (body.match(/\n([A-Z][A-Za-z .'-]+, [A-Z]{2} \d{5})/) || [])[1] || '',
+      rehab: el ? { range: (spans[0] || {}).textContent || '', level: (spans[1] || {}).textContent || '' } : null,
+    };
+  }).catch(() => ({}));
+  const data0 = NO_ANALYSIS ? null : await grabData();
 
   // gold focus ring on whatever the voice is talking about; scroll it clear of the sticky tab bar
   const focus = (sel, pick = 'self', setScope = false) => page.evaluate(([sel, pick, setScope]) => {
@@ -403,22 +419,9 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
 
   }
 
-  // ---- numbers for the script ----
-  const data = await page.evaluate(() => {
-    const v = id => { const e = document.getElementById(id); return e ? String(e.value || '').replace(/[^0-9.]/g, '') : ''; };
-    const tx = id => { const e = document.getElementById(id); return e ? e.textContent.replace(/\s+/g, ' ').trim() : ''; };
-    const strategies = {};
-    for (const k of ['ltr', 'mtr', 'str', 's8', 'hh', 'brrrr']) strategies[k] = tx('tab-cf-' + k);
-    const units = [...document.querySelectorAll('[id^="mf-unit-box-"]')].map(b => ((b.querySelector('input') || {}).value || '').replace(/[^0-9.]/g, '')).filter(r => +r > 0);
-    const body = document.body.innerText;
-    const el = document.getElementById('cond-rehab'); const spans = el ? el.querySelectorAll('span') : [];
-    return {
-      score: tx('live-score-num'), price: v('fin-price'), ltrRent: v('ltr-rent'), tax: v('fin-tax'), ins: v('fin-ins'),
-      units, strategies, strRestricted: /STR Restricted Market/i.test(body),
-      cityLine: (body.match(/\n([A-Z][A-Za-z .'-]+, [A-Z]{2} \d{5})/) || [])[1] || '',
-      rehab: el ? { range: (spans[0] || {}).textContent || '', level: (spans[1] || {}).textContent || '' } : null,
-    };
-  });
+  // ---- numbers for the script (read again at the end; a story that leaves the analysis keeps the first read) ----
+  let data = await grabData();
+  if (!data.price && data0 && data0.price) data = data0;
   data.insAdjusted = insFix;
   data.vars = vars;
   console.log('data', JSON.stringify(data));
