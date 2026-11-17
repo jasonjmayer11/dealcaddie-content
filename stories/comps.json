@@ -62,6 +62,10 @@
    "id": "sugg",
    "do": [
     {
+     "waitfn": "(()=>{const e=document.getElementById('comps-offer-row');return e&&e.style.display!=='none'&&/\\$/.test(e.innerText)})()",
+     "timeout": 60000
+    },
+    {
      "focus": "text:^\\s*SUGGESTED OFFER\\s*$",
      "pick": "row"
     }
@@ -72,6 +76,10 @@
   {
    "id": "take",
    "do": [
+    {
+     "waitfn": "(()=>{const e=document.getElementById('comps-ai-summary');return e&&e.style.display!=='none'&&(document.getElementById('comps-ai-text')||{}).innerText.length>40})()",
+     "timeout": 60000
+    },
     {
      "focus": "text:^\\s*Caddie's comp take\\s*$",
      "pick": "parent"
