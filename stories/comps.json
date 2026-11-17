@@ -71,7 +71,8 @@
     }
    ],
    "hold": 5,
-   "line": "So instead of paying asking, DealCaddie suggests opening at {sugg}."
+   "line": "So instead of paying asking, DealCaddie suggests opening at {sugg}.",
+   "needs_focus": true
   },
   {
    "id": "take",
@@ -86,7 +87,8 @@
     }
    ],
    "hold": 6,
-   "line": "And Caddie explains why, so you can defend your number to the listing agent."
+   "line": "And Caddie explains why, so you can defend your number to the listing agent.",
+   "needs_focus": true
   }
  ],
  "wrap": "Every dollar you don't overpay is a dollar working for you. Offer with confidence.",

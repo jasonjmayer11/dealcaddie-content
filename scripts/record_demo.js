@@ -264,7 +264,7 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
         window.__demoScope = e || null; return !!e; }, act.scope).catch(() => false); console.log(`scope ${act.scope}: ${ok}`); }
       if (act.clear) await page.evaluate(() => { const r = document.getElementById('demo-ring'); if (r) r.style.opacity = '0';
         window.__demoRingTarget = null; window.__demoFocus = null; });
-      if (act.focus) { const ok = await focus(act.focus, act.pick || 'self', !!act.scope); console.log(`focus ${act.focus}: ${ok}`); }
+      if (act.focus) { const ok = await focus(act.focus, act.pick || 'self', !!act.scope); console.log(`focus ${act.focus}: ${ok}`); if (!ok) runAct.missed = true; }
       if (act.press) { await page.keyboard.press(act.press).catch(() => {}); await sleep(800); }
       if (act.typein) {                                     // type into whatever field is focused/open, like a person
         const [sel, val] = act.typein; const el = page.locator(sel).first();
@@ -309,8 +309,11 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
       }
     };
     for (const sc of STORY.scenes) {
+      runAct.missed = false;
       for (const act of sc.do || []) await runAct(act);
+      const missed = runAct.missed;
       mark(sc.id, 'start');
+      if (missed) markers[sc.id].missed = true;   // the subject never showed up; narrate drops lines that need it
       const sStart = Date.now();
       await sleep(900);                                   // let the smooth scroll land, then note where the subject is
       if (sc.zoom !== false) {

@@ -128,9 +128,11 @@ if STORY:
                 txt = cand.format_map(_Miss(v)); break
             except KeyError:
                 txt = None
-        if txt:
+        if txt and sc.get("needs_focus") and (mk.get(sc["id"]) or {}).get("missed"):
+            print(f"scene {sc['id']}: its subject never appeared on screen — dropped"); txt = None
+        elif txt:
             lines.append((sc["id"], txt, speakify(txt)))
-        else:
+        elif not sc.get("needs_focus") or not (mk.get(sc["id"]) or {}).get("missed"):
             print(f"scene {sc['id']}: no line (missing numbers) — dropped")
     wrap_line = STORY.get("wrap", "DealCaddie runs every number for you in seconds.")
     if wrap_line:
