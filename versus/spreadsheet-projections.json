@@ -1,0 +1,117 @@
+{
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND",
+ "champion": "b",
+ "a": {
+  "kind": "sheet",
+  "name": "Spreadsheet",
+  "short": "SPREADSHEET",
+  "spec": "one row per year",
+  "badge": "BY HAND"
+ },
+ "b": {
+  "kind": "phone",
+  "name": "DealCaddie",
+  "short": "DEALCADDIE",
+  "spec": "paste an address",
+  "badge": "AUTO"
+ },
+ "title": "Spreadsheet vs DealCaddie",
+ "cover": "Where will this rental be in 30 years?",
+ "cover_sub": "SPREADSHEET OR DEALCADDIE",
+ "footnote": "DEALCADDIE: 30-year projections of cash flow, equity and payback, updated live when you change any assumption",
+ "app_screen": "projections.png",
+ "end_line": "See the next 30 years in seconds.",
+ "holes": [
+  {
+   "label": "FORMULAS TO BUILD",
+   "sub": "rent growth, loan balance, equity · lower wins",
+   "a": "dozens",
+   "b": "0",
+   "fmt": "text",
+   "a_note": "one row per year",
+   "b_note": "built in",
+   "winner": "b"
+  },
+  {
+   "label": "WHAT-IFS",
+   "sub": "change the rate or the rent",
+   "a": "rebuild",
+   "b": "instant",
+   "fmt": "text",
+   "a_note": "fix every formula",
+   "b_note": "updates live",
+   "winner": "b"
+  },
+  {
+   "label": "PAYBACK YEAR",
+   "sub": "when your cash comes back",
+   "a": "you calculate",
+   "b": "shown",
+   "fmt": "text",
+   "a_note": "by hand",
+   "b_note": "on the analysis",
+   "winner": "b"
+  }
+ ],
+ "script": [
+  {
+   "voice": "Where will this rental be in *thirty years?* Spreadsheet, or {Deal Caddie?|*DealCaddie?*}",
+   "do": [
+    "cards~Where",
+    "score~Spreadsheet"
+   ]
+  },
+  {
+   "voice": "Round one, *formulas.* By hand, you build dozens, one row per year. In {Deal Caddie,|DealCaddie,} they're already *built.*",
+   "do": [
+    "h0~Round",
+    "h0a~dozens",
+    "h0b~In",
+    "h0w~built"
+   ]
+  },
+  {
+   "voice": "Round two, *what-ifs.* Change the rate by hand, and you fix every formula. {Deal Caddie|DealCaddie} updates *instantly.*",
+   "do": [
+    "h1~Round",
+    "h1a~fix",
+    "h1b~DealCaddie",
+    "h1w~instantly"
+   ]
+  },
+  {
+   "voice": "Round three, *payback.* By hand, you calculate it. {Deal Caddie|DealCaddie} shows the year your cash comes *back.*",
+   "do": [
+    "h2~Round",
+    "h2a~calculate",
+    "h2b~DealCaddie",
+    "h2w~back"
+   ]
+  },
+  {
+   "voice": "Clean *sweep.* See the long game before you *buy.*",
+   "do": [
+    "final~Clean"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} projects any rental thirty years out, in *seconds.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "Where will this rental be in 30 years? Spreadsheet vs DealCaddie.",
+ "caption": "Where will this rental be in 30 years? 📈\n\nBuying is step one. The long game is where the wealth builds. Head to head:\n\n• Formulas: dozens by hand, one row per year, or already built.\n• What-ifs: change the rate and fix every formula, or watch it update instantly.\n• Payback year: calculate it yourself, or see it on the analysis.\n\nClean sweep. See the long game before you buy.\n\n💬 How long do you plan to hold your rentals?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateinvesting #buyandhold #wealthbuilding #spreadsheet #rentalproperty",
+ "music": "dc-12"
+}

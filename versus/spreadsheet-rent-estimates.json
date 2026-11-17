@@ -1,0 +1,117 @@
+{
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND",
+ "champion": "b",
+ "a": {
+  "kind": "sheet",
+  "name": "Without",
+  "short": "WITHOUT",
+  "spec": "rental sites + phone calls",
+  "badge": "BY HAND"
+ },
+ "b": {
+  "kind": "phone",
+  "name": "DealCaddie",
+  "short": "WITH",
+  "spec": "paste an address",
+  "badge": "AUTO"
+ },
+ "title": "Without vs With DealCaddie",
+ "cover": "What will it rent for?",
+ "cover_sub": "WITHOUT VS WITH DEALCADDIE",
+ "footnote": "DEALCADDIE: market rent for long-, mid- and short-term stays, the HUD payment standard for the ZIP, and rent per unit on 2–4 unit properties",
+ "app_screen": "strategies.png",
+ "end_line": "Every rent estimate. In seconds.",
+ "holes": [
+  {
+   "label": "PLACES TO CHECK",
+   "sub": "rental sites, listings, managers · lower wins",
+   "a": "4+",
+   "b": "1",
+   "fmt": "text",
+   "a_note": "sites, ads, property managers",
+   "b_note": "one analysis",
+   "winner": "b"
+  },
+  {
+   "label": "STRATEGIES PRICED",
+   "sub": "long, mid, short-term, Section 8",
+   "a": "1",
+   "b": "4",
+   "fmt": "text",
+   "a_note": "usually just long-term",
+   "b_note": "all four, filled in",
+   "winner": "b"
+  },
+  {
+   "label": "MULTIFAMILY",
+   "sub": "rent for each unit",
+   "a": "by hand",
+   "b": "every unit",
+   "fmt": "text",
+   "a_note": "unit by unit",
+   "b_note": "estimated per unit",
+   "winner": "b"
+  }
+ ],
+ "script": [
+  {
+   "voice": "What will it *rent* for? Without {Deal Caddie,|*DealCaddie,*} or *with* it?",
+   "do": [
+    "cards~What",
+    "score~Without"
+   ]
+  },
+  {
+   "voice": "Round one, *places to check.* By hand: rental sites, listings, property managers. With {Deal Caddie,|DealCaddie,} one *analysis.*",
+   "do": [
+    "h0~Round",
+    "h0a~rental",
+    "h0b~one",
+    "h0w~analysis"
+   ]
+  },
+  {
+   "voice": "Round two, *strategies.* By hand, you usually price one. {Deal Caddie|DealCaddie} fills in long-term, mid-term, short-term, and Section 8 *rent.*",
+   "do": [
+    "h1~Round",
+    "h1a~one",
+    "h1b~fills",
+    "h1w~rent"
+   ]
+  },
+  {
+   "voice": "Round three, *multifamily.* By hand, it's unit by unit. {Deal Caddie|DealCaddie} estimates rent for every *unit.*",
+   "do": [
+    "h2~Round",
+    "h2a~unit",
+    "h2b~estimates",
+    "h2w~unit"
+   ]
+  },
+  {
+   "voice": "Clean *sweep.* Know the rent before you *offer.*",
+   "do": [
+    "final~Clean"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} fills in every rent estimate, in *seconds.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "What will it rent for? Without vs with DealCaddie.",
+ "caption": "What will it rent for? 🔑\n\nThe rent number makes or breaks every deal. Head to head:\n\n• Places to check: rental sites, listings and property managers, or one analysis.\n• Strategies priced: usually 1 by hand, or long-term, mid-term, short-term and Section 8 filled in.\n• Multifamily: unit by unit, or rent estimated for every unit.\n\nClean sweep. Know the rent before you offer.\n\n💬 Where do you get your rent comps?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateinvesting #rentalproperty #landlord #cashflow #multifamily",
+ "music": "dc-11"
+}

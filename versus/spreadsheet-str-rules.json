@@ -1,0 +1,117 @@
+{
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND",
+ "champion": "b",
+ "a": {
+  "kind": "sheet",
+  "name": "Without",
+  "short": "WITHOUT",
+  "spec": "city code, county, HOA",
+  "badge": "BY HAND"
+ },
+ "b": {
+  "kind": "phone",
+  "name": "DealCaddie",
+  "short": "WITH",
+  "spec": "paste an address",
+  "badge": "AUTO"
+ },
+ "title": "Without vs With DealCaddie",
+ "cover": "Can you Airbnb it here?",
+ "cover_sub": "WITHOUT VS WITH DEALCADDIE",
+ "footnote": "DEALCADDIE: short-term rental rules flagged on the analysis in 35+ markets · always confirm with the city before you buy",
+ "app_screen": "aitake.png",
+ "end_line": "Check the rules before the numbers.",
+ "holes": [
+  {
+   "label": "WHERE YOU LOOK",
+   "sub": "city code, county, HOA",
+   "a": "3+ places",
+   "b": "1 screen",
+   "fmt": "text",
+   "a_note": "dig through each one",
+   "b_note": "right on the analysis",
+   "winner": "b"
+  },
+  {
+   "label": "RED FLAGS",
+   "sub": "bans, caps, permits",
+   "a": "you dig",
+   "b": "flagged",
+   "fmt": "text",
+   "a_note": "easy to miss",
+   "b_note": "called out for you",
+   "winner": "b"
+  },
+  {
+   "label": "WHEN YOU KNOW",
+   "sub": "before or after you offer",
+   "a": "maybe late",
+   "b": "up front",
+   "fmt": "text",
+   "a_note": "sometimes after closing",
+   "b_note": "before you offer",
+   "winner": "b"
+  }
+ ],
+ "script": [
+  {
+   "voice": "Can you *Airbnb* it here? Without {Deal Caddie,|*DealCaddie,*} or *with* it?",
+   "do": [
+    "cards~Can",
+    "score~Without"
+   ]
+  },
+  {
+   "voice": "Round one, *where you look.* By hand: the city code, the county, the {H O A.|HOA.} {Deal Caddie|DealCaddie} puts it right on the *analysis.*",
+   "do": [
+    "h0~Round",
+    "h0a~city",
+    "h0b~DealCaddie",
+    "h0w~analysis"
+   ]
+  },
+  {
+   "voice": "Round two, *red flags.* Bans, caps, and permits are easy to miss. {Deal Caddie|DealCaddie} *flags* them for you.",
+   "do": [
+    "h1~Round",
+    "h1a~Bans",
+    "h1b~DealCaddie",
+    "h1w~flags"
+   ]
+  },
+  {
+   "voice": "Round three, *timing.* Some investors find out after closing. With {Deal Caddie,|DealCaddie,} you know *before* you offer.",
+   "do": [
+    "h2~Round",
+    "h2a~Some",
+    "h2b~With",
+    "h2w~before"
+   ]
+  },
+  {
+   "voice": "Clean *sweep.* Check the rules before you run the *numbers.*",
+   "do": [
+    "final~Clean"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} flags short-term rental rules in {more than thirty five|35+} *markets.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "Can you Airbnb it here? Without vs with DealCaddie.",
+ "caption": "Can you Airbnb it here? 🏡\n\nThe best STR numbers mean nothing if the city says no. Head to head:\n\n• Where you look: city code, county and HOA, or right on the analysis.\n• Red flags: bans, caps and permits are easy to miss. DealCaddie flags them.\n• Timing: some investors find out after closing. With DealCaddie, you know before you offer.\n\nClean sweep. DealCaddie flags short-term rental rules in 35+ markets. Always confirm with the city.\n\n💬 Have you ever been surprised by an STR rule?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#airbnbhost #shorttermrental #str #realestateinvesting #airbnb",
+ "music": "dc-17"
+}

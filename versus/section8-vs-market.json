@@ -1,0 +1,125 @@
+{
+ "title": "Section 8 vs Market Rent",
+ "cover": "Section 8 or market rent?",
+ "cover_sub": "SAME HOUSE. CHECK THE ZIP.",
+ "footnote": "EXAMPLE NUMBERS · $180K · 25% down · 7% 30-yr · Section 8 rent = an example HUD payment standard; it varies by ZIP",
+ "app_screen": "strategies.png",
+ "champion": "b",
+ "end_line": "See the HUD rent for any ZIP.",
+ "a": {
+  "kind": "house",
+  "name": "Market Rent",
+  "short": "MARKET",
+  "spec": "12-month lease · $1,450",
+  "badge": "MARKET"
+ },
+ "b": {
+  "kind": "house",
+  "name": "Section 8",
+  "short": "SECTION 8",
+  "spec": "HUD voucher · $1,600",
+  "badge": "SECTION 8"
+ },
+ "holes": [
+  {
+   "label": "RENT",
+   "sub": "per month",
+   "a": 1450,
+   "b": 1600,
+   "fmt": "money",
+   "unit": "/mo",
+   "winner": "b",
+   "coins": true,
+   "tag": "DealCaddie shows the HUD rent for the ZIP"
+  },
+  {
+   "label": "PAPERWORK",
+   "sub": "inspections and approvals · less wins",
+   "a": "less",
+   "b": "more",
+   "fmt": "text",
+   "a_note": "lease and go",
+   "b_note": "yearly inspection",
+   "winner": "a",
+   "tag": null
+  },
+  {
+   "label": "CASH FLOW",
+   "sub": "rent minus every cost",
+   "a": -47,
+   "b": 69,
+   "fmt": "money_s",
+   "unit": "/mo",
+   "winner": "b",
+   "signed": true,
+   "tag": "DealCaddie calculates this for you"
+  }
+ ],
+ "script": [
+  {
+   "voice": "Same house. Market rent, or *Section 8?*",
+   "do": [
+    "cards~Same"
+   ]
+  },
+  {
+   "voice": "Let's put them *head to head.*",
+   "do": [
+    "score~head"
+   ]
+  },
+  {
+   "voice": "Round one, *rent.* In some ZIP codes, the {H U D|HUD} payment standard beats market rent. {fourteen fifty|$1,450} versus {sixteen hundred.|$1,600.}",
+   "do": [
+    "h0~Round",
+    "h0a~$1,450",
+    "h0b~$1,600",
+    "h0w~$1,600"
+   ]
+  },
+  {
+   "voice": "Round two, *paperwork.* Section 8 means a yearly inspection and more approvals. Market rent *wins.*",
+   "do": [
+    "h1~Round",
+    "h1a~Section",
+    "h1b~yearly",
+    "h1w~wins"
+   ]
+  },
+  {
+   "voice": "Round three, *cash flow.* Market rent *loses* {forty seven|$47} a month. Section 8 makes {sixty nine.|$69.}",
+   "do": [
+    "h2~Round",
+    "h2a~$47",
+    "h2b~$69",
+    "h2w~$69"
+   ]
+  },
+  {
+   "voice": "Section 8 wins, {two to one.|2–1.} But it depends on your *ZIP.*",
+   "do": [
+    "final~Section"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} shows the {H U D|HUD} rent for every ZIP, on every *analysis.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "Section 8 or market rent? Same house, check the ZIP.",
+ "caption": "Section 8 or market rent? Same house. 🏠\n\nIn some ZIP codes, the HUD payment standard pays more than the market. Head to head:\n\n• Rent: $1,450 vs $1,600. Section 8 wins.\n• Paperwork: Section 8 means a yearly inspection and more approvals. Market rent wins.\n• Cash flow: −$47 vs +$69 a month. Section 8 wins, 2–1.\n\nBut it depends on your ZIP. DealCaddie shows the HUD payment standard for every ZIP.\n\nExample numbers: $180K house, 25% down, 7% 30-year, 23% of rent for vacancy, repairs, CapEx and management. HUD payment standards vary by ZIP and housing authority.\n\n💬 Have you ever rented to Section 8?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#section8 #realestateinvesting #rentalproperty #cashflow #landlord",
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND",
+ "music": "dc-08"
+}

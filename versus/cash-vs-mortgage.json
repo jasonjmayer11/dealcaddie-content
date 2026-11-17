@@ -1,0 +1,143 @@
+{
+ "title": "All Cash vs Mortgage",
+ "cover": "Pay cash, or get a mortgage?",
+ "cover_sub": "SAME $206K. DIFFERENT PLAN.",
+ "footnote": "EXAMPLE NUMBERS · $200K house · rent $1,800 · 25% down at 7% 30-yr · 3% closing · 23% of rent for expenses",
+ "app_screen": "scenarios.png",
+ "champion": null,
+ "end_line": "Compare any financing in seconds.",
+ "a": {
+  "kind": "house",
+  "name": "All Cash",
+  "short": "CASH",
+  "spec": "$200K · no loan",
+  "badge": "CASH"
+ },
+ "b": {
+  "kind": "house",
+  "name": "Mortgage",
+  "short": "MORTGAGE",
+  "spec": "25% down · 7% 30-yr",
+  "badge": "25% DOWN"
+ },
+ "holes": [
+  {
+   "label": "CASH IN",
+   "sub": "down payment + closing · lower wins",
+   "a": 206000,
+   "b": 56000,
+   "fmt": "k",
+   "winner": "b",
+   "tag": "DealCaddie calculates this for you"
+  },
+  {
+   "label": "CASH FLOW",
+   "sub": "rent $1,800 minus every cost",
+   "a": 1103,
+   "b": 105,
+   "fmt": "money_s",
+   "unit": "/mo",
+   "winner": "a",
+   "signed": true,
+   "tag": "DealCaddie calculates this for you"
+  },
+  {
+   "label": "CASH-ON-CASH",
+   "sub": "yearly cash flow ÷ cash in",
+   "a": 6.4,
+   "b": 2.2,
+   "fmt": "pct_s",
+   "unit": "per year",
+   "winner": "a",
+   "signed": true,
+   "tag": "DealCaddie calculates this for you"
+  },
+  {
+   "label": "HOUSES WITH $206K",
+   "sub": "how many you could buy",
+   "a": "1",
+   "b": "3",
+   "fmt": "text",
+   "a_note": "one paid-off house",
+   "b_note": "three with loans",
+   "winner": "b",
+   "tag": null
+  }
+ ],
+ "script": [
+  {
+   "voice": "{two hundred six thousand dollars.|$206K.} Buy one house in *cash,* or use a *mortgage?*",
+   "do": [
+    "cards~$206K"
+   ]
+  },
+  {
+   "voice": "Let's put them *head to head.*",
+   "do": [
+    "score~head"
+   ]
+  },
+  {
+   "voice": "Round one, *cash in.* A mortgage needs {fifty six thousand.|$56K.} Cash needs it *all.*",
+   "do": [
+    "h0~Round",
+    "h0b~$56K",
+    "h0a~Cash",
+    "h0w~all"
+   ]
+  },
+  {
+   "voice": "Round two, *cash flow.* No loan means {eleven oh three|$1,103} a month. The mortgage leaves {a hundred and five.|$105.}",
+   "do": [
+    "h1~Round",
+    "h1a~$1,103",
+    "h1b~$105",
+    "h1w~$105"
+   ]
+  },
+  {
+   "voice": "Round three, {cash on cash.|*Cash-on-cash.*} {six point four percent|6.4%} versus {two point two.|2.2%.} Cash *again.*",
+   "do": [
+    "h2~Round",
+    "h2a~6.4%",
+    "h2b~2.2%",
+    "h2w~again"
+   ]
+  },
+  {
+   "voice": "Round four, *how many houses.* That same cash buys one house outright, or *three* with loans.",
+   "do": [
+    "h3~Round",
+    "h3a~one",
+    "h3b~three",
+    "h3w~loans"
+   ]
+  },
+  {
+   "voice": "Two all. Cash flow *now,* or more doors *working* for you.",
+   "do": [
+    "final~Two"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "{Deal Caddie|*DealCaddie*} compares any financing side by side, in *seconds.*",
+   "do": [
+    "reveal~DealCaddie"
+   ],
+   "pause": 0.3
+  },
+  {
+   "voice": "Try it free at {Deal Caddie dot AI.|DealCaddie.ai}",
+   "do": [
+    "endcard#0"
+   ],
+   "pause": 0
+  }
+ ],
+ "post_title": "Pay cash or get a mortgage? Same $206K, different plan.",
+ "caption": "$206K. Buy one house in cash, or use a mortgage? 💵\n\nNeither is wrong. They build wealth in different ways. Head to head:\n\n• Cash in: $206K vs $56K. Mortgage wins.\n• Cash flow: +$1,103 vs +$105 a month. Cash wins.\n• Cash-on-cash: 6.4% vs 2.2%. Cash wins.\n• Houses with $206K: 1 vs 3. Mortgage wins.\n\nTwo all. Cash flow now, or more doors working for you.\n\nExample numbers: $200K house, rent $1,800, 25% down at 7% 30-year, 3% closing costs, 23% of rent for vacancy, repairs, CapEx and management.\n\n💬 Cash or leverage: which do you prefer?\n📌 Save this for your next deal.\n\nTry it free for 14 days · dealcaddie.ai\n\n#realestateinvesting #cashflow #leverage #rentalproperty #mortgage",
+ "tag": "HEAD TO HEAD",
+ "round_word": "ROUND",
+ "music": "dc-16"
+}
