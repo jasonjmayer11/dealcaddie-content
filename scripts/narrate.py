@@ -109,7 +109,7 @@ def speakify(t):
 
 def say_names(t):
     """Place names and acronyms the voice gets wrong, on every spoken line."""
-    t = re.sub(r"\bSt\.? Louis\b", "Saint Lewis", t)
+    t = re.sub(r"\b(?:St\.?|Saint) Louis\b", "Saint Lewis", t)   # "Lewis", never "Louie"
     t = re.sub(r"(?<!\[)\bHUD\b(?!\])", "hud", t)       # said as a word, not H-U-D
     t = re.sub(r"(?<!\[)\bZIP\b(?!\])", "zip", t)
     return t

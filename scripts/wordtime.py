@@ -25,14 +25,14 @@ _onnx = _pipe = _tok = None
 # phrases the TTS mangles -> how to say them (shown unchanged). Applied to plain words only, so
 # an explicit {spoken|Shown} group always wins.
 SAY = [(r"(?i)\bairbnb", "Air-bee-en-bee"),
-       (r"\bSt\.? Louis\b", "{Saint Lewis|St. Louis}")]
+       (r"\b(?:St\.?|Saint) Louis\b", "{Saint Lewis|\\g<0>}")]
 
 def parse(voice):
     """-> spoken text, units [(spoken_words[], show, accent)]"""
     units = []
     for pat, rep in SAY:
         if rep.startswith("{"):
-            voice = re.sub(r"(\{[^}]*\})|" + pat, lambda m: m.group(1) or rep, voice)
+            voice = re.sub(r"(\{[^}]*\})|(" + pat + ")", lambda m: m.group(1) or m.expand(rep.replace("\\g<0>", "\\g<2>")), voice)
     for m in re.finditer(r"\{([^|}]*)\|([^}]*)\}|(\S+)", voice):
         if m.group(3) is None:
             spoken, show = m.group(1).split(), m.group(2)
