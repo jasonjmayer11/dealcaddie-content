@@ -402,8 +402,10 @@ def scoreboard(now):
     ly = (SH - _SB_LA.height) // 2
     card.alpha_composite(_SB_LA, (pad + 48, pad + ly)); card.alpha_composite(_SB_LB, (pad + SW - 48 - _SB_LB.width, pad + ly))
     gap = 78 if L2 else 60; fs = 66 if L2 else 54
-    if SB_STYLE == "rounds": gap = SW / 2 - _SB_LA.width - 48 - 70
-    for side, x in (("a", SW / 2 - gap), ("b", SW / 2 + gap)):
+    xs = {"a": SW / 2 - gap, "b": SW / 2 + gap}
+    if SB_STYLE == "rounds":                          # each score sits just inside its own label
+        xs = {"a": 48 + _SB_LA.width + 56, "b": SW - 48 - _SB_LB.width - 56}
+    for side, x in xs.items():
         last = max([events.get(f"h{i}w", -9) for i, h in enumerate(holes) if h["winner"] == side] + [-9])
         pop = 1 + 0.35 * max(0, 1 - (now - last) / 0.4) if now >= last else 1
         n = text_layer(str(s[side]), F_NUM, int(fs * pop), GOLD); card.alpha_composite(n, (int(pad + x - n.width / 2), int(pad + SH / 2 - n.height / 2)))
