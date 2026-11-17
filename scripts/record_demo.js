@@ -123,7 +123,8 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
   const sheet = page.locator('.dcs-sheet.on');
   const inSheet = await sheet.isVisible().catch(() => false);
   const box = inSheet ? sheet.locator('input[type="text"]').first() : input;
-  await box.fill(listing); await sleep(900);
+  if (STORY && STORY.typePaste) { await box.fill(''); await box.type(listing, { delay: 22 }); } else await box.fill(listing);   // typed on camera
+  await sleep(900);
   if (inSheet) {
     await box.press('Enter');
     const ok = await page.waitForSelector('#live-score-num', { state: 'attached', timeout: 5000 }).then(() => true).catch(() => false);

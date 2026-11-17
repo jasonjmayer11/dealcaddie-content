@@ -258,5 +258,6 @@
  "why": "Analyzing a rental by hand takes an hour, and most deals aren't worth it. DealCaddie does it in seconds.",
  "ask": "How do you analyze deals today? 👇",
  "require": "Best[^\\n]{0,40}\\n?\\s*\\+\\$(?:[2-9]\\d\\d|\\d,\\d{3})/mo[\\s\\S]{0,400}Cash-on-cash[^\\n]{0,20}\\n?\\s*(?:[4-9]|\\d\\d)\\.\\d+%",
- "requireLog": "Best[\\s\\S]{0,40}|Cash-on-cash[\\s\\S]{0,25}"
+ "requireLog": "Best[\\s\\S]{0,40}|Cash-on-cash[\\s\\S]{0,25}",
+ "typePaste": true
 }
