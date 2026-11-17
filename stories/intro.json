@@ -55,8 +55,7 @@
      "wait": 600
     },
     {
-     "focus": "#live-score-num",
-     "pick": "parent2"
+     "focus": "#results-top"
     }
    ],
    "hold": 4.5,
@@ -70,7 +69,7 @@
     },
     {
      "focus": "#fin-tax",
-     "pick": "card"
+     "pick": "parent2"
     }
    ],
    "hold": 5,
@@ -80,12 +79,11 @@
    "id": "custom",
    "do": [
     {
-     "focus": "#results-template-select",
-     "pick": "parent"
+     "focus": "#fin-price",
+     "pick": "card"
     }
    ],
    "hold": 5,
-   "needs_focus": true,
    "line": "Change any number, or save your own assumptions as a template. Everything updates live."
   },
   {
@@ -160,7 +158,7 @@
    "id": "share",
    "do": [
     {
-     "focus": "button[onclick=\"heroShare()\"]"
+     "focus": "#inline-share-toggle"
     }
    ],
    "hold": 5,

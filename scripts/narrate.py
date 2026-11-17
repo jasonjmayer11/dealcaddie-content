@@ -308,7 +308,8 @@ _lap_cues = []                            # (t, image key)
 _lap_img = {}
 if any(_lap_seg):
     LSW, LSH = 960, 600                   # screen
-    LX, LY = (W - LSW) // 2, 470
+    LX, LY = (W - LSW) // 2, 640
+    LCROP = {"ins": 380}                  # x offset of each page's interesting part (pages are 1440x900)
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     for i, (seg, disp, _) in enumerate(lines):
         if not _lap_seg[i]: continue
@@ -321,7 +322,7 @@ if any(_lap_seg):
                 if k is not None: t += max(0.0, wt_[k] - 0.15)
             _lap_cues.append((t, key))
             if key not in _lap_img:
-                _lap_img[key] = Image.open(os.path.join(root, "assets", "intro", "laptop", key + ".png")).convert("RGB").resize((LSW, LSH), Image.LANCZOS)
+                _lap_img[key] = Image.open(os.path.join(root, "assets", "intro", "laptop", key + ".png")).convert("RGB")
     _lap_cues.sort()
     lid = Image.new("RGBA", (LSW + 44, LSH + 52), (0, 0, 0, 0))
     ImageDraw.Draw(lid).rounded_rectangle([0, 0, lid.width - 1, lid.height - 1], radius=30, fill=(24, 28, 26, 255))
@@ -341,9 +342,12 @@ def laptop_frame(f, t):
     lay.alpha_composite(lshadow, (-100, LY - 140))
     lay.alpha_composite(lid, (LX - 22, LY - 26 + lift))
     cur = [c for c in _lap_cues if c[0] <= t] or _lap_cues[:1]
-    scr = _lap_img[cur[-1][1]]
+    def view(c):                          # a close-up of the page that drifts down slowly, like someone reading
+        im = _lap_img[c[1]]; x0 = LCROP.get(c[1], 0); dy = min(140.0, 34.0 * max(0.0, t - c[0]))
+        return im.crop((x0, int(dy), x0 + 768, int(dy) + 480)).resize((LSW, LSH), Image.LANCZOS)
+    scr = view(cur[-1])
     if len(cur) >= 2 and t - cur[-1][0] < 0.25:
-        scr = Image.blend(_lap_img[cur[-2][1]], scr, (t - cur[-1][0]) / 0.25)
+        scr = Image.blend(view(cur[-2]), scr, (t - cur[-1][0]) / 0.25)
     lay.paste(scr, (LX, LY + lift))
     lay.alpha_composite(deck, (10, LY + LSH + 26 + lift))
     # clock: hours of research squeezed into the scene
