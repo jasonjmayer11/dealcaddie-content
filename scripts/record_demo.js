@@ -162,11 +162,11 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
     if (sel.startsWith('text:')) {
       const rx = new RegExp(sel.slice(5), 'i');
       for (const e of root.querySelectorAll('*')) {
-        if (!e.offsetParent || !rx.test(e.textContent || '')) continue;
+        if (!e.getClientRects().length || !rx.test(e.textContent || '')) continue;   // visible (fixed-position too)
         if (!el || e.textContent.length < el.textContent.length) el = e;
       }
     } else {
-      const vis = e => e.offsetParent !== null && e.getBoundingClientRect().height > 0;
+      const vis = e => e.getClientRects().length > 0 && e.getBoundingClientRect().height > 0;   // offsetParent is null for position:fixed
       el = [...document.querySelectorAll(sel)].find(vis) || null;     // first *visible* match (desktop twins are hidden)
     }
     if (!el) return false;

@@ -28,7 +28,11 @@
      "wait": 1500
     },
     {
-     "gotoEval": "(()=>{const d=document.getElementById('dl-drawer');const st=d&&d.dataset.state;if(st==='peek')return null;localStorage.setItem('dc_deals_drawer','peek');return location.pathname+location.search})()"
+     "waitfn": "!/Scoring your strongest/i.test(document.body.innerText)",
+     "timeout": 240000
+    },
+    {
+     "gotoEval": "(()=>{const M=window.dcBuyBoxMap;const b=M&&M.lastBox&&M.lastBox();if(!b)return null;const rs=(M.rows()||[]).filter(r=>r.lat!=null);const good=rs.filter(r=>/analyzed|passed|below_criteria/.test(r.screen_status||''));const use=good.length>=3?good:rs;if(!use.length)return null;const med=a=>{a=a.slice().sort((x,y)=>x-y);return a[a.length>>1]};localStorage.setItem('dc_deals_view_'+b.id,JSON.stringify({lat:med(use.map(r=>r.lat)),lng:med(use.map(r=>r.lng)),z:13,t:Date.now()}));localStorage.setItem('dc_deals_drawer','peek');return location.pathname+location.search})()"
     },
     {
      "waitfn": "(()=>{const s=(document.getElementById('dl-sum')||{}).innerText||'';return /hit your targets|\\d+ listings?/.test(s)})()",
@@ -92,7 +96,13 @@
      "click": "#dl-handle"
     },
     {
-     "wait": 700
+     "wait": 500
+    },
+    {
+     "click": "#dl-handle"
+    },
+    {
+     "wait": 900
     },
     {
      "click": "#dl-qf"
@@ -125,13 +135,7 @@
      "click": "#dl-qf-done"
     },
     {
-     "wait": 500
-    },
-    {
-     "click": "#dl-handle"
-    },
-    {
-     "wait": 1200
+     "wait": 900
     },
     {
      "focus": ".dl-row"
