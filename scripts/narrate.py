@@ -188,6 +188,7 @@ for i, (seg, _, _) in enumerate(lines):
     if seg == "end": continue
     m0 = mk.get(seg) or {}
     a, b = m0.get("start", 0), m0.get("end", m0.get("start", 0) + 6)
+    if (STORY and _sc.get(seg, {}).get("laptop")) or not m0: a, b = 0, 1        # drawn, not recorded
     need = seg_len[i]
     if seg == "paste":                       # the wait for the analysis is squeezed into the line
         sp = max(1.0, (b - a) / need)
@@ -298,8 +299,67 @@ def screen_with_insets(fr):
 base = BG.copy().convert("RGBA")
 # no top logo: Instagram/TikTok overlay the account name + audio label there (it collided). Brand lives on the cover + end card.
 def ease_out(k): k = min(1.0, max(0.0, k)); return 1 - (1 - k) ** 3
-def phone_dy(t):                         # opening move: the phone rises into place over the first second
-    return int(760 * (1 - ease_out(t / 0.95)))
+# ---- laptop scenes ("the old way"): a laptop with browser screenshots that switch as words are spoken
+_lap_seg = [bool(_sc.get(seg, {}).get("laptop")) for seg, _, _ in lines]
+_seg_t0 = np.cumsum([0] + seg_len[:-1])
+PHONE_T0 = next((float(_seg_t0[i]) for i, (seg, _, _) in enumerate(lines) if not _lap_seg[i] and seg != "end"), 0.0)
+LAP_END = PHONE_T0 if any(_lap_seg) else 0.0
+_lap_cues = []                            # (t, image key)
+_lap_img = {}
+if any(_lap_seg):
+    LSW, LSH = 960, 600                   # screen
+    LX, LY = (W - LSW) // 2, 470
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    for i, (seg, disp, _) in enumerate(lines):
+        if not _lap_seg[i]: continue
+        wt_ = word_times(disp, wtimes[i], len(audio[i]) / SR); dw = [re.sub(r"[^a-z]", "", w.lower()) for w in disp.split()]
+        for cue in _sc[seg]["laptop"]:
+            key, word = (cue, None) if isinstance(cue, str) else (cue[1], cue[0])
+            t = float(_seg_t0[i])
+            if word:
+                k = next((j for j, w in enumerate(dw) if w.startswith(word)), None)
+                if k is not None: t += max(0.0, wt_[k] - 0.15)
+            _lap_cues.append((t, key))
+            if key not in _lap_img:
+                _lap_img[key] = Image.open(os.path.join(root, "assets", "intro", "laptop", key + ".png")).convert("RGB").resize((LSW, LSH), Image.LANCZOS)
+    _lap_cues.sort()
+    lid = Image.new("RGBA", (LSW + 44, LSH + 52), (0, 0, 0, 0))
+    ImageDraw.Draw(lid).rounded_rectangle([0, 0, lid.width - 1, lid.height - 1], radius=30, fill=(24, 28, 26, 255))
+    ImageDraw.Draw(lid).ellipse([lid.width // 2 - 5, 9, lid.width // 2 + 5, 19], fill=(60, 66, 63, 255))
+    deck = Image.new("RGBA", (W - 20, 46), (0, 0, 0, 0)); dd = ImageDraw.Draw(deck)
+    dd.rounded_rectangle([0, 0, deck.width - 1, 30], radius=12, fill=(196, 201, 205, 255))
+    dd.rounded_rectangle([0, 18, deck.width - 1, 45], radius=16, fill=(160, 166, 171, 255))
+    dd.rounded_rectangle([deck.width // 2 - 90, 0, deck.width // 2 + 90, 12], radius=6, fill=(170, 176, 181, 255))
+    lshadow = Image.new("RGBA", (W + 200, LSH + 300), (0, 0, 0, 0))
+    ImageDraw.Draw(lshadow).rounded_rectangle([140, 120, W + 60, LSH + 190], radius=40, fill=(10, 30, 18, 60))
+    lshadow = lshadow.filter(ImageFilter.GaussianBlur(40))
+def laptop_frame(f, t):
+    """the laptop, its current page (cross-fading on each cue) and a running 'time spent' clock."""
+    lift = int(-60 * ease_out((t - (LAP_END - 0.45)) / 0.45)) if t > LAP_END - 0.45 else 0
+    fade = 1.0 if t < LAP_END - 0.45 else max(0.0, 1 - (t - (LAP_END - 0.45)) / 0.45)
+    lay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    lay.alpha_composite(lshadow, (-100, LY - 140))
+    lay.alpha_composite(lid, (LX - 22, LY - 26 + lift))
+    cur = [c for c in _lap_cues if c[0] <= t] or _lap_cues[:1]
+    scr = _lap_img[cur[-1][1]]
+    if len(cur) >= 2 and t - cur[-1][0] < 0.25:
+        scr = Image.blend(_lap_img[cur[-2][1]], scr, (t - cur[-1][0]) / 0.25)
+    lay.paste(scr, (LX, LY + lift))
+    lay.alpha_composite(deck, (10, LY + LSH + 26 + lift))
+    # clock: hours of research squeezed into the scene
+    mins = int(64 * ease_out(min(1.0, t / max(LAP_END, 0.1))) ** 1.0)
+    txt = f"{mins // 60}:{mins % 60:02d} hrs" if mins >= 60 else f"{mins} min"
+    chip = text_layer("Time spent  " + txt, F_HEAD, 46, (180, 40, 40))
+    cw_ = chip.width + 60
+    lay.alpha_composite(rounded_box(cw_, 84, (255, 236, 233), 42), ((W - cw_) // 2, LY - 170 + lift))
+    lay.alpha_composite(chip, ((W - chip.width) // 2, LY - 170 + 42 - chip.height // 2 + lift))
+    if fade < 1: lay.putalpha(lay.getchannel("A").point(lambda v: int(v * fade)))
+    f.alpha_composite(lay, (0, 0))
+def rounded_box(w, h, col, r):
+    b = Image.new("RGBA", (w, h), (0, 0, 0, 0)); ImageDraw.Draw(b).rounded_rectangle([0, 0, w - 1, h - 1], radius=r, fill=col + (255,)); return b
+def phone_dy(t):                         # the phone rises into place when its first scene starts
+    if t < PHONE_T0: return 99999
+    return int(760 * (1 - ease_out((t - PHONE_T0) / 0.95)))
 cap_cache = {}
 def caption(text):
     if text not in cap_cache:
@@ -403,10 +463,12 @@ for i in range(n_main):
     t = i / FPS
     f = base.copy()
     dy = phone_dy(t)
-    f.alpha_composite(shadow, (PX - 80, PY - 80 + dy))
-    f.alpha_composite(phone, (PX, PY + dy))
-    if last is not None:
-        f.paste(screen_with_insets(last), (PX + bez, PY + bez + dy), mask)
+    if t < LAP_END: laptop_frame(f, t)
+    if dy < H:
+        f.alpha_composite(shadow, (PX - 80, PY - 80 + dy))
+        f.alpha_composite(phone, (PX, PY + dy))
+        if last is not None and dy + PY + bez < H:
+            f.paste(screen_with_insets(last), (PX + bez, PY + bez + dy), mask)
     cur = next((c for c in reversed(caps) if c[0] <= t < c[1] + 0.12), None)   # newest chunk wins the hand-over
     if t < hook_end:
         f.alpha_composite(hook_frame(t), (0, 0)); cur = None

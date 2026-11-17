@@ -326,6 +326,7 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
       }
     };
     for (const sc of STORY.scenes) {
+      if (sc.laptop) continue;                            // drawn by narrate.py, nothing to record
       runAct.missed = false;
       for (const act of sc.do || []) await runAct(act);
       const missed = runAct.missed;

@@ -1,11 +1,50 @@
 {
  "audience": "investor",
  "start": "search",
- "max_len": 75,
+ "max_len": 100,
+ "typePaste": true,
+ "require": "Best[^\\n]{0,40}\\n?\\s*\\+\\$(?:[2-9]\\d\\d|\\d,\\d{3})/mo[\\s\\S]{0,400}Cash-on-cash[^\\n]{0,20}\\n?\\s*(?:[4-9]|\\d\\d)\\.\\d+%",
+ "requireLog": "Best[\\s\\S]{0,40}|Cash-on-cash[\\s\\S]{0,25}",
  "title": "Is it a deal? Stop guessing. Meet DealCaddie.",
- "blurb": "DealCaddie analyzes any rental listing in seconds: rent, taxes and insurance filled in, every strategy side by side, comps, a straight AI verdict, and deals that find you every morning.",
- "tags": "#realestateinvesting #rentalproperty #cashflow #realestateinvestor #dealanalysis",
+ "blurb": "DealCaddie analyzes any rental listing in seconds, on your phone: deal score, rent, taxes and insurance looked up for you, every strategy, comps, an AI analyst, one-link sharing, deals that find you, and Agent Pro for agents.",
+ "tags": "#realestateinvesting #rentalproperty #realestateagent #cashflow #dealanalysis",
  "scenes": [
+  {
+   "id": "old1",
+   "laptop": [
+    "tax"
+   ],
+   "line": "Analyzing a rental the old way takes hours."
+  },
+  {
+   "id": "old2",
+   "laptop": [
+    [
+     "taxes",
+     "tax"
+    ],
+    [
+     "rent",
+     "rent"
+    ],
+    [
+     "comps",
+     "comps"
+    ],
+    [
+     "insurance",
+     "ins"
+    ]
+   ],
+   "line": "Dig up the taxes. Guess the rent. Hunt down sold comps. Wait on an insurance quote."
+  },
+  {
+   "id": "old3",
+   "laptop": [
+    "xls"
+   ],
+   "line": "Then wrestle it all into a spreadsheet, and most deals still aren't worth it."
+  },
   {
    "id": "score",
    "do": [
@@ -16,39 +55,52 @@
      "wait": 600
     },
     {
-     "focus": "#results-top"
+     "focus": "#live-score-num",
+     "pick": "parent2"
     }
    ],
-   "hold": 4,
-   "line": "A {price_short} {ptype} in {city}: deal score, {score} out of 10."
+   "hold": 4.5,
+   "line": "You get a deal score and a clear call: buy, watch or pass."
   },
   {
    "id": "auto",
    "do": [
     {
-     "tab": "Cashflow"
+     "tab": "Financials"
     },
     {
-     "focus": "#live-ltr-rent",
-     "pick": "parent2"
+     "focus": "#fin-tax",
+     "pick": "card"
     }
    ],
-   "hold": 4,
-   "line": "Rent, taxes and insurance are filled in for you."
+   "hold": 5,
+   "line": "Rent, taxes, insurance and HOA are looked up for you, from real market data."
+  },
+  {
+   "id": "custom",
+   "do": [
+    {
+     "focus": "#results-template-select",
+     "pick": "parent"
+    }
+   ],
+   "hold": 5,
+   "needs_focus": true,
+   "line": "Change any number, or save your own assumptions as a template. Everything updates live."
   },
   {
    "id": "strategies",
    "do": [
+    {
+     "tab": "Cashflow"
+    },
     {
      "focus": "text:^\\s*Cashflow by Strategy",
      "pick": "card"
     }
    ],
    "hold": 6,
-   "line": "Every strategy, side by side. Best play here: {best_name}, at {best_cf}/mo.",
-   "alts": [
-    "Every strategy, side by side: long-term, Airbnb, Section 8, house hack and more."
-   ]
+   "line": "See every strategy side by side: long-term, mid-term, Airbnb, Section 8, house hack and BRRRR."
   },
   {
    "id": "comps",
@@ -64,7 +116,7 @@
    ],
    "hold": 4.5,
    "needs_focus": true,
-   "line": "Recent sales nearby show if the price is fair."
+   "line": "Recent sales and a suggested offer, so you never overpay."
   },
   {
    "id": "aitake",
@@ -83,9 +135,37 @@
      "pick": "card"
     }
    ],
+   "hold": 6,
+   "needs_focus": true,
+   "line": "Caddie, your AI analyst, gives you a straight verdict, flags the risks, and answers your questions."
+  },
+  {
+   "id": "offer",
+   "do": [
+    {
+     "top": true
+    },
+    {
+     "wait": 600
+    },
+    {
+     "focus": "text:^\\s*Offer Plan\\s*$"
+    }
+   ],
+   "hold": 4,
+   "needs_focus": true,
+   "line": "Build your offer plan in one tap: opening, target and walk-away."
+  },
+  {
+   "id": "share",
+   "do": [
+    {
+     "focus": "button[onclick=\"heroShare()\"]"
+    }
+   ],
    "hold": 5,
    "needs_focus": true,
-   "line": "And Caddie gives you a straight answer, red flags included."
+   "line": "Then share the whole deal in one link. Partners and lenders open it on any phone, no login."
   },
   {
    "id": "deals",
@@ -129,7 +209,7 @@
    ],
    "hold": 6.5,
    "zoom": false,
-   "line": "Want the deals to come to you? DealCaddie underwrites every listing in your market, and pins each one with its cash flow."
+   "line": "Set a Buy Box, and the deals come to you: every listing in your market, underwritten and pinned with its cash flow."
   },
   {
    "id": "email",
@@ -146,61 +226,48 @@
    ],
    "during": [
     {
-     "wait": 500
+     "wait": 400
     },
     {
      "scroll": {
-      "by": 900,
-      "ms": 3600
+      "by": 800,
+      "ms": 3200
      }
     }
    ],
-   "hold": 5,
+   "hold": 4.5,
    "zoom": false,
    "line": "New matches land in your inbox every morning."
   },
   {
-   "id": "problem1",
+   "id": "agent1",
    "do": [
     {
-     "clear": true
+     "goto": "/sample-portal"
     },
     {
-     "html": "assets/intro/spreadsheet.html"
+     "wait": 2000
     },
     {
-     "wait": 900
+     "focus": ".nav-id",
+     "pick": "self"
     }
    ],
-   "during": [
-    {
-     "wait": 1200
-    },
-    {
-     "scroll": {
-      "by": 260,
-      "ms": 4500
-     }
-    }
-   ],
-   "hold": 7,
-   "zoom": false,
-   "line": "Analyzing a rental the old way takes an hour: a spreadsheet, a dozen browser tabs, and a lot of guessing."
+   "hold": 5.5,
+   "needs_focus": true,
+   "line": "Agents, Agent Pro puts your name, photo and brokerage on every deal you send."
   },
   {
-   "id": "problem2",
-   "do": [],
-   "during": [
+   "id": "agent2",
+   "do": [
     {
-     "scroll": {
-      "by": 330,
-      "ms": 4500
-     }
+     "focus": "[id^=deal-]",
+     "pick": "self"
     }
    ],
    "hold": 6,
-   "zoom": false,
-   "line": "Rent, taxes, insurance, repairs, every strategy. And most deals still aren't worth it."
+   "needs_focus": true,
+   "line": "Each client gets a private portal to rank deals and request showings, so you know exactly who to show first."
   },
   {
    "id": "close",
@@ -231,33 +298,36 @@
    ],
    "hold": 5,
    "zoom": false,
-   "line": "Stop guessing. Know if it's a deal before you make an offer."
+   "line": "Faster, more accurate, and always in your pocket. Stop guessing on deals."
   }
  ],
  "extra_lines": {
-  "paste": "DealCaddie does it in seconds. Just paste the listing link."
+  "paste": "Or do it on the go, in seconds. Just paste a listing link."
  },
  "order": [
-  "problem1",
-  "problem2",
+  "old1",
+  "old2",
+  "old3",
   "paste",
   "score",
   "auto",
+  "custom",
   "strategies",
   "comps",
   "aitake",
+  "offer",
+  "share",
   "deals",
   "email",
+  "agent1",
+  "agent2",
   "close"
  ],
  "wrap": "",
  "end": "Try it free at dealcaddie.ai.",
  "cover": "Is it a deal? Know in seconds.",
- "cover_sub": "Paste any listing. Every number, done for you.",
+ "cover_sub": "For investors and agents. Every number, done for you.",
  "cover_scene": "strategies",
- "why": "Analyzing a rental by hand takes an hour, and most deals aren't worth it. DealCaddie does it in seconds.",
- "ask": "How do you analyze deals today? 👇",
- "require": "Best[^\\n]{0,40}\\n?\\s*\\+\\$(?:[2-9]\\d\\d|\\d,\\d{3})/mo[\\s\\S]{0,400}Cash-on-cash[^\\n]{0,20}\\n?\\s*(?:[4-9]|\\d\\d)\\.\\d+%",
- "requireLog": "Best[\\s\\S]{0,40}|Cash-on-cash[\\s\\S]{0,25}",
- "typePaste": true
+ "why": "Analyzing a rental by hand takes hours. DealCaddie does it in seconds, on your phone.",
+ "ask": "How do you analyze deals today? 👇"
 }
