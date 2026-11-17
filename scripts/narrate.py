@@ -309,7 +309,7 @@ _lap_img = {}
 if any(_lap_seg):
     LSW, LSH = 960, 600                   # screen
     LX, LY = (W - LSW) // 2, 640
-    LCROP = {"ins": 380}                  # x offset of each page's interesting part (pages are 1440x900)
+    LCROP = {"ins": 330}                  # x offset of each page's interesting part (pages are 1440x900)
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     for i, (seg, disp, _) in enumerate(lines):
         if not _lap_seg[i]: continue
@@ -343,7 +343,7 @@ def laptop_frame(f, t):
     lay.alpha_composite(lid, (LX - 22, LY - 26 + lift))
     cur = [c for c in _lap_cues if c[0] <= t] or _lap_cues[:1]
     def view(c):                          # a close-up of the page that drifts down slowly, like someone reading
-        im = _lap_img[c[1]]; x0 = LCROP.get(c[1], 0); dy = min(140.0, 34.0 * max(0.0, t - c[0]))
+        im = _lap_img[c[1]]; x0 = LCROP.get(c[1], 0); dy = min(300.0, 75.0 * max(0.0, t - c[0] - 0.6)) if c[1] == "xls" else min(140.0, 34.0 * max(0.0, t - c[0]))
         return im.crop((x0, int(dy), x0 + 768, int(dy) + 480)).resize((LSW, LSH), Image.LANCZOS)
     scr = view(cur[-1])
     if len(cur) >= 2 and t - cur[-1][0] < 0.25:

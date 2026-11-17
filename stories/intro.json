@@ -158,7 +158,13 @@
    "id": "share",
    "do": [
     {
-     "focus": "#inline-share-toggle"
+     "top": true
+    },
+    {
+     "wait": 500
+    },
+    {
+     "focus": "#dc-dock-share"
     }
    ],
    "hold": 5,
