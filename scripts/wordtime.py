@@ -22,11 +22,17 @@ VOICE = os.environ.get("VOICE") or "af_heart"
 SPEED = float(os.environ.get("VOICE_SPEED") or 1.05)
 _onnx = _pipe = _tok = None
 
-SAY = {"airbnb": ("Air-bee-en-bee",)}       # words the TTS mangles -> how to say them (shown unchanged)
+# phrases the TTS mangles -> how to say them (shown unchanged). Applied to plain words only, so
+# an explicit {spoken|Shown} group always wins.
+SAY = [(r"(?i)\bairbnb", "Air-bee-en-bee"),
+       (r"\bSt\.? Louis\b", "{Saint Lewis|St. Louis}")]
 
 def parse(voice):
     """-> spoken text, units [(spoken_words[], show, accent)]"""
     units = []
+    for pat, rep in SAY:
+        if rep.startswith("{"):
+            voice = re.sub(r"(\{[^}]*\})|" + pat, lambda m: m.group(1) or rep, voice)
     for m in re.finditer(r"\{([^|}]*)\|([^}]*)\}|(\S+)", voice):
         if m.group(3) is None:
             spoken, show = m.group(1).split(), m.group(2)
@@ -34,7 +40,8 @@ def parse(voice):
             show = m.group(3); spoken = [show]
         acc = "*" in show
         show = show.replace("*", ""); spoken = [w.replace("*", "") for w in spoken]
-        spoken = [SAY.get(re.sub(r"[^\w]", "", w).lower(), (None,))[0] and re.sub(r"(?i)airbnb", SAY["airbnb"][0], w) or w for w in spoken]
+        for pat, rep in SAY:
+            if not rep.startswith("{"): spoken = [re.sub(pat, rep, w) for w in spoken]
         if units and not re.search(r"\w", show):          # bare punctuation after a {..|..} group
             ps, pshow, pacc = units[-1]; units[-1] = (ps[:-1] + [ps[-1] + show] if ps else ps, pshow + show, pacc); continue
         units.append((spoken, show, acc))

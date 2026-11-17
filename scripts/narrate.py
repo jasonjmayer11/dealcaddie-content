@@ -107,6 +107,13 @@ def speakify(t):
     t = re.sub(r"(?<!\[)\bAirbnb\b(?!\])", AIRBNB, t)
     return t
 
+def say_names(t):
+    """Place names and acronyms the voice gets wrong, on every spoken line."""
+    t = re.sub(r"\bSt\.? Louis\b", "Saint Lewis", t)
+    t = re.sub(r"(?<!\[)\bHUD\b(?!\])", "hud", t)       # said as a word, not H-U-D
+    t = re.sub(r"(?<!\[)\bZIP\b(?!\])", "zip", t)
+    return t
+
 if STORY:
     v = dict(price_short=short(price), city=city, ptype=ptype, score=score)
     v.update({k: x for k, x in (data.get("vars") or {}).items() if x})
@@ -135,17 +142,27 @@ if STORY:
 # ------------------------------------------------------------------ voice (Kokoro, runs locally)
 from kokoro import KPipeline
 pipe = KPipeline(lang_code="a")
+def _core(w): return re.sub(r"[^a-z0-9]", "", w.lower())
 def speak(text, speed):
-    parts = []
-    for gs, ps, a in pipe(text, voice=VOICE, speed=speed):
-        print(f"  phonemes: {ps}")
-        parts.append(a.numpy() if hasattr(a, "numpy") else np.asarray(a))
-    return np.concatenate(parts).astype(np.float32) if parts else np.zeros(1, np.float32)
+    """-> (audio, [(word, t0, t1)]) with the duration model's own per-word timestamps."""
+    text = say_names(text)
+    parts, words, off = [], [], 0.0
+    for r in pipe(text, voice=VOICE, speed=speed):
+        print(f"  phonemes: {r.phonemes}")
+        a = r.audio.numpy() if hasattr(r.audio, "numpy") else np.asarray(r.audio)
+        for tk in (getattr(r, "tokens", None) or []):
+            if _core(tk.text) and getattr(tk, "start_ts", None) is not None:
+                words.append((tk.text, off + tk.start_ts, off + (tk.end_ts or tk.start_ts)))
+        parts.append(a); off += len(a) / SR
+    return (np.concatenate(parts).astype(np.float32) if parts else np.zeros(1, np.float32)), words
 
 GAP = 0.35
+_sc = {sc["id"]: sc for sc in (STORY or {}).get("scenes", [])}
+gaps = [float(_sc.get(seg, {}).get("gap", GAP)) for seg, _, _ in lines]     # "gap": 0.1 chains lines tightly
 for attempt in range(3):
-    audio = [speak(s, SPEED) for _, _, s in lines]
-    seg_len = [len(a) / SR + GAP for a in audio]
+    spoken = [speak(s, SPEED) for _, _, s in lines]
+    audio = [a for a, _ in spoken]; wtimes = [w for _, w in spoken]
+    seg_len = [len(a) / SR + g for a, g in zip(audio, gaps)]
     total = sum(seg_len) + 0.6
     print(f"voice @ {SPEED:.2f}x: {total:.1f}s")
     if total <= MAX_LEN: break
@@ -174,26 +191,63 @@ probe = subprocess.check_output(["ffprobe", "-v", "error", "-select_streams", "v
                                  "stream=width,height", "-of", "csv=p=0", cut]).decode().strip().split(",")
 sw, sh = int(probe[0]), int(probe[1])
 
-# ------------------------------------------------------------------ captions: short chunks timed by length
+# ------------------------------------------------------------------ captions: each chunk appears as its first word is spoken
+def word_times(disp, words, speak_t):
+    """Start time of every display word. Display and spoken text differ ("$1,450/mo" vs the words
+    said), so match what we can in order and spread the rest evenly between matched neighbours."""
+    dw = disp.split(); n = len(dw)
+    if not words:                               # no timestamps: spread by length (the old way)
+        L = [len(w) + 1 for w in dw]; tot = sum(L) or 1
+        return [speak_t * sum(L[:i]) / tot for i in range(n)]
+    cores = [_core(w) for w, _, _ in words]
+    tok, j = [None] * n, 0                      # display word -> index of the spoken word it matched
+    for i, w in enumerate(dw):
+        c = _core(w)
+        if not c: continue
+        for k in range(j, min(j + 6, len(cores))):
+            if cores[k] == c or (len(cores[k]) >= 3 and c.startswith(cores[k])):
+                tok[i] = k; j = k + 1; break
+    if tok[0] is None: tok[0] = 0
+    got = [None] * n
+    i = 0
+    while i < n:
+        if tok[i] is not None:
+            got[i] = words[tok[i]][1]; i += 1; continue
+        a = i - 1; b = i                        # unmatched run [i, b): it owns the spoken words between its neighbours
+        while b < n and tok[b] is None: b += 1
+        k0 = tok[a] + 1; k1 = tok[b] if b < n else len(words)
+        for r, ii in enumerate(range(i, b)):
+            kk = k0 + (k1 - k0) * r // max(1, b - i)
+            got[ii] = words[kk][1] if kk < k1 and kk < len(words) else (words[k1][1] if k1 < len(words) else words[-1][2])
+        i = b
+    for i in range(1, n): got[i] = max(got[i], got[i - 1])
+    return got
+
 starts = np.cumsum([0] + seg_len[:-1])
 caps = []                    # (t0, t1, text)
-for (seg, disp, _), t0, dur, a in zip(lines, starts, seg_len, audio):
+CAP_LEAD = 0.04              # a hair early reads as "in sync"; late reads as lag
+_sync_log = []
+for (seg, disp, _), t0, dur, a, wt in zip(lines, starts, seg_len, audio, wtimes):
     if seg == "end": continue
     words = disp.split()
     chunks, cur = [], []
     for w in words:
         cur.append(w)
         if len(cur) >= 6 or (w.endswith((".", "?", ":", ",")) and len(cur) >= 2):
-            chunks.append(" ".join(cur)); cur = []
+            chunks.append(cur); cur = []
     if cur:
-        if len(cur) == 1 and chunks: chunks[-1] += " " + cur[0]      # never strand a single word
-        else: chunks.append(" ".join(cur))
+        if len(cur) == 1 and chunks: chunks[-1] += cur      # never strand a single word
+        else: chunks.append(cur)
     speak_t = len(a) / SR
-    tot = sum(len(c) for c in chunks) or 1
-    t = t0
+    wt_ = word_times(disp, wt, speak_t)
+    k = 0; cstarts = []
     for c in chunks:
-        d = speak_t * len(c) / tot
-        caps.append((t, t + d, c)); t += d
+        cstarts.append(t0 + max(0.0, wt_[k] - CAP_LEAD)); k += len(c)
+    for ci, c in enumerate(chunks):
+        c1 = cstarts[ci + 1] if ci + 1 < len(chunks) else t0 + max(speak_t, dur - 0.05)
+        caps.append((cstarts[ci], c1, " ".join(c)))
+    _sync_log.append(f"  [{seg}] {'real' if wt else 'estimated'} timing: " + " | ".join(f"{cs - t0:.2f}s {' '.join(c[:2])}…" for cs, c in zip(cstarts, chunks)))
+print("caption timing:\n" + "\n".join(_sync_log))
 
 # ------------------------------------------------------------------ compose: brand canvas, phone, captions
 LOGO = logo_layer(250)
@@ -258,13 +312,13 @@ if lines:
     if cur_: rows_.append(cur_)
     space = text_layer("a a", F_HEAD, HS, INK).width - 2 * text_layer("a", F_HEAD, HS, INK).width
     lh = int(HS * 1.12); top = 1752 - (lh * len(rows_)) // 2
-    spoken = len(audio[0]) / SR if audio else hook_end
-    k = 0; nwords = len(words)
+    _ht = word_times(hook_txt, wtimes[0], len(audio[0]) / SR) if audio else [0.15] * len(words)
+    k = 0
     for ri, row in enumerate(rows_):
         lays = [text_layer(w_, F_HEAD, HS, INK, tracking=-0.015) for w_ in row]
         x = (W - (sum(l.width for l in lays) + space * (len(lays) - 1))) // 2
         for l in lays:
-            _hw.append((l, x, top + ri * lh, 0.15 + spoken * k / max(1, nwords))); x += l.width + space; k += 1
+            _hw.append((l, x, top + ri * lh, max(0.0, _ht[k] - CAP_LEAD))); x += l.width + space; k += 1
 def hook_frame(t):
     im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     for l, x, y, t0 in _hw:
@@ -301,30 +355,36 @@ for (seg, _, _), t0, dur in zip(lines, seg_t0, seg_len):
     r = (mk.get(seg) or {}).get("rect")
     if not r or seg == "end":
         zplan.append(None); continue
-    x, y, w, h = r
-    if w < 0.6 * VW:                      # a small label/button: keep the whole row in shot, gentle push only
-        z, cx = min(1.1, 0.80 * VH / max(h, 1)), 0.5
+    x, y, w, h = r                        # the gold ring's rect: it must stay fully in shot
+    M = 18                                # breathing room around the ring, in CSS px
+    fit = min(VW / (w + 2 * M), VH / (h + 2 * M))
+    if w < 0.6 * VW:                      # a small label/button: gentle push only
+        z = min(1.1, 0.80 * VH / max(h, 1), fit)
     else:
-        z, cx = min(1.5, 0.96 * VW / max(w, 1), 0.80 * VH / max(h, 1)), (x + w / 2) / VW
+        z = min(1.5, 0.96 * VW / max(w, 1), 0.80 * VH / max(h, 1), fit)
     z = max(1.0, z)
     if z < 1.06: zplan.append(None); continue
-    zplan.append((t0, dur, z, cx, (y + h / 2) / VH))
+    zplan.append((t0, dur, z, (x + w / 2) / VW, (y + h / 2) / VH, (x - M, y - M, x + w + M, y + h + M)))
 def zoom_at(t):
     for zp in zplan:
         if zp and zp[0] <= t < zp[0] + zp[1]:
-            t0, dur, z, cx, cy = zp
+            t0, dur, z, cx, cy, box = zp
             k = min(1.0, (t - t0) / 0.7, (t0 + dur - t) / 0.45)
             k = max(0.0, k); k = k * k * (3 - 2 * k)
-            return 1 + (z - 1) * k, cx, cy
-    return 1.0, 0.5, 0.5
+            return 1 + (z - 1) * k, cx, cy, box
+    return 1.0, 0.5, 0.5, None
 for i in range(n_main):
     buf = dec.stdout.read(fsz)
     if len(buf) == fsz:
         src_im = Image.frombytes("RGB", (sw, sh), buf)
-        z, cx, cy = zoom_at(i / FPS)
+        z, cx, cy, box = zoom_at(i / FPS)
         if z > 1.001:
             cw, ch = sw / z, sh / z
-            x0 = min(max(cx * sw - cw / 2, 0), sw - cw); y0 = min(max(cy * sh - ch / 2, 0), sh - ch)
+            x0, y0 = cx * sw - cw / 2, cy * sh - ch / 2
+            if box:                                       # slide the crop so the ring is never cut
+                bx0, by0, bx1, by1 = (box[0] * sw / VW, box[1] * sh / VH, box[2] * sw / VW, box[3] * sh / VH)
+                x0 = min(max(x0, bx1 - cw), bx0); y0 = min(max(y0, by1 - ch), by0)
+            x0 = min(max(x0, 0), sw - cw); y0 = min(max(y0, 0), sh - ch)
             src_im = src_im.crop((int(x0), int(y0), int(x0 + cw), int(y0 + ch)))
         last = src_im.resize((SCR_W, SCR_H), Image.LANCZOS)
     t = i / FPS
@@ -334,7 +394,7 @@ for i in range(n_main):
     f.alpha_composite(phone, (PX, PY + dy))
     if last is not None:
         f.paste(screen_with_insets(last), (PX + bez, PY + bez + dy), mask)
-    cur = next((c for c in caps if c[0] <= t < c[1] + 0.12), None)
+    cur = next((c for c in reversed(caps) if c[0] <= t < c[1] + 0.12), None)   # newest chunk wins the hand-over
     if t < hook_end:
         f.alpha_composite(hook_frame(t), (0, 0)); cur = None
     if cur:

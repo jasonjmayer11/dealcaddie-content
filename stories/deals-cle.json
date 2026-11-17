@@ -1,0 +1,185 @@
+{
+ "audience": "investor",
+ "start": "none",
+ "title": "Cleveland deals that cash-flow, on one map. Then they come to you.",
+ "blurb": "Deals: DealCaddie underwrites every listing in the market on all 7 strategies, pins each one with its monthly cash flow, and emails new matches from your Buy Box every morning.",
+ "tags": "#realestateinvesting #cashflow #buyandhold #realestateinvestor #dealflow #clevelandrealestate",
+ "scenes": [
+  {
+   "id": "hook",
+   "do": [
+    {
+     "eval": "localStorage.setItem('dc_deals_drawer','peek'); 'peek set'"
+    },
+    {
+     "gotoEval": "fetch('/api/ask-search',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:\"3-bed under $300K in Cleveland that cash-flows $200\"})}).then(r=>r.json()).then(j=>j.next||null)"
+    },
+    {
+     "wait": 2500
+    },
+    {
+     "click": "text:^\\s*Apply filters\\s*$"
+    },
+    {
+     "waitfn": "(()=>{const s=(document.getElementById('dl-sum')||{}).innerText||'';return /hit your targets|\\d+ listings?/.test(s)})()",
+     "timeout": 120000
+    },
+    {
+     "wait": 1500
+    },
+    {
+     "gotoEval": "(()=>{const d=document.getElementById('dl-drawer');const st=d&&d.dataset.state;if(st==='peek')return null;localStorage.setItem('dc_deals_drawer','peek');return location.pathname+location.search})()"
+    },
+    {
+     "waitfn": "(()=>{const s=(document.getElementById('dl-sum')||{}).innerText||'';return /hit your targets|\\d+ listings?/.test(s)})()",
+     "timeout": 90000
+    },
+    {
+     "eval": "(()=>{const b=document.querySelector('#dl-pinmode [data-pin=cf]');if(b&&b.getAttribute('aria-pressed')!=='true')b.click();return 'drawer '+(document.getElementById('dl-drawer')||{dataset:{}}).dataset.state+' · '+document.getElementById('dl-sum').innerText.replace(/\\s+/g,' ')})()"
+    },
+    {
+     "wait": 2500
+    },
+    {
+     "clear": true
+    }
+   ],
+   "hold": 3.5,
+   "zoom": false,
+   "line": "What if the cash-flowing deals came to you?"
+  },
+  {
+   "id": "pins",
+   "do": [],
+   "hold": 5.5,
+   "zoom": false,
+   "grab": {
+    "hits": "(\\d+) hit your targets"
+   },
+   "line": "DealCaddie underwrites every listing in Cleveland, and each pin shows that deal's monthly cash flow."
+  },
+  {
+   "id": "toggle",
+   "do": [
+    {
+     "focus": "#dl-pinmode"
+    }
+   ],
+   "during": [
+    {
+     "wait": 250
+    },
+    {
+     "click": "#dl-pinmode [data-pin=\"price\"]"
+    },
+    {
+     "wait": 600
+    },
+    {
+     "click": "#dl-pinmode [data-pin=\"cf\"]"
+    }
+   ],
+   "hold": 4.5,
+   "line": "One tap flips every pin between cash flow and price."
+  },
+  {
+   "id": "narrow",
+   "do": [
+    {
+     "clear": true
+    },
+    {
+     "click": "#dl-handle"
+    },
+    {
+     "wait": 700
+    },
+    {
+     "click": "#dl-qf"
+    },
+    {
+     "wait": 700
+    },
+    {
+     "focus": "[data-qf=\"cf\"]"
+    }
+   ],
+   "during": [
+    {
+     "wait": 500
+    },
+    {
+     "click": "[data-qf=\"cf\"] button[data-v=\"300\"]"
+    }
+   ],
+   "hold": 4.5,
+   "line": "Add a filter, like deals that clear $300/mo."
+  },
+  {
+   "id": "list",
+   "do": [
+    {
+     "clear": true
+    },
+    {
+     "click": "#dl-qf-done"
+    },
+    {
+     "wait": 500
+    },
+    {
+     "click": "#dl-handle"
+    },
+    {
+     "wait": 1200
+    },
+    {
+     "focus": ".dl-row"
+    }
+   ],
+   "hold": 5,
+   "grab": {
+    "top_cf": "\\+?(\\$[\\d,]+)/mo"
+   },
+   "line": "The list shows what's left, every one fully underwritten. This one clears {top_cf}/mo.",
+   "alts": [
+    "The list shows what's left, every one fully underwritten."
+   ]
+  },
+  {
+   "id": "email",
+   "do": [
+    {
+     "clear": true
+    },
+    {
+     "html": "assets/email/digest-cleveland.html"
+    },
+    {
+     "wait": 900
+    }
+   ],
+   "during": [
+    {
+     "wait": 700
+    },
+    {
+     "scroll": {
+      "by": 1150,
+      "ms": 5200
+     }
+    }
+   ],
+   "hold": 7.5,
+   "zoom": false,
+   "line": "Save it as a Buy Box, and new matches land in your inbox every morning. The deals find you while you sleep."
+  }
+ ],
+ "wrap": "Stop scrolling listings at midnight. Let the deals find you.",
+ "end": "Try it free at dealcaddie.ai.",
+ "cover": "Deals that find you.",
+ "cover_sub": "Cash flow on every pin. New matches every morning.",
+ "cover_scene": "pins",
+ "why": "Your time is worth more than scrolling Zillow every night. Let the cash-flowing deals come to you.",
+ "ask": "Which city should we search next? 👇"
+}

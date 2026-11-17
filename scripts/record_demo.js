@@ -220,9 +220,12 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
         const r = document.getElementById('demo-ring'), t = window.__demoRingTarget;
         if (r && t && t.isConnected) {
           const a = t.getBoundingClientRect(), w = (window.__demoRingWide || t).getBoundingClientRect();
-          const pad = 6, left = Math.min(a.left, w.left + 4) - pad, right = Math.max(a.right, w.right - 4) + pad;
-          r.style.left = left + 'px'; r.style.width = (right - left) + 'px';
-          r.style.top = (a.top - pad) + 'px'; r.style.height = (a.height + 2 * pad) + 'px';
+          const pad = 6, vw_ = window.innerWidth, vh_ = window.innerHeight;
+          // keep the whole ring on screen: a ring hanging off an edge reads as a glitch
+          const left = Math.max(3, Math.min(a.left, w.left + 4) - pad), right = Math.min(vw_ - 3, Math.max(a.right, w.right - 4) + pad);
+          const top = Math.max(3, a.top - pad), bot = Math.min(vh_ - 3, a.bottom + pad);
+          r.style.left = left + 'px'; r.style.width = Math.max(0, right - left) + 'px';
+          r.style.top = top + 'px'; r.style.height = Math.max(0, bot - top) + 'px';
         }
         requestAnimationFrame(tick);
       };
@@ -235,56 +238,91 @@ const NO_ANALYSIS = !!STORY && STORY.start === 'none';     // feature lives outs
   const vars = {};
   if (STORY) {
     // ---- storyboard: each scene = actions, a hold, and numbers grabbed from the focused element ----
-    for (const sc of STORY.scenes) {
-      for (const act of sc.do || []) {
-        if (act.tab) { await clickTab(act.tab); await hideIcons(); }
-        if (act.top) await page.evaluate(() => { window.scrollTo({ top: 0, behavior: 'smooth' });
-          document.querySelectorAll('*').forEach(e => { if (e.scrollTop > 0 && /(auto|scroll)/.test(getComputedStyle(e).overflowY)) e.scrollTo({ top: 0, behavior: 'smooth' }); }); });
-        if (act.goto) {
-          let url = act.goto;
-          if (url.includes('{ids')) {                       // best-scoring saved deals from the Pipeline, for /compare
-            const ids = await page.evaluate(() => [...new Set([...document.querySelectorAll('a[href*="/analysis/"]')]
-              .map(a => (a.getAttribute('href').match(/\/analysis\/(\d+)/) || [])[1]).filter(Boolean))]).catch(() => []);
-            url = url.replace('{ids3}', ids.slice(0, 3).join(',')).replace('{ids2}', ids.slice(0, 2).join(','));
-            console.log('compare ids', url);
-          }
-          await page.goto(`${BASE}${url}`, { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {}); await hideIcons();
+    const runAct = async (act) => {
+      if (act.tab) { await clickTab(act.tab); await hideIcons(); }
+      if (act.top) await page.evaluate(() => { window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.querySelectorAll('*').forEach(e => { if (e.scrollTop > 0 && /(auto|scroll)/.test(getComputedStyle(e).overflowY)) e.scrollTo({ top: 0, behavior: 'smooth' }); }); });
+      if (act.goto) {
+        let url = act.goto;
+        if (url.includes('{ids')) {                       // best-scoring saved deals from the Pipeline, for /compare
+          const ids = await page.evaluate(() => [...new Set([...document.querySelectorAll('a[href*="/analysis/"]')]
+            .map(a => (a.getAttribute('href').match(/\/analysis\/(\d+)/) || [])[1]).filter(Boolean))]).catch(() => []);
+          url = url.replace('{ids3}', ids.slice(0, 3).join(',')).replace('{ids2}', ids.slice(0, 2).join(','));
+          console.log('compare ids', url);
         }
-        if (act.click) {
-          const t = act.click.startsWith('text:') ? page.getByText(new RegExp(act.click.slice(5), 'i')).first() : page.locator(act.click).first();
-          await t.scrollIntoViewIfNeeded().catch(() => {}); await t.click({ timeout: 5000 }).catch(e => console.log('click miss', act.click));
-          await sleep(900);
-        }
-        if (act.fill) { const [sel, val] = act.fill; const el = page.locator(sel).first();
-          await el.click().catch(() => {}); await el.fill(''); await el.type(String(val), { delay: 90 }).catch(() => {}); await sleep(600); }
-        if (act.unscope) await page.evaluate(() => { window.__demoScope = null; });
-        if (act.clear) await page.evaluate(() => { const r = document.getElementById('demo-ring'); if (r) r.style.opacity = '0';
-          window.__demoRingTarget = null; window.__demoFocus = null; });
-        if (act.focus) { const ok = await focus(act.focus, act.pick || 'self', !!act.scope); console.log(`focus ${act.focus}: ${ok}`); }
-        if (act.press) { await page.keyboard.press(act.press).catch(() => {}); await sleep(800); }
-        if (act.typein) {                                     // type into whatever field is focused/open, like a person
-          const [sel, val] = act.typein; const el = page.locator(sel).first();
-          await el.click().catch(() => {}); await sleep(400);
-          const target = (await page.locator('.dcs-sheet.on input[type="text"]').first().isVisible().catch(() => false))
-            ? page.locator('.dcs-sheet.on input[type="text"]').first() : el;
-          await target.type(String(val), { delay: 55 }).catch(e => console.log('typein miss', e.message));
-          await sleep(500);
-        }
-        if (act.wait) await sleep(act.wait);
-        if (act.waitgone) {                                   // wait for async sections (AI) to finish loading
-          await page.waitForFunction(t => !document.body.innerText.includes(t), act.waitgone, { timeout: 90000, polling: 500 })
-            .catch(() => console.log('still loading:', act.waitgone));
-          await sleep(800);
-        }
+        await page.goto(`${BASE}${url}`, { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {}); await hideIcons();
       }
+      if (act.click) {
+        const t = act.click.startsWith('text:') ? page.getByText(new RegExp(act.click.slice(5), 'i')).first() : page.locator(act.click).first();
+        await t.scrollIntoViewIfNeeded().catch(() => {}); await t.click({ timeout: 5000 }).catch(e => console.log('click miss', act.click));
+        await sleep(900);
+      }
+      if (act.fill) { const [sel, val, delay] = act.fill; const el = page.locator(sel).first();
+        await el.click().catch(() => {}); await el.fill(''); await el.type(String(val), { delay: delay || 90 }).catch(() => {}); await sleep(600); }
+      if (act.unscope) await page.evaluate(() => { window.__demoScope = null; });
+      if (typeof act.scope === 'string') { const ok = await page.evaluate(sel => { const e = [...document.querySelectorAll(sel)].find(x => x.offsetParent);
+        window.__demoScope = e || null; return !!e; }, act.scope).catch(() => false); console.log(`scope ${act.scope}: ${ok}`); }
+      if (act.clear) await page.evaluate(() => { const r = document.getElementById('demo-ring'); if (r) r.style.opacity = '0';
+        window.__demoRingTarget = null; window.__demoFocus = null; });
+      if (act.focus) { const ok = await focus(act.focus, act.pick || 'self', !!act.scope); console.log(`focus ${act.focus}: ${ok}`); }
+      if (act.press) { await page.keyboard.press(act.press).catch(() => {}); await sleep(800); }
+      if (act.typein) {                                     // type into whatever field is focused/open, like a person
+        const [sel, val] = act.typein; const el = page.locator(sel).first();
+        await el.click().catch(() => {}); await sleep(400);
+        const target = (await page.locator('.dcs-sheet.on input[type="text"]').first().isVisible().catch(() => false))
+          ? page.locator('.dcs-sheet.on input[type="text"]').first() : el;
+        await target.type(String(val), { delay: 55 }).catch(e => console.log('typein miss', e.message));
+        await sleep(500);
+      }
+      if (act.wait) await sleep(act.wait);
+      if (act.waitgone) {                                   // wait for async sections (AI) to finish loading
+        await page.waitForFunction(t => !document.body.innerText.includes(t), act.waitgone, { timeout: 90000, polling: 500 })
+          .catch(() => console.log('still loading:', act.waitgone));
+        await sleep(800);
+      }
+      if (act.eval) { const r = await page.evaluate(act.eval).catch(e => 'eval error: ' + e.message); if (r !== undefined) console.log('eval', String(r).slice(0, 160)); }
+      if (act.gotoEval) {                                     // JS that returns a path (e.g. the Deals URL /api/ask-search hands back)
+        const u = await page.evaluate(act.gotoEval).catch(e => { console.log('gotoEval error', e.message); return null; });
+        console.log('gotoEval ->', u);
+        if (u) { await page.goto(u.startsWith('http') ? u : `${BASE}${u}`, { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {}); await hideIcons(); }
+      }
+      if (act.html) {                                         // a local page from the repo (e.g. the alert email), same phone viewport
+        await page.goto('file://' + path.resolve(__dirname, '..', act.html), { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {});
+      }
+      if (act.waitfn) {
+        const ok = await page.waitForFunction(act.waitfn, null, { timeout: act.timeout || 60000, polling: 500 }).then(() => true).catch(() => false);
+        console.log(`waitfn ${ok ? 'ok' : 'TIMEOUT'}: ${act.waitfn.slice(0, 80)}`);
+      }
+      if (act.scroll) {                                       // slow, even scroll of whatever scrolls (window or the app's inner shell)
+        const { by = 600, ms = 3000 } = act.scroll;
+        await page.evaluate(([by, ms]) => new Promise(res => {
+          let sc = document.scrollingElement;
+          for (const e of document.querySelectorAll('body *')) {
+            const cs = getComputedStyle(e);
+            if (/(auto|scroll)/.test(cs.overflowY) && e.scrollHeight > e.clientHeight + 40 && e.clientHeight > window.innerHeight * 0.5) { sc = e; break; }
+          }
+          const y0 = sc.scrollTop, t0 = performance.now();
+          const step = now => { const k = Math.min(1, (now - t0) / ms), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+            sc.scrollTop = y0 + by * e; if (k < 1) requestAnimationFrame(step); else res(); };
+          requestAnimationFrame(step);
+        }), [by, ms]).catch(() => {});
+      }
+    };
+    for (const sc of STORY.scenes) {
+      for (const act of sc.do || []) await runAct(act);
       mark(sc.id, 'start');
+      const sStart = Date.now();
       await sleep(900);                                   // let the smooth scroll land, then note where the subject is
       if (sc.zoom !== false) {
+        // the ring (what the viewer sees) when there is one, else the subject itself
         const rect = await page.evaluate(() => { const e = window.__demoFocus; if (!e) return null;
-          const r = e.getBoundingClientRect(); return [r.left, r.top, r.width, r.height]; }).catch(() => null);
+          const ring = document.getElementById('demo-ring');
+          const r = (ring && window.__demoRingTarget) ? ring.getBoundingClientRect() : e.getBoundingClientRect();
+          return [r.left, r.top, r.width, r.height]; }).catch(() => null);
         if (rect) markers[sc.id].rect = rect.map(x => +x.toFixed(1));
       }
-      await sleep(Math.max(0, (sc.hold || 7) * 1000 - 900));
+      for (const act of sc.during || []) await runAct(act);  // things that should happen on camera
+      await sleep(Math.max(0, (sc.hold || 7) * 1000 - (Date.now() - sStart)));
       // grab numbers for the voice from the focused element's text (or the whole page)
       const txt = await page.evaluate(() => (window.__demoFocus || document.body).innerText || '').catch(() => '');
       const pageTxt = await page.evaluate(() => document.body.innerText).catch(() => '');

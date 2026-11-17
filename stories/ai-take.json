@@ -80,11 +80,59 @@
      "wait": 500
     },
     {
-     "focus": "text:^\\s*Ask\\s*$"
+     "eval": "toggleAnalyst()"
+    },
+    {
+     "wait": 1000
+    },
+    {
+     "focus": "#analyst-panel"
     }
    ],
-   "hold": 4.5,
-   "line": "Still have a question? Ask Caddie. It sees the exact numbers on your screen."
+   "hold": 4,
+   "line": "Still have a question? Ask Caddie, right on the deal."
+  },
+  {
+   "id": "chat",
+   "do": [],
+   "during": [
+    {
+     "wait": 250
+    },
+    {
+     "fill": [
+      "#analyst-input",
+      "What should I offer to cash flow $200 a month?",
+      45
+     ]
+    }
+   ],
+   "hold": 5,
+   "gap": 0.15,
+   "line": "Like: what should I offer to cash flow $200 a month?"
+  },
+  {
+   "id": "answer",
+   "do": [
+    {
+     "eval": "sendAnalystMessage()"
+    },
+    {
+     "waitfn": "!document.getElementById('analyst-input').disabled && document.querySelectorAll('#analyst-messages > div').length >= 3",
+     "timeout": 90000
+    },
+    {
+     "wait": 1200
+    },
+    {
+     "eval": "(()=>{const m=document.getElementById('analyst-messages');const k=[...m.children].filter(e=>e.offsetParent);const u=k[k.length-2];if(u)m.scrollTop+=u.getBoundingClientRect().top-m.getBoundingClientRect().top-8;return k.length})()"
+    },
+    {
+     "focus": "#analyst-panel"
+    }
+   ],
+   "hold": 6,
+   "line": "It answers in seconds, with this deal's real numbers."
   }
  ],
  "wrap": "It's like having an expert investor in your pocket, on every deal.",

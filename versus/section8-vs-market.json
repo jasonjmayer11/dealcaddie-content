@@ -69,7 +69,7 @@
    ]
   },
   {
-   "voice": "Round one, *rent.* In some ZIP codes, the {H U D|HUD} payment standard beats market rent. {fourteen fifty|$1,450} versus {sixteen hundred.|$1,600.}",
+   "voice": "Round one, *rent.* In some {zip codes|ZIP codes}, the {hud|HUD} payment standard beats market rent. {fourteen fifty|$1,450} versus {sixteen hundred.|$1,600.}",
    "do": [
     "h0~Round",
     "h0a~$1,450",
@@ -96,14 +96,14 @@
    ]
   },
   {
-   "voice": "Section 8 wins, {two to one.|2–1.} But it depends on your *ZIP.*",
+   "voice": "Section 8 wins, {two to one.|2–1.} But it depends on your {*zip.*|*ZIP.*}",
    "do": [
     "final~Section"
    ],
    "pause": 0.3
   },
   {
-   "voice": "{Deal Caddie|*DealCaddie*} shows the {H U D|HUD} rent for every ZIP, on every *analysis.*",
+   "voice": "{Deal Caddie|*DealCaddie*} shows the {hud|HUD} rent for every {zip|ZIP}, on every *analysis.*",
    "do": [
     "reveal~DealCaddie"
    ],
