@@ -113,11 +113,11 @@
      "wait": 500
     },
     {
-     "click": "[data-qf=\"cf\"] button[data-v=\"300\"]"
+     "click": "[data-qf=\"cf\"] button[data-v=\"0\"]"
     }
    ],
    "hold": 4.5,
-   "line": "Add a filter, like deals that clear $300/mo."
+   "line": "Add a filter, like positive cash flow only."
   },
   {
    "id": "list",
@@ -129,7 +129,16 @@
      "click": "#dl-qf-done"
     },
     {
-     "wait": 900
+     "wait": 600
+    },
+    {
+     "eval": "(()=>{const a=document.getElementById('dl-view-all');if(a){a.click();return 'show all'}return 'no view-all'})()"
+    },
+    {
+     "wait": 1200
+    },
+    {
+     "eval": "(document.getElementById('dl-sum')||{}).innerText.replace(/\\s+/g,' ')+' · rows '+document.querySelectorAll('.dl-row').length"
     },
     {
      "focus": ".dl-row"
