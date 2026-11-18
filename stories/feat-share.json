@@ -76,13 +76,14 @@
    "id": "send",
    "chat": {
     "to_title": "To: Alex (partner)",
-    "from_title": "Jason",
-    "from_name": "Jason",
+    "from_title": "Jordan",
+    "from_name": "Jordan",
     "msg": "Found one. Thoughts?",
-    "title": "2525 Rozelle St · 8.5/10",
+    "title": "1105 S Zenobia St · 8.1/10",
     "sub": "dealcaddie.ai"
    },
-   "line": "With DealCaddie, it's one link. Text it, email it, or post it anywhere."
+   "line": "With DealCaddie, it's one link. Text it, email it, or post it anywhere.",
+   "min_dur": 5.6
   },
   {
    "id": "open1",
@@ -109,12 +110,13 @@
    "id": "open2",
    "do": [
     {
-     "focus": "#caddie-verdict-strip"
+     "focus": "text:^\\s*NOTE FROM SENDER",
+     "pick": "card"
     }
    ],
    "hold": 4.5,
    "needs_focus": true,
-   "line": "The score, Caddie's verdict,"
+   "line": "Your notes and assumptions travel with it,"
   },
   {
    "id": "open3",

@@ -176,6 +176,9 @@ for attempt in range(3):
     spoken = [speak(s, SPEED) for _, _, s in lines]
     audio = [a for a, _ in spoken]; wtimes = [w for _, w in spoken]
     seg_len = [len(a) / SR + g for a, g in zip(audio, gaps)]
+    # drawn scenes need time for their animation (e.g. the two-phone send): hold the picture past the line
+    _mins = [float(_sc.get(seg, {}).get("min_dur", 0)) for seg, _, _ in lines]
+    seg_len = [max(x, m) for x, m in zip(seg_len, _mins)]
     total = sum(seg_len) + 0.6
     print(f"voice @ {SPEED:.2f}x: {total:.1f}s")
     if total <= MAX_LEN: break
