@@ -6,7 +6,7 @@ Usage: python3 scripts/narrate.py <workdir from record_demo.js> <out.mp4>
 Env:   VOICE (default af_heart), VOICE_SPEED (default 1.08)
 Writes <out.mp4>, caption.txt, cover.jpg, script.txt next to it.
 """
-import json, os, re, subprocess, sys
+import json, math, os, re, subprocess, sys
 import numpy as np
 from PIL import Image, ImageDraw
 
@@ -299,31 +299,63 @@ def screen_with_insets(fr):
 base = BG.copy().convert("RGBA")
 # no top logo: Instagram/TikTok overlay the account name + audio label there (it collided). Brand lives on the cover + end card.
 def ease_out(k): k = min(1.0, max(0.0, k)); return 1 - (1 - k) ** 3
-# ---- laptop scenes ("the old way"): a laptop with browser screenshots that switch as words are spoken
+# ---- laptop scenes ("the old way"): the laptop is the centerpiece. Every number you have to go and find
+# pops up above it as she names it, then flies down into its cell in the spreadsheet.
 _lap_seg = [bool(_sc.get(seg, {}).get("laptop")) for seg, _, _ in lines]
 _seg_t0 = np.cumsum([0] + seg_len[:-1])
 PHONE_T0 = next((float(_seg_t0[i]) for i, (seg, _, _) in enumerate(lines) if not _lap_seg[i] and seg != "end"), 0.0)
 LAP_END = PHONE_T0 if any(_lap_seg) else 0.0
-_lap_cues = []                            # (t, image key)
+HERO = any(_lap_seg)                      # the brand reveal + hero entrance of the phone
+_cards, _sheets = [], []                  # cards: dict(t, fly, land, key, label, sub, slot); sheets: (t, key, drift)
 _lap_img = {}
-if any(_lap_seg):
-    LSW, LSH = 960, 600                   # screen
-    LX, LY = (W - LSW) // 2, 640
-    LCROP = {"ins": 330}                  # x offset of each page's interesting part (pages are 1440x900)
+def ease_io(k): k = min(1.0, max(0.0, k)); return 4 * k ** 3 if k < 0.5 else 1 - (-2 * k + 2) ** 3 / 2
+def ease_back(k, s_=1.6):
+    k = min(1.0, max(0.0, k)) - 1; return 1 + (s_ + 1) * k ** 3 + s_ * k ** 2
+def rounded_box(w, h, col, r):
+    b = Image.new("RGBA", (w, h), (0, 0, 0, 0)); ImageDraw.Draw(b).rounded_rectangle([0, 0, w - 1, h - 1], radius=r, fill=col + (255,)); return b
+if HERO:
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    LDIR = os.path.join(root, "assets", "intro", "laptop")
+    LSW, LSH = 960, 600
+    LX, LY = (W - LSW) // 2, 720
+    CELLS = json.load(open(os.path.join(LDIR, "cells.json")))
+    def limg(k):
+        if k not in _lap_img: _lap_img[k] = Image.open(os.path.join(LDIR, k + ".png")).convert("RGB")
+        return _lap_img[k]
+    SLOTS = [(4, 110), (355, 110), (706, 110), (180, 404), (530, 404)]
+    CW_, CH_ = 330, 262
     for i, (seg, disp, _) in enumerate(lines):
         if not _lap_seg[i]: continue
+        cfg = _sc[seg]["laptop"]; t0 = float(_seg_t0[i])
         wt_ = word_times(disp, wtimes[i], len(audio[i]) / SR); dw = [re.sub(r"[^a-z]", "", w.lower()) for w in disp.split()]
-        for cue in _sc[seg]["laptop"]:
-            key, word = (cue, None) if isinstance(cue, str) else (cue[1], cue[0])
-            t = float(_seg_t0[i])
-            if word:
-                k = next((j for j, w in enumerate(dw) if w.startswith(word)), None)
-                if k is not None: t += max(0.0, wt_[k] - 0.15)
-            _lap_cues.append((t, key))
-            if key not in _lap_img:
-                _lap_img[key] = Image.open(os.path.join(root, "assets", "intro", "laptop", key + ".png")).convert("RGB")
-    _lap_cues.sort()
+        if cfg.get("sheet"): _sheets.append((t0, cfg["sheet"], bool(cfg.get("drift"))))
+        for word, key, label, sub in cfg.get("cards", []):
+            k = next((j for j, w in enumerate(dw) if w.startswith(word)), None)
+            tw = t0 + (max(0.0, wt_[k] - 0.05) if k is not None else 0.0)
+            _cards.append(dict(fly=tw, key=key, label=label, sub=sub, slot=len(_cards), cell=word))
+    # every lookup appears up front (the whole to-do list, hovering over the laptop), then each one
+    # flies down into its cell as she names it
+    t_first = float(_seg_t0[next(i for i in range(len(lines)) if _lap_seg[i])])
+    for ci, c in enumerate(_cards):
+        c["t"] = t_first + 0.7 + 0.22 * ci; c["fly"] = max(c["fly"], c["t"] + 0.6); c["land"] = c["fly"] + 0.65
+        cellk = {"taxes": "tax", "hoa": "hoa", "rent": "rent", "comps": "comps", "insurance": "ins"}.get(c["cell"], c["key"] or "hoa")
+        cx_, cy_ = CELLS[cellk]; c["tx"], c["ty"] = LX + cx_ * LSW / 768, LY + cy_ * LSH / 480
+        # the card itself
+        card = Image.new("RGBA", (CW_ + 40, CH_ + 40), (0, 0, 0, 0))
+        sh_ = Image.new("RGBA", card.size, (0, 0, 0, 0)); ImageDraw.Draw(sh_).rounded_rectangle([20, 28, CW_ + 20, CH_ + 26], radius=22, fill=(10, 30, 18, 90))
+        card.alpha_composite(sh_.filter(ImageFilter.GaussianBlur(12)))
+        card.alpha_composite(rounded_box(CW_, CH_, (255, 255, 255), 22), (20, 20))
+        if c["key"]:
+            th = limg(c["key"]).crop({"ins": (430, 100, 1110, 430), "tax": (20, 100, 700, 430), "rent": (20, 95, 700, 425),
+                                      "comps": (20, 95, 700, 425)}.get(c["key"], (0, 0, 780, 486))).resize((CW_ - 24, 160), Image.LANCZOS)
+            m = Image.new("L", th.size, 0); ImageDraw.Draw(m).rounded_rectangle([0, 0, th.width - 1, th.height - 1], radius=12, fill=255)
+            card.paste(th, (32, 32), m)
+        else:
+            ImageDraw.Draw(card).rounded_rectangle([32, 32, 32 + CW_ - 24, 192], radius=12, fill=(244, 240, 230))
+            q = text_layer("?  ?  ?", F_NUM, 64, (201, 168, 76)); card.alpha_composite(q, (20 + (CW_ - q.width) // 2, 112 - q.height // 2))
+        lab = text_layer(c["label"], F_HEAD, 34, INK, tracking=-0.01); card.alpha_composite(lab, (36, 202))
+        sb = text_layer(c["sub"], F_SEMI, 22, (170, 70, 60)); card.alpha_composite(sb, (37, 244))
+        c["img"] = card
     lid = Image.new("RGBA", (LSW + 44, LSH + 52), (0, 0, 0, 0))
     ImageDraw.Draw(lid).rounded_rectangle([0, 0, lid.width - 1, lid.height - 1], radius=30, fill=(24, 28, 26, 255))
     ImageDraw.Draw(lid).ellipse([lid.width // 2 - 5, 9, lid.width // 2 + 5, 19], fill=(60, 66, 63, 255))
@@ -334,47 +366,101 @@ if any(_lap_seg):
     lshadow = Image.new("RGBA", (W + 200, LSH + 300), (0, 0, 0, 0))
     ImageDraw.Draw(lshadow).rounded_rectangle([140, 120, W + 60, LSH + 190], radius=40, fill=(10, 30, 18, 60))
     lshadow = lshadow.filter(ImageFilter.GaussianBlur(40))
+    # brand reveal assets
+    GREEN_BG = Image.new("RGBA", (W, H)); gd = ImageDraw.Draw(GREEN_BG)
+    for y in range(H):
+        k = y / H; gd.line([(0, y), (W, y)], fill=(int(14 + 12 * (1 - k)), int(70 - 24 * k), int(42 - 12 * k), 255))
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0)); ImageDraw.Draw(glow).ellipse([W // 2 - 520, 380, W // 2 + 520, 1380], fill=(201, 168, 76, 120))
+    glow = glow.filter(ImageFilter.GaussianBlur(120))
+    BIG_LOGO = logo_layer(640, white=True)
+    TAG = text_layer("Every number. In seconds.", F_HEAD, 54, (232, 197, 92), tracking=-0.01)
 def laptop_frame(f, t):
-    """the laptop, its current page (cross-fading on each cue) and a running 'time spent' clock."""
-    lift = int(-60 * ease_out((t - (LAP_END - 0.45)) / 0.45)) if t > LAP_END - 0.45 else 0
-    fade = 1.0 if t < LAP_END - 0.45 else max(0.0, 1 - (t - (LAP_END - 0.45)) / 0.45)
+    """laptop + spreadsheet; lookup cards pop in above it as they're named and fly into their cells."""
+    out = max(0.0, min(1.0, (t - (LAP_END - 0.35)) / 0.45))          # exit as the brand takes over
     lay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     lay.alpha_composite(lshadow, (-100, LY - 140))
-    lay.alpha_composite(lid, (LX - 22, LY - 26 + lift))
-    cur = [c for c in _lap_cues if c[0] <= t] or _lap_cues[:1]
-    def view(c):                          # a close-up of the page that drifts down slowly, like someone reading
-        im = _lap_img[c[1]]; x0 = LCROP.get(c[1], 0); dy = min(300.0, 75.0 * max(0.0, t - c[0] - 0.6)) if c[1] == "xls" else min(140.0, 34.0 * max(0.0, t - c[0]))
-        return im.crop((x0, int(dy), x0 + 768, int(dy) + 480)).resize((LSW, LSH), Image.LANCZOS)
-    scr = view(cur[-1])
-    if len(cur) >= 2 and t - cur[-1][0] < 0.25:
-        scr = Image.blend(view(cur[-2]), scr, (t - cur[-1][0]) / 0.25)
-    lay.paste(scr, (LX, LY + lift))
-    lay.alpha_composite(deck, (10, LY + LSH + 26 + lift))
-    # clock: hours of research squeezed into the scene
-    mins = int(64 * ease_out(min(1.0, t / max(LAP_END, 0.1))) ** 1.0)
+    lay.alpha_composite(lid, (LX - 22, LY - 26))
+    sh_now = [x for x in _sheets if x[0] <= t]
+    landed = sum(1 for c in _cards if c["land"] <= t)
+    key, drift, t_s = ("xls%d" % landed, False, 0.0)
+    if sh_now and (sh_now[-1][1] == "xlsE"): key, drift, t_s = "xlsE", sh_now[-1][2], sh_now[-1][0]
+    dy = min(300.0, 170.0 * max(0.0, t - t_s - 0.3)) if drift else 0.0
+    scr = limg(key).crop((0, int(dy), 768, int(dy) + 480)).resize((LSW, LSH), Image.LANCZOS)
+    lay.paste(scr, (LX, LY))
+    lay.alpha_composite(deck, (10, LY + LSH + 26))
+    d = ImageDraw.Draw(lay)
+    for c in _cards:                                   # gold flash on the cell a card just landed in
+        if c["land"] <= t < c["land"] + 0.5:
+            a = int(255 * (1 - (t - c["land"]) / 0.5))
+            d.rounded_rectangle([c["tx"] - 230, c["ty"] - 26, c["tx"] + 190, c["ty"] + 26], radius=10, outline=(201, 168, 76, a), width=6)
+    for c in _cards:
+        if t < c["t"] or t >= c["land"]: continue
+        sx, sy = SLOTS[c["slot"] % len(SLOTS)]
+        if t < c["fly"]:
+            k = ease_back((t - c["t"]) / 0.4); sc_ = 0.6 + 0.4 * k; x, y = sx, sy + 8 * math.sin((t - c["t"]) * 3.0); al = min(1.0, (t - c["t"]) / 0.2)
+        else:
+            k = ease_io((t - c["fly"]) / 0.6); sc_ = 1 - 0.88 * k; al = 1 - 0.5 * k
+            x = sx + (c["tx"] - (sx + CW_ / 2 + 20)) * k; y = sy + (c["ty"] - (sy + CH_ / 2 + 20)) * k
+        im = c["img"]
+        if abs(sc_ - 1) > 0.01: im = im.resize((max(1, int(im.width * sc_)), max(1, int(im.height * sc_))), Image.BILINEAR)
+        if al < 1: im = im.copy(); im.putalpha(im.getchannel("A").point(lambda v: int(v * al)))
+        lay.alpha_composite(im, (int(x + (c["img"].width - im.width) / 2), int(y + (c["img"].height - im.height) / 2)))
+    mins = int(64 * ease_out(min(1.0, t / max(LAP_END, 0.1))))
     txt = f"{mins // 60}:{mins % 60:02d} hrs" if mins >= 60 else f"{mins} min"
-    chip = text_layer("Time spent  " + txt, F_HEAD, 46, (180, 40, 40))
-    cw_ = chip.width + 60
-    lay.alpha_composite(rounded_box(cw_, 84, (255, 236, 233), 42), ((W - cw_) // 2, LY - 170 + lift))
-    lay.alpha_composite(chip, ((W - chip.width) // 2, LY - 170 + 42 - chip.height // 2 + lift))
-    if fade < 1: lay.putalpha(lay.getchannel("A").point(lambda v: int(v * fade)))
-    f.alpha_composite(lay, (0, 0))
-def rounded_box(w, h, col, r):
-    b = Image.new("RGBA", (w, h), (0, 0, 0, 0)); ImageDraw.Draw(b).rounded_rectangle([0, 0, w - 1, h - 1], radius=r, fill=col + (255,)); return b
-def phone_dy(t):                         # the phone rises into place when its first scene starts
-    if t < PHONE_T0: return 99999
-    return int(760 * (1 - ease_out((t - PHONE_T0) / 0.95)))
+    chip = text_layer("Time spent  " + txt, F_HEAD, 46, (180, 40, 40)); cw_ = chip.width + 60
+    cy0 = LY + LSH + 100
+    lay.alpha_composite(rounded_box(cw_, 84, (255, 236, 233), 42), ((W - cw_) // 2, cy0))
+    lay.alpha_composite(chip, ((W - chip.width) // 2, cy0 + 42 - chip.height // 2))
+    if out > 0: lay.putalpha(lay.getchannel("A").point(lambda v: int(v * (1 - out))))
+    f.alpha_composite(lay, (0, int(-40 * out)))
+def brand_alpha(t):
+    if not HERO: return 0.0
+    a = (t - (PHONE_T0 - 0.2)) / 0.45; b = 1 - (t - (PHONE_T0 + 2.0)) / 0.6
+    return max(0.0, min(1.0, a, b))
+def brand_frame(f, t):
+    """deep green, gold glow, the logo sweeps in, then the phone arrives like it owns the place."""
+    g = brand_alpha(t)
+    if g <= 0: return
+    lay = GREEN_BG.copy()
+    gl = max(0.0, min(1.0, (t - PHONE_T0 - 0.6) / 0.6))
+    if gl > 0:
+        gg = glow.copy(); gg.putalpha(gg.getchannel("A").point(lambda v: int(v * gl))); lay.alpha_composite(gg)
+    k = (t - PHONE_T0 - 0.05) / 0.5; ko = 1 - max(0.0, min(1.0, (t - PHONE_T0 - 1.05) / 0.4))
+    if k > 0 and ko > 0:
+        sc_ = 0.86 + 0.14 * ease_back(k, 1.2); lg = BIG_LOGO.resize((int(BIG_LOGO.width * sc_), int(BIG_LOGO.height * sc_)), Image.LANCZOS)
+        al = min(1.0, k * 1.6) * ko
+        # light sweep across the logo
+        sw_ = (t - PHONE_T0 - 0.35) / 0.6
+        if 0 < sw_ < 1:
+            band = Image.new("L", lg.size, 0); bd = ImageDraw.Draw(band); bx = int(-200 + (lg.width + 400) * sw_)
+            bd.polygon([(bx, 0), (bx + 90, 0), (bx - 40, lg.height), (bx - 130, lg.height)], fill=170)
+            band = band.filter(ImageFilter.GaussianBlur(14))
+            hi = Image.new("RGBA", lg.size, (255, 244, 210, 0)); hi.putalpha(Image.fromarray(np.minimum(np.asarray(band), np.asarray(lg.getchannel("A")))))
+            lg = lg.copy(); lg.alpha_composite(hi)
+        lg.putalpha(lg.getchannel("A").point(lambda v: int(v * al)))
+        lay.alpha_composite(lg, ((W - lg.width) // 2, 760 - lg.height // 2 - int(40 * (1 - ko))))
+        ta = max(0.0, min(1.0, (t - PHONE_T0 - 0.45) / 0.35)) * ko
+        if ta > 0:
+            tg = TAG.copy(); tg.putalpha(tg.getchannel("A").point(lambda v: int(v * ta)))
+            lay.alpha_composite(tg, ((W - TAG.width) // 2, 760 + lg.height // 2 + 40))
+    if g < 1: lay.putalpha(lay.getchannel("A").point(lambda v: int(v * g)))
+    f.alpha_composite(lay)
+def phone_dy(t):                         # the phone arrives: from below, a confident overshoot, then settles
+    t0 = PHONE_T0 + (1.0 if HERO else 0.0)
+    if t < t0: return 99999
+    if HERO: return int(1500 * (1 - ease_back((t - t0) / 0.85, 1.1)))
+    return int(760 * (1 - ease_out((t - t0) / 0.95)))
 cap_cache = {}
-def caption(text):
-    if text not in cap_cache:
+def caption(text, white=False):
+    if (text, white) not in cap_cache:
         ls = wrap(text, F_HEAD, 64, 940)
-        layers = [text_layer(l, F_HEAD, 64, INK, tracking=-0.015) for l in ls]
+        layers = [text_layer(l, F_HEAD, 64, (255, 255, 255) if white else INK, tracking=-0.015) for l in ls]
         hh = sum(l.height for l in layers) + 10 * (len(layers) - 1)
         im = Image.new("RGBA", (W, hh), (0, 0, 0, 0)); y = 0
         for l in layers:
             im.alpha_composite(l, ((W - l.width) // 2, y)); y += l.height + 10
-        cap_cache[text] = im
-    return cap_cache[text]
+        cap_cache[(text, white)] = im
+    return cap_cache[(text, white)]
 
 # opening hook: the first line as a big title, words popping in as they're spoken
 hook_end = seg_len[0] if lines else 0
@@ -468,6 +554,7 @@ for i in range(n_main):
     f = base.copy()
     dy = phone_dy(t)
     if t < LAP_END: laptop_frame(f, t)
+    if HERO: brand_frame(f, t)
     if dy < H:
         f.alpha_composite(shadow, (PX - 80, PY - 80 + dy))
         f.alpha_composite(phone, (PX, PY + dy))
@@ -477,7 +564,7 @@ for i in range(n_main):
     if t < hook_end:
         f.alpha_composite(hook_frame(t), (0, 0)); cur = None
     if cur:
-        cl = caption(cur[2])
+        cl = caption(cur[2], white=brand_alpha(t) > 0.5)
         f.alpha_composite(cl, (0, 1752 - cl.height // 2))
     fr = f.convert("RGB")
     if cover_shot is None and t >= _cover_t and last is not None:

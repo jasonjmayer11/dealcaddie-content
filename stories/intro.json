@@ -11,39 +11,56 @@
  "scenes": [
   {
    "id": "old1",
-   "laptop": [
-    "tax"
-   ],
+   "laptop": {
+    "sheet": "xls0"
+   },
    "line": "Analyzing a rental the old way takes hours."
   },
   {
    "id": "old2",
-   "laptop": [
-    [
-     "taxes",
-     "tax"
-    ],
-    [
-     "rent",
-     "rent"
-    ],
-    [
-     "comps",
-     "comps"
-    ],
-    [
-     "insurance",
-     "ins"
+   "laptop": {
+    "cards": [
+     [
+      "taxes",
+      "tax",
+      "Property taxes",
+      "county records"
+     ],
+     [
+      "rent",
+      "rent",
+      "Rent",
+      "listing sites"
+     ],
+     [
+      "comps",
+      "comps",
+      "Sold comps",
+      "sold search"
+     ],
+     [
+      "insurance",
+      "ins",
+      "Insurance",
+      "quote in 48 hrs"
+     ],
+     [
+      "hoa",
+      null,
+      "HOA & repairs",
+      "guesswork"
+     ]
     ]
-   ],
-   "line": "Dig up the taxes. Guess the rent. Hunt down sold comps. Wait on an insurance quote."
+   },
+   "line": "Dig up the taxes. Guess the rent. Hunt down sold comps. Wait on an insurance quote. Then HOA, repairs and vacancy."
   },
   {
    "id": "old3",
-   "laptop": [
-    "xls"
-   ],
-   "line": "Then wrestle it all into a spreadsheet, and most deals still aren't worth it."
+   "laptop": {
+    "sheet": "xlsE",
+    "drift": true
+   },
+   "line": "Copy it all into a spreadsheet, and most deals still aren't worth it."
   },
   {
    "id": "score",
@@ -306,7 +323,7 @@
   }
  ],
  "extra_lines": {
-  "paste": "Or do it on the go, in seconds. Just paste a listing link."
+  "paste": "Or, do it on the go, in seconds, with DealCaddie. Just paste a listing link."
  },
  "order": [
   "old1",
