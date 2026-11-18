@@ -188,7 +188,7 @@ for i, (seg, _, _) in enumerate(lines):
     if seg == "end": continue
     m0 = mk.get(seg) or {}
     a, b = m0.get("start", 0), m0.get("end", m0.get("start", 0) + 6)
-    if (STORY and _sc.get(seg, {}).get("laptop")) or not m0: a, b = 0, 1        # drawn, not recorded
+    if (STORY and (_sc.get(seg, {}).get("laptop") or _sc.get(seg, {}).get("chat"))) or not m0: a, b = 0, 1        # drawn, not recorded
     need = seg_len[i]
     if seg == "paste":                       # the wait for the analysis is squeezed into the line
         hold = 1.1 if (STORY and any(sc_.get("laptop") for sc_ in STORY.get("scenes", []))) else 0.0
@@ -306,8 +306,10 @@ def ease_out(k): k = min(1.0, max(0.0, k)); return 1 - (1 - k) ** 3
 # pops up above it as she names it, then flies down into its cell in the spreadsheet.
 _lap_seg = [bool(_sc.get(seg, {}).get("laptop")) for seg, _, _ in lines]
 _seg_t0 = np.cumsum([0] + seg_len[:-1])
-PHONE_T0 = next((float(_seg_t0[i]) for i, (seg, _, _) in enumerate(lines) if not _lap_seg[i] and seg != "end"), 0.0)
-LAP_END = PHONE_T0 if any(_lap_seg) else 0.0
+_chat_seg = [bool(_sc.get(seg, {}).get("chat")) for seg, _, _ in lines]
+REVEAL_T = next((float(_seg_t0[i]) for i, (seg, _, _) in enumerate(lines) if not _lap_seg[i] and seg != "end"), 0.0)
+PHONE_T0 = next((float(_seg_t0[i]) for i, (seg, _, _) in enumerate(lines) if not _lap_seg[i] and not _chat_seg[i] and seg != "end"), 0.0)
+LAP_END = REVEAL_T if any(_lap_seg) else 0.0
 HERO = any(_lap_seg)                      # the brand reveal + hero entrance of the phone
 _cards, _sheets = [], []                  # cards: dict(t, fly, land, key, label, sub, slot); sheets: (t, key, drift)
 _lap_img = {}
@@ -321,7 +323,10 @@ if HERO:
     LDIR = os.path.join(root, "assets", "intro", "laptop")
     LSW, LSH = 960, 600
     LX, LY = (W - LSW) // 2, 720
-    CELLS = json.load(open(os.path.join(LDIR, "cells.json")))
+    SHEET = STORY.get("laptop_sheet", "xls")             # page states: <sheet>0..N as cards land, <sheet>E at the end
+    CELLS = json.load(open(os.path.join(LDIR, STORY.get("laptop_cells", "cells.json"))))
+    CROPS = STORY.get("laptop_crop", {})                  # which part of each 1440x900 page the laptop shows
+    def crop_of(k): return tuple(CROPS.get(k) or CROPS.get(re.sub(r"(\d+|E)$", "", k)) or (0, 0, 768, 480))
     def limg(k):
         if k not in _lap_img: _lap_img[k] = Image.open(os.path.join(LDIR, k + ".png")).convert("RGB")
         return _lap_img[k]
@@ -332,17 +337,19 @@ if HERO:
         cfg = _sc[seg]["laptop"]; t0 = float(_seg_t0[i])
         wt_ = word_times(disp, wtimes[i], len(audio[i]) / SR); dw = [re.sub(r"[^a-z]", "", w.lower()) for w in disp.split()]
         if cfg.get("sheet"): _sheets.append((t0, cfg["sheet"], bool(cfg.get("drift"))))
-        for word, key, label, sub in cfg.get("cards", []):
+        for cd in cfg.get("cards", []):
+            word, key, label, sub = cd[:4]; cellkey = cd[4] if len(cd) > 4 else None
             k = next((j for j, w in enumerate(dw) if w.startswith(word)), None)
             tw = t0 + (max(0.0, wt_[k] - 0.05) if k is not None else 0.0)
-            _cards.append(dict(fly=tw, key=key, label=label, sub=sub, slot=len(_cards), cell=word))
+            _cards.append(dict(fly=tw, key=key, label=label, sub=sub, slot=len(_cards), cell=word, cellkey=cellkey))
     # every lookup appears up front (the whole to-do list, hovering over the laptop), then each one
     # flies down into its cell as she names it
     t_first = float(_seg_t0[next(i for i in range(len(lines)) if _lap_seg[i])])
     for ci, c in enumerate(_cards):
         c["t"] = t_first + 0.7 + 0.22 * ci; c["fly"] = max(c["fly"], c["t"] + 0.6); c["land"] = c["fly"] + 0.65
-        cellk = {"taxes": "tax", "hoa": "hoa", "rent": "rent", "comps": "comps", "insurance": "ins"}.get(c["cell"], c["key"] or "hoa")
-        cx_, cy_ = CELLS[cellk]; c["tx"], c["ty"] = LX + cx_ * LSW / 768, LY + cy_ * LSH / 480
+        cellk = c["cellkey"] or {"taxes": "tax", "hoa": "hoa", "rent": "rent", "comps": "comps", "insurance": "ins"}.get(c["cell"], c["key"] or "hoa")
+        cx_, cy_ = CELLS[cellk]; x0_, y0_, x1_, y1_ = crop_of(SHEET + "0")
+        c["tx"], c["ty"] = LX + (cx_ - x0_) * LSW / (x1_ - x0_), LY + (cy_ - y0_) * LSH / (y1_ - y0_)
         # the card itself
         card = Image.new("RGBA", (CW_ + 40, CH_ + 40), (0, 0, 0, 0))
         sh_ = Image.new("RGBA", card.size, (0, 0, 0, 0)); ImageDraw.Draw(sh_).rounded_rectangle([20, 28, CW_ + 20, CH_ + 26], radius=22, fill=(10, 30, 18, 90))
@@ -385,10 +392,11 @@ def laptop_frame(f, t):
     lay.alpha_composite(lid, (LX - 22, LY - 26))
     sh_now = [x for x in _sheets if x[0] <= t]
     landed = sum(1 for c in _cards if c["land"] <= t)
-    key, drift, t_s = ("xls%d" % landed, False, 0.0)
-    if sh_now and (sh_now[-1][1] == "xlsE"): key, drift, t_s = "xlsE", sh_now[-1][2], sh_now[-1][0]
+    key, drift, t_s = (SHEET + "%d" % landed, False, 0.0)
+    if sh_now and sh_now[-1][1].endswith("E"): key, drift, t_s = sh_now[-1][1], sh_now[-1][2], sh_now[-1][0]
     dy = min(300.0, 170.0 * max(0.0, t - t_s - 0.3)) if drift else 0.0
-    scr = limg(key).crop((0, int(dy), 768, int(dy) + 480)).resize((LSW, LSH), Image.LANCZOS)
+    x0_, y0_, x1_, y1_ = crop_of(key)
+    scr = limg(key).crop((x0_, y0_ + int(dy), x1_, y1_ + int(dy))).resize((LSW, LSH), Image.LANCZOS)
     lay.paste(scr, (LX, LY))
     lay.alpha_composite(deck, (10, LY + LSH + 26))
     d = ImageDraw.Draw(lay)
@@ -418,22 +426,23 @@ def laptop_frame(f, t):
     f.alpha_composite(lay, (0, int(-40 * out)))
 def brand_alpha(t):
     if not HERO: return 0.0
-    a = (t - (PHONE_T0 - 0.2)) / 0.45; b = 1 - (t - (PHONE_T0 + 2.0)) / 0.6
+    a = (t - (REVEAL_T - 0.2)) / 0.45
+    b = 1 - (t - (PHONE_T0 + (2.0 if PHONE_T0 == REVEAL_T else 0.6))) / 0.6
     return max(0.0, min(1.0, a, b))
 def brand_frame(f, t):
     """deep green, gold glow, the logo sweeps in, then the phone arrives like it owns the place."""
     g = brand_alpha(t)
     if g <= 0: return
     lay = GREEN_BG.copy()
-    gl = max(0.0, min(1.0, (t - PHONE_T0 - 0.6) / 0.6))
+    gl = max(0.0, min(1.0, (t - REVEAL_T - 0.6) / 0.6))
     if gl > 0:
         gg = glow.copy(); gg.putalpha(gg.getchannel("A").point(lambda v: int(v * gl))); lay.alpha_composite(gg)
-    k = (t - PHONE_T0 - 0.05) / 0.5; ko = 1 - max(0.0, min(1.0, (t - PHONE_T0 - 1.05) / 0.4))
+    k = (t - REVEAL_T - 0.05) / 0.5; ko = 1 - max(0.0, min(1.0, (t - REVEAL_T - 1.05) / 0.4))
     if k > 0 and ko > 0:
         sc_ = 0.86 + 0.14 * ease_back(k, 1.2); lg = BIG_LOGO.resize((int(BIG_LOGO.width * sc_), int(BIG_LOGO.height * sc_)), Image.LANCZOS)
         al = min(1.0, k * 1.6) * ko
         # light sweep across the logo
-        sw_ = (t - PHONE_T0 - 0.35) / 0.6
+        sw_ = (t - REVEAL_T - 0.35) / 0.6
         if 0 < sw_ < 1:
             band = Image.new("L", lg.size, 0); bd = ImageDraw.Draw(band); bx = int(-200 + (lg.width + 400) * sw_)
             bd.polygon([(bx, 0), (bx + 90, 0), (bx - 40, lg.height), (bx - 130, lg.height)], fill=170)
@@ -442,14 +451,92 @@ def brand_frame(f, t):
             lg = lg.copy(); lg.alpha_composite(hi)
         lg.putalpha(lg.getchannel("A").point(lambda v: int(v * al)))
         lay.alpha_composite(lg, ((W - lg.width) // 2, 760 - lg.height // 2 - int(40 * (1 - ko))))
-        ta = max(0.0, min(1.0, (t - PHONE_T0 - 0.45) / 0.35)) * ko
+        ta = max(0.0, min(1.0, (t - REVEAL_T - 0.45) / 0.35)) * ko
         if ta > 0:
             tg = TAG.copy(); tg.putalpha(tg.getchannel("A").point(lambda v: int(v * ta)))
             lay.alpha_composite(tg, ((W - TAG.width) // 2, 760 + lg.height // 2 + 40))
     if g < 1: lay.putalpha(lay.getchannel("A").point(lambda v: int(v * g)))
     f.alpha_composite(lay)
+# ---- chat scenes: two phones, a link sent from one and received on the other
+_chats = []
+for i, (seg, disp, _) in enumerate(lines):
+    if not _chat_seg[i]: continue
+    cs, ce = float(_seg_t0[i]), float(_seg_t0[i]) + seg_len[i]
+    _chats.append(dict(cfg=_sc[seg]["chat"], s=cs + (1.15 if abs(cs - REVEAL_T) < 1e-6 and HERO else 0.15), e=ce))
+if _chats:
+    MPW, MPH = 450, 900
+    def mini_phone(title):
+        ph = Image.new("RGBA", (MPW, MPH), (0, 0, 0, 0)); d_ = ImageDraw.Draw(ph)
+        d_.rounded_rectangle([0, 0, MPW - 1, MPH - 1], radius=64, fill=(16, 22, 19, 255))
+        d_.rounded_rectangle([14, 14, MPW - 15, MPH - 15], radius=52, fill=(255, 255, 255, 255))
+        d_.rounded_rectangle([MPW // 2 - 56, 30, MPW // 2 + 56, 58], radius=14, fill=(10, 12, 11, 255))
+        d_.rectangle([14, 84, MPW - 15, 150], fill=(247, 247, 248, 255)); d_.line([14, 150, MPW - 15, 150], fill=(225, 225, 228, 255), width=2)
+        tl = text_layer(title, F_SEMI, 26, (40, 40, 40)); ph.alpha_composite(tl, ((MPW - tl.width) // 2, 117 - tl.height // 2))
+        return ph
+    def bubble(text, out):
+        ls = wrap(text, F_SEMI, 28, 300); lays = [text_layer(l, F_SEMI, 28, (255, 255, 255) if out else (20, 20, 20)) for l in ls]
+        w_ = max(l.width for l in lays) + 44; h_ = sum(l.height for l in lays) + 8 * (len(lays) - 1) + 32
+        b_ = rounded_box(w_, h_, (39, 165, 82) if out else (233, 233, 235), 26); y_ = 16
+        for l in lays: b_.alpha_composite(l, (22, y_)); y_ += l.height + 8
+        return b_
+    def link_card(title, sub):
+        c_ = Image.new("RGBA", (340, 210), (0, 0, 0, 0)); d_ = ImageDraw.Draw(c_)
+        d_.rounded_rectangle([0, 0, 339, 209], radius=22, fill=(240, 241, 243, 255))
+        top = Image.new("RGBA", (340, 118)); td = ImageDraw.Draw(top)
+        for y in range(118): td.line([(0, y), (340, y)], fill=(26 + y // 8, 92 + y // 5, 53 + y // 8, 255))
+        lg = logo_layer(200, white=True); top.alpha_composite(lg, ((340 - lg.width) // 2, 59 - lg.height // 2))
+        m_ = Image.new("L", (340, 118), 0); ImageDraw.Draw(m_).rounded_rectangle([0, 0, 339, 140], radius=22, fill=255)
+        c_.paste(top, (0, 0), m_)
+        t1 = text_layer(title, F_HEAD, 25, INK); c_.alpha_composite(t1, (18, 132))
+        t2 = text_layer(sub, F_SEMI, 21, (110, 120, 116)); c_.alpha_composite(t2, (18, 170))
+        return c_
+    for ch in _chats:
+        c = ch["cfg"]
+        ch["L"] = mini_phone(c.get("to_title", "To: Alex (partner)")); ch["R"] = mini_phone(c.get("from_title", "Jason"))
+        ch["b_out"] = bubble(c["msg"], True); ch["b_in"] = bubble(c["msg"], False)
+        ch["card"] = link_card(c["title"], c["sub"])
+        nb = rounded_box(410, 104, (248, 248, 250), 26); nt = text_layer(c.get("from_name", "Jason"), F_HEAD, 24, INK); nb.alpha_composite(nt, (22, 16))
+        nm = text_layer(c["msg"][:34], F_SEMI, 22, (90, 90, 95)); nb.alpha_composite(nm, (22, 56)); ch["notif"] = nb
+LPX, RPX, CPY = 70, 560, 520
+def chat_frame(f, t):
+    for ch in _chats:
+        if not (ch["s"] - 0.1 <= t < ch["e"]): continue
+        k = t - ch["s"]
+        lay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        rise = int(1300 * (1 - ease_back(k / 0.65, 1.0)))
+        for ph, px in ((ch["L"], LPX), (ch["R"], RPX)):
+            lay.alpha_composite(ph, (px, CPY + rise))
+        def pop(im, x, y, t_on):                            # scale-in pop
+            q = (t - t_on) / 0.3
+            if q <= 0: return
+            sc_ = 0.7 + 0.3 * ease_back(q, 1.4)
+            im2 = im.resize((max(1, int(im.width * sc_)), max(1, int(im.height * sc_))), Image.BILINEAR)
+            lay.alpha_composite(im2, (int(x + (im.width - im2.width) / 2), int(y + (im.height - im2.height) / 2 + rise)))
+        bo = ch["b_out"]; pop(bo, LPX + MPW - 30 - bo.width, CPY + 190, ch["s"] + 0.55)
+        cx_l, cy_l = LPX + MPW - 30 - 340, CPY + 210 + bo.height
+        pop(ch["card"], cx_l, cy_l, ch["s"] + 0.85)
+        bi = ch["b_in"]; cx_r, cy_r = RPX + 30, CPY + 210 + bi.height
+        # the link flies across
+        q = (t - ch["s"] - 1.35) / 0.6
+        if 0 < q < 1:
+            e_ = ease_io(q); x = cx_l + (cx_r - cx_l) * e_; y = cy_l + (cy_r - cy_l) * e_ - 260 * math.sin(math.pi * e_)
+            sc_ = 1 - 0.25 * math.sin(math.pi * e_); im2 = ch["card"].resize((int(340 * sc_), int(210 * sc_)), Image.BILINEAR)
+            lay.alpha_composite(im2, (int(x + (340 - im2.width) / 2), int(y + (210 - im2.height) / 2)))
+        pop(bi, RPX + 30, CPY + 190, ch["s"] + 1.9); pop(ch["card"], cx_r, cy_r, ch["s"] + 1.95)
+        nq = t - ch["s"] - 1.8                              # notification banner drops in, then lifts away
+        if 0 < nq < 1.2:
+            yy = CPY + 70 + int(-130 * (1 - ease_out(nq / 0.3))) - int(130 * max(0.0, (nq - 0.9) / 0.3))
+            lay.alpha_composite(ch["notif"], (RPX + 20, yy + rise))
+        tq = t - ch["s"] - 2.7                              # tap
+        if 0 < tq < 0.8:
+            d_ = ImageDraw.Draw(lay); cx, cy = cx_r + 170, cy_r + 90 + rise
+            for rr, aa in ((30 + 90 * tq, int(220 * (1 - tq / 0.8))), (14, 200)):
+                d_.ellipse([cx - rr, cy - rr, cx + rr, cy + rr], outline=(201, 168, 76, aa), width=6)
+        out = max(0.0, (t - (ch["e"] - 0.35)) / 0.35)
+        if out > 0: lay.putalpha(lay.getchannel("A").point(lambda v: int(v * (1 - out))))
+        f.alpha_composite(lay)
 def phone_dy(t):                         # the phone arrives: from below, a confident overshoot, then settles
-    t0 = PHONE_T0 + (1.0 if HERO else 0.0)
+    t0 = PHONE_T0 + (1.0 if HERO and PHONE_T0 == REVEAL_T else 0.0)
     if t < t0: return 99999
     if HERO: return int(1500 * (1 - ease_back((t - t0) / 0.85, 1.1)))
     return int(760 * (1 - ease_out((t - t0) / 0.95)))
@@ -558,6 +645,7 @@ for i in range(n_main):
     dy = phone_dy(t)
     if t < LAP_END: laptop_frame(f, t)
     if HERO: brand_frame(f, t)
+    if _chats: chat_frame(f, t)
     if dy < H:
         f.alpha_composite(shadow, (PX - 80, PY - 80 + dy))
         f.alpha_composite(phone, (PX, PY + dy))

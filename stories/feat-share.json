@@ -1,0 +1,159 @@
+{
+ "audience": "investor",
+ "start": "none",
+ "max_len": 60,
+ "laptop_sheet": "mail",
+ "laptop_cells": "cells-mail.json",
+ "laptop_crop": {
+  "mail": [
+   0,
+   70,
+   960,
+   670
+  ],
+  "mailE": [
+   600,
+   70,
+   1440,
+   595
+  ]
+ },
+ "title": "Sharing a deal shouldn't take ten attachments.",
+ "blurb": "Share any DealCaddie analysis as one link. Partners and lenders open it on any phone, no app or login, and it stays up to date.",
+ "tags": "#realestateinvesting #realestatepartners #rentalproperty #dealanalysis",
+ "scenes": [
+  {
+   "id": "old1",
+   "laptop": {
+    "sheet": "mail0"
+   },
+   "line": "Sending a deal to your partner the old way?"
+  },
+  {
+   "id": "old2",
+   "laptop": {
+    "cards": [
+     [
+      "screenshots",
+      "rent",
+      "Screenshots",
+      "6 files",
+      "shots"
+     ],
+     [
+      "spreadsheet",
+      "xls5",
+      "The spreadsheet",
+      "v7 FINAL (2).xlsx",
+      "xls"
+     ],
+     [
+      "pdf",
+      "tax",
+      "PDF export",
+      "1.9 MB",
+      "pdf"
+     ],
+     [
+      "comps",
+      "comps",
+      "Comps",
+      "copied by hand",
+      "comps"
+     ]
+    ]
+   },
+   "line": "Screenshots. The spreadsheet. A PDF export. The comps. All attached to one long email."
+  },
+  {
+   "id": "old3",
+   "laptop": {
+    "sheet": "mailE"
+   },
+   "line": "Then come the replies: which version is this? What rent did you use?"
+  },
+  {
+   "id": "send",
+   "chat": {
+    "to_title": "To: Alex (partner)",
+    "from_title": "Jason",
+    "from_name": "Jason",
+    "msg": "Found one. Thoughts?",
+    "title": "2525 Rozelle St · 8.5/10",
+    "sub": "dealcaddie.ai"
+   },
+   "line": "With DealCaddie, it's one link. Text it, email it, or post it anywhere."
+  },
+  {
+   "id": "open1",
+   "do": [
+    {
+     "goto": "/share/demo15e6d86ab"
+    },
+    {
+     "wait": 2500
+    },
+    {
+     "top": true
+    },
+    {
+     "focus": "#sh-score",
+     "pick": "card"
+    }
+   ],
+   "hold": 5,
+   "needs_focus": false,
+   "line": "Your partner taps it and sees the whole deal on their phone. No app, no login."
+  },
+  {
+   "id": "open2",
+   "do": [
+    {
+     "focus": "#caddie-verdict-strip"
+    }
+   ],
+   "hold": 4.5,
+   "needs_focus": true,
+   "line": "The score, Caddie's verdict,"
+  },
+  {
+   "id": "open3",
+   "do": [
+    {
+     "focus": "text:^\\s*Cashflow by Strategy",
+     "pick": "card"
+    }
+   ],
+   "hold": 5,
+   "needs_focus": true,
+   "line": "and every strategy, with the exact numbers you used."
+  },
+  {
+   "id": "close",
+   "do": [
+    {
+     "focus": "#sh-key-numbers"
+    }
+   ],
+   "hold": 4.5,
+   "line": "Change the deal, and the link updates. One link instead of ten attachments."
+  }
+ ],
+ "order": [
+  "old1",
+  "old2",
+  "old3",
+  "send",
+  "open1",
+  "open2",
+  "open3",
+  "close"
+ ],
+ "wrap": "",
+ "end": "Try it free at dealcaddie.ai.",
+ "cover": "One link. The whole deal.",
+ "cover_sub": "Partners and lenders open it on any phone.",
+ "cover_scene": "open3",
+ "why": "Stop emailing screenshots and spreadsheets. Share the whole deal in one link.",
+ "ask": "Who do you send deals to first? 👇"
+}

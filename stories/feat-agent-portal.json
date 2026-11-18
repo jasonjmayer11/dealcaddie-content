@@ -1,0 +1,155 @@
+{
+ "audience": "agent",
+ "start": "none",
+ "max_len": 60,
+ "laptop_sheet": "amail",
+ "laptop_cells": "cells-amail.json",
+ "laptop_crop": {
+  "amail": [
+   0,
+   70,
+   960,
+   670
+  ],
+  "amailE": [
+   600,
+   70,
+   1440,
+   595
+  ]
+ },
+ "title": "Agents: stop building investor packets by hand.",
+ "blurb": "DealCaddie Agent Pro: send investor clients one branded link to a private portal where every deal is underwritten, and they rank picks and request showings.",
+ "tags": "#realestateagent #realtor #investorfriendly #realestateinvesting #agentlife",
+ "scenes": [
+  {
+   "id": "old1",
+   "laptop": {
+    "sheet": "amail0"
+   },
+   "line": "Agents: your investor client wants numbers on three listings."
+  },
+  {
+   "id": "old2",
+   "laptop": {
+    "cards": [
+     [
+      "listings",
+      "rent",
+      "Listing printouts",
+      "3 PDFs",
+      "list"
+     ],
+     [
+      "cma",
+      "comps",
+      "A CMA",
+      "for each one",
+      "cma"
+     ],
+     [
+      "cash",
+      "xls5",
+      "Cash flow sheet",
+      "rents guessed",
+      "xls"
+     ],
+     [
+      "logo",
+      null,
+      "Your logo",
+      "pasted in by hand",
+      "logo"
+     ]
+    ]
+   },
+   "line": "Pull the listings. Run a CMA. Build a cash flow sheet. Paste in your logo. Attach it all."
+  },
+  {
+   "id": "old3",
+   "laptop": {
+    "sheet": "amailE"
+   },
+   "line": "Then the questions start. Which one cash flows best? Can you run it at 20% down?"
+  },
+  {
+   "id": "send",
+   "chat": {
+    "to_title": "To: Mike R.",
+    "from_title": "Jordan Ellis",
+    "from_name": "Jordan Ellis",
+    "msg": "3 deals for you, Mike",
+    "title": "Your shortlist · Jordan Ellis",
+    "sub": "dealcaddie.ai"
+   },
+   "line": "With DealCaddie Agent Pro, you send one branded link."
+  },
+  {
+   "id": "p1",
+   "do": [
+    {
+     "goto": "/sample-portal"
+    },
+    {
+     "wait": 2500
+    },
+    {
+     "focus": ".nav-id"
+    }
+   ],
+   "hold": 5,
+   "needs_focus": true,
+   "line": "Your client gets a private portal with your name, photo and brokerage on every page."
+  },
+  {
+   "id": "p2",
+   "do": [
+    {
+     "focus": "[id^=deal-]"
+    }
+   ],
+   "hold": 5,
+   "needs_focus": true,
+   "line": "Every deal is already underwritten, so the numbers answer their questions for you."
+  },
+  {
+   "id": "p3",
+   "do": [
+    {
+     "focus": "button[data-r=showing]",
+     "pick": "parent"
+    }
+   ],
+   "hold": 4.5,
+   "needs_focus": true,
+   "line": "They rank their favorites and request showings right from the deal."
+  },
+  {
+   "id": "close",
+   "do": [
+    {
+     "focus": "#rankcta"
+    }
+   ],
+   "hold": 4.5,
+   "line": "So you know exactly who to show first. Less busywork, happier clients."
+  }
+ ],
+ "order": [
+  "old1",
+  "old2",
+  "old3",
+  "send",
+  "p1",
+  "p2",
+  "p3",
+  "close"
+ ],
+ "wrap": "",
+ "end": "Try it free at dealcaddie.ai.",
+ "cover": "Investor packets, in one link.",
+ "cover_sub": "Your brand. Their portal. Every deal underwritten.",
+ "cover_scene": "p2",
+ "why": "Investor clients stay with the agent who brings them real numbers. Agent Pro does the busywork.",
+ "ask": "Agents: how many investor clients are you juggling? 👇"
+}
