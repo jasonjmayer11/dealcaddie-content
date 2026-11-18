@@ -191,8 +191,11 @@ for i, (seg, _, _) in enumerate(lines):
     if (STORY and _sc.get(seg, {}).get("laptop")) or not m0: a, b = 0, 1        # drawn, not recorded
     need = seg_len[i]
     if seg == "paste":                       # the wait for the analysis is squeezed into the line
-        sp = max(1.0, (b - a) / need)
+        hold = 1.1 if (STORY and any(sc_.get("laptop") for sc_ in STORY.get("scenes", []))) else 0.0
+        # (intro: the phone is still flying in for the first ~1s, so start the typing once it has landed)
+        sp = max(1.0, (b - a) / max(0.5, need - hold))
         f = f"[0:v]trim={a}:{b},setpts=(PTS-STARTPTS)/{sp:.3f}"
+        if hold: f += f",tpad=start_mode=clone:start_duration={hold:.2f}"
     else:
         f = f"[0:v]trim={a}:{min(b, a + need)},setpts=PTS-STARTPTS"
     f += f",fps={FPS},tpad=stop_mode=clone:stop_duration={need:.2f},trim=0:{need:.3f},setpts=PTS-STARTPTS[v{i}]"
