@@ -6,7 +6,7 @@ python3 scripts/schedule_admin.py cancel <job_id>
 python3 scripts/schedule_admin.py accounts      # connected accounts + LinkedIn/Facebook page ids
 python3 scripts/schedule_admin.py history       # what has actually been published
 """
-import os, sys, requests
+import json, os, sys, requests
 key = os.environ["UPLOAD_POST_API_KEY"]; H = {"Authorization": f"Apikey {key}"}
 API = "https://api.upload-post.com/api/uploadposts/schedule"
 if sys.argv[1] == "list":
@@ -43,3 +43,26 @@ elif sys.argv[1] == "history":
         print("\t".join(str(x.get(k, "")) for k in ("upload_timestamp", "platform", "success", "request_id", "media_name", "post_url"))[:300],
               "|", (x.get("post_title") or x.get("title") or "")[:60])
     print(len(rows), "history rows")
+elif sys.argv[1] == "analytics":
+    B = "https://api.upload-post.com/api"
+    r = requests.get(f"{B}/analytics/dealcaddie", headers=H, params={"platforms": "instagram,tiktok,youtube,Facebook,X,threads,Linkedin"}, timeout=90)
+    print("== profile", r.status_code); print(r.text[:5000])
+    rows, page = [], 1
+    while page <= 10:
+        r = requests.get(f"{B}/uploadposts/history", headers=H, params={"page": page, "limit": 50}, timeout=60)
+        if r.status_code != 200: break
+        h = r.json().get("history") or []; rows += h
+        if len(h) < 50: break
+        page += 1
+    seen = set()
+    print("== posts")
+    for x in rows:
+        rid = (x.get("request_id") or "").strip()
+        if not rid or rid in seen or not x.get("success"): continue
+        seen.add(rid)
+        a = requests.get(f"{B}/uploadposts/post-analytics/{rid}", headers=H, timeout=60)
+        if a.status_code != 200: print(rid, "->", a.status_code); continue
+        j = a.json(); title = ((j.get("post") or {}).get("post_title") or "")[:50]; ts = (j.get("post") or {}).get("upload_timestamp", "")
+        for pf, v in (j.get("platforms") or {}).items():
+            m = (v or {}).get("post_metrics") or {}
+            print("\t".join([str(ts)[:16], pf, rid[:44], json.dumps(m)[:220], title]))
