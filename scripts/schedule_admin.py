@@ -80,7 +80,13 @@ elif sys.argv[1] == "find":
         if len(h) < 50: break
         page += 1
 elif sys.argv[1] == "unpublish":
-    pf, pid = sys.argv[2].split(":", 1)
+    parts = sys.argv[2].split(":")            # platform:post_id[:profile]
+    pf, pid = parts[0], parts[1]; user = parts[2] if len(parts) > 2 else "dealcaddie"
     r = requests.post("https://api.upload-post.com/api/uploadposts/posts/unpublish", headers=H,
-                      json={"platform": pf, "user": "dealcaddie", "post_id": pid}, timeout=60)
+                      json={"platform": pf, "user": user, "post_id": pid}, timeout=60)
     print(r.status_code, r.text)
+elif sys.argv[1] == "fbpages":
+    for prof in sys.argv[2].split(","):
+        r = requests.get("https://api.upload-post.com/api/uploadposts/facebook/pages", headers=H, params={"profile": prof}, timeout=60)
+        import re as _re
+        print(prof, r.status_code, _re.sub(r'"(access_token|token)"\s*:\s*"[^"]*"', '"\\1":"<hidden>"', r.text)[:1500])
