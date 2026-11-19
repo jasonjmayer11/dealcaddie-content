@@ -1,0 +1,136 @@
+{
+ "audience": "investor",
+ "start": "search",
+ "typePaste": true,
+ "max_len": 50,
+ "require": "Best[^\\n]{0,40}\\n?\\s*\\+\\$(?:[2-9]\\d\\d|\\d,\\d{3})/mo[\\s\\S]{0,400}Cash-on-cash[^\\n]{0,20}\\n?\\s*(?:[4-9]|\\d\\d)\\.\\d+%",
+ "requireLog": "Best[\\s\\S]{0,40}|Cash-on-cash[\\s\\S]{0,25}",
+ "laptop_sheet": "sx",
+ "laptop_cells": "cells-sx.json",
+ "title": "One house. Seven ways to run it. One tap.",
+ "blurb": "DealCaddie runs long-term, mid-term, Airbnb, Section 8, house hack, BRRRR and flip side by side on any listing.",
+ "tags": "#realestateinvesting #brrrr #airbnb #section8 #househacking",
+ "scenes": [
+  {
+   "id": "old1",
+   "laptop": {
+    "sheet": "sx0"
+   },
+   "line": "One house, seven ways to run it. The old way, that's seven spreadsheets."
+  },
+  {
+   "id": "old2",
+   "laptop": {
+    "cards": [
+     [
+      "furnished",
+      "rent",
+      "Furnished rents",
+      "mid-term",
+      "mtr"
+     ],
+     [
+      "airbnb",
+      "rent",
+      "Airbnb comps",
+      "occupancy?",
+      "str"
+     ],
+     [
+      "hud",
+      null,
+      "HUD rent limits",
+      "Section 8",
+      "s8"
+     ],
+     [
+      "refi",
+      "xls5",
+      "Refi math",
+      "BRRRR",
+      "brrrr"
+     ],
+     [
+      "rehab",
+      "comps",
+      "Rehab and ARV",
+      "flip",
+      "flip"
+     ]
+    ]
+   },
+   "line": "Look up furnished rents, Airbnb occupancy, hud limits for Section 8, the refi math for a BRRRR, and rehab costs for a flip."
+  },
+  {
+   "id": "old3",
+   "laptop": {
+    "sheet": "sxE",
+    "drift": true
+   },
+   "line": "And you still don't know which one wins, or if Airbnb is even allowed."
+  },
+  {
+   "id": "strat",
+   "do": [
+    {
+     "tab": "Cashflow"
+    },
+    {
+     "focus": "text:^\\s*Cashflow by Strategy",
+     "pick": "card"
+    }
+   ],
+   "hold": 6,
+   "line": "Long-term, mid-term, Airbnb, Section 8, house hack, BRRRR and flip, side by side."
+  },
+  {
+   "id": "best",
+   "do": [
+    {
+     "top": true
+    },
+    {
+     "wait": 500
+    },
+    {
+     "focus": "#results-top"
+    }
+   ],
+   "hold": 4.5,
+   "line": "The best play is called out for you,"
+  },
+  {
+   "id": "close",
+   "do": [
+    {
+     "tab": "Cashflow"
+    },
+    {
+     "focus": "text:^\\s*Cashflow by Strategy",
+     "pick": "card"
+    }
+   ],
+   "hold": 4.5,
+   "line": "and every number is yours to change. Know your strategy before you offer."
+  }
+ ],
+ "extra_lines": {
+  "paste": "DealCaddie runs all seven at once. Just paste the listing."
+ },
+ "order": [
+  "old1",
+  "old2",
+  "old3",
+  "paste",
+  "strat",
+  "best",
+  "close"
+ ],
+ "cover": "7 strategies. One tap.",
+ "cover_sub": "Long-term to flip, side by side.",
+ "cover_scene": "strat",
+ "why": "Most investors only run one strategy. The best deal might be hiding in another.",
+ "ask": "Which strategy do you usually run? 👇",
+ "wrap": "",
+ "end": "Try it free at dealcaddie.ai."
+}

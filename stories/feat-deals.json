@@ -1,0 +1,215 @@
+{
+ "audience": "investor",
+ "start": "none",
+ "max_len": 50,
+ "laptop_sheet": "dx",
+ "laptop_cells": "cells-dx.json",
+ "title": "Stop scrolling listings every night. Let the deals find you.",
+ "blurb": "DealCaddie underwrites every listing in your market, pins each with its cash flow, and emails new matches every morning.",
+ "tags": "#realestateinvesting #dealflow #cashflow #realestateinvestor",
+ "scenes": [
+  {
+   "id": "old1",
+   "laptop": {
+    "sheet": "dx0"
+   },
+   "line": "Finding a cash-flowing rental the old way? Scroll listings every night."
+  },
+  {
+   "id": "old2",
+   "laptop": {
+    "cards": [
+     [
+      "rent",
+      "rent",
+      "Rent",
+      "for every listing",
+      "a1"
+     ],
+     [
+      "taxes",
+      "tax",
+      "Taxes",
+      "for every listing",
+      "a2"
+     ],
+     [
+      "insurance",
+      "ins",
+      "Insurance",
+      "for every listing",
+      "a3"
+     ],
+     [
+      "comps",
+      "comps",
+      "Comps",
+      "for every listing",
+      "a4"
+     ]
+    ]
+   },
+   "line": "Then run the rent, taxes, insurance and comps on every single one."
+  },
+  {
+   "id": "old3",
+   "laptop": {
+    "sheet": "dxE",
+    "drift": true
+   },
+   "line": "By the time you find a good one, it's under contract."
+  },
+  {
+   "id": "pins",
+   "do": [
+    {
+     "eval": "(async()=>{const L=await (await fetch('/api/buy-boxes',{credentials:'same-origin'})).json();const bs=(L||[]).filter(b=>/cleveland/i.test(JSON.stringify(b.markets||'')+' '+(b.name||'')+' '+(b.region_label||'')));if(!bs.length)return 'NO CLEVELAND BOX: '+(L||[]).map(b=>b.id+':'+b.name).join(', ');const b=bs[bs.length-1];const j=await (await fetch('/api/buy-boxes/'+b.id+'/map',{credentials:'same-origin'})).json();const rs=(j.rows||[]).filter(r=>r.lat!=null);const good=rs.filter(r=>/analyzed|passed|below_criteria/.test(r.screen_status||''));const use=good.length>=3?good:rs;const med=a=>{a=a.slice().sort((x,y)=>x-y);return a[a.length>>1]};if(use.length)localStorage.setItem('dc_deals_view_'+b.id,JSON.stringify({lat:med(use.map(r=>r.lat)),lng:med(use.map(r=>r.lng)),z:13,t:Date.now()}));localStorage.setItem('dc_deals_drawer','peek');localStorage.setItem('dc_pin_mode','cf');window.__cleBox=b.id;sessionStorage.setItem('cleBox',b.id);return 'box '+b.id+' '+b.name+' rows '+rs.length+' good '+good.length})()"
+    },
+    {
+     "goto": "/deals"
+    },
+    {
+     "waitfn": "!!(window.dcBuyBox && window.dcBuyBox.boxes().length)",
+     "timeout": 60000
+    },
+    {
+     "eval": "(()=>{const id=+sessionStorage.getItem('cleBox');if(window.dcBuyBox.currentId()!==id)window.dcBuyBox.select(id);return 'selected '+id})()"
+    },
+    {
+     "wait": 2500
+    },
+    {
+     "waitfn": "(()=>{const s=(document.getElementById('dl-sum')||{}).innerText||'';return /hit your targets|\\d+ listings?/.test(s)})()",
+     "timeout": 90000
+    },
+    {
+     "waitfn": "!/Scoring your strongest/i.test(document.body.innerText)",
+     "timeout": 240000
+    },
+    {
+     "wait": 2500
+    },
+    {
+     "eval": "'drawer '+document.getElementById('dl-drawer').dataset.state+' · '+document.getElementById('dl-market').innerText+' · '+document.getElementById('dl-sum').innerText.replace(/\\s+/g,' ')"
+    },
+    {
+     "clear": true
+    }
+   ],
+   "hold": 5.5,
+   "zoom": false,
+   "line": "DealCaddie underwrites every listing in your market, and pins each one with its cash flow."
+  },
+  {
+   "id": "narrow",
+   "do": [
+    {
+     "clear": true
+    },
+    {
+     "click": "#dl-handle"
+    },
+    {
+     "wait": 500
+    },
+    {
+     "click": "#dl-handle"
+    },
+    {
+     "wait": 900
+    },
+    {
+     "click": "#dl-qf"
+    },
+    {
+     "wait": 700
+    },
+    {
+     "focus": "[data-qf=\"cf\"]"
+    }
+   ],
+   "during": [
+    {
+     "wait": 500
+    },
+    {
+     "click": "[data-qf=\"cf\"] button[data-v=\"0\"]"
+    }
+   ],
+   "hold": 4,
+   "line": "Filter to what you'd actually buy,"
+  },
+  {
+   "id": "list",
+   "do": [
+    {
+     "clear": true
+    },
+    {
+     "click": "#dl-qf-done"
+    },
+    {
+     "wait": 600
+    },
+    {
+     "eval": "(()=>{const a=document.getElementById('dl-view-all');if(a){a.click();return 'show all'}return 'no view-all'})()"
+    },
+    {
+     "wait": 1200
+    },
+    {
+     "eval": "(document.getElementById('dl-sum')||{}).innerText.replace(/\\s+/g,' ')+' · rows '+document.querySelectorAll('.dl-row').length"
+    },
+    {
+     "focus": ".dl-row"
+    }
+   ],
+   "hold": 4,
+   "line": "and see only the deals that work."
+  },
+  {
+   "id": "email",
+   "do": [
+    {
+     "clear": true
+    },
+    {
+     "html": "assets/email/digest-cleveland.html"
+    },
+    {
+     "wait": 900
+    }
+   ],
+   "during": [
+    {
+     "wait": 700
+    },
+    {
+     "scroll": {
+      "by": 1150,
+      "ms": 5200
+     }
+    }
+   ],
+   "hold": 6,
+   "zoom": false,
+   "line": "New matches land in your inbox every morning. The deals find you."
+  }
+ ],
+ "order": [
+  "old1",
+  "old2",
+  "old3",
+  "pins",
+  "narrow",
+  "list",
+  "email"
+ ],
+ "cover": "Let the deals find you.",
+ "cover_sub": "Every listing underwritten. New matches every morning.",
+ "cover_scene": "pins",
+ "why": "Your evenings are worth more than scrolling listings. Let the cash-flowing deals come to you.",
+ "ask": "Which city should we search next? 👇",
+ "wrap": "",
+ "end": "Try it free at dealcaddie.ai."
+}

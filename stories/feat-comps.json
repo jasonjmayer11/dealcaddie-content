@@ -1,0 +1,144 @@
+{
+ "audience": "investor",
+ "start": "search",
+ "typePaste": true,
+ "max_len": 50,
+ "require": "Best[^\\n]{0,40}\\n?\\s*\\+\\$(?:[2-9]\\d\\d|\\d,\\d{3})/mo[\\s\\S]{0,400}Cash-on-cash[^\\n]{0,20}\\n?\\s*(?:[4-9]|\\d\\d)\\.\\d+%",
+ "requireLog": "Best[\\s\\S]{0,40}|Cash-on-cash[\\s\\S]{0,25}",
+ "laptop_sheet": "cx",
+ "laptop_cells": "cells-cx.json",
+ "title": "What should you offer? Stop guessing.",
+ "blurb": "DealCaddie pulls recent sales, suggests an offer range, and builds your offer plan: opening, target and walk-away.",
+ "tags": "#realestateinvesting #makeanoffer #comps #rentalproperty",
+ "scenes": [
+  {
+   "id": "old1",
+   "laptop": {
+    "sheet": "cx0"
+   },
+   "line": "What should you offer? The old way, you're guessing."
+  },
+  {
+   "id": "old2",
+   "laptop": {
+    "cards": [
+     [
+      "pull",
+      "comps",
+      "Sold search",
+      "3 of 41 results",
+      "s1"
+     ],
+     [
+      "sale",
+      "rent",
+      "Another sale",
+      "copy by hand",
+      "s2"
+     ],
+     [
+      "copy",
+      "comps",
+      "And another",
+      "different size?",
+      "s3"
+     ],
+     [
+      "math",
+      "xls5",
+      "Price per sqft",
+      "calculator",
+      "avg"
+     ]
+    ]
+   },
+   "line": "Pull sold comps, one sale at a time. Copy each one. Do the price per square foot math."
+  },
+  {
+   "id": "old3",
+   "laptop": {
+    "sheet": "cxE",
+    "drift": true
+   },
+   "line": "Then guess your offer, and hope you didn't overpay."
+  },
+  {
+   "id": "comps",
+   "do": [
+    {
+     "tab": "Comps"
+    },
+    {
+     "focus": "text:^\\s*Comparable Sales",
+     "pick": "card",
+     "scope": true
+    }
+   ],
+   "hold": 4.5,
+   "needs_focus": true,
+   "line": "Recent sales nearby, pulled for you,"
+  },
+  {
+   "id": "offerrow",
+   "do": [
+    {
+     "waitfn": "(()=>{const e=document.getElementById('comps-offer-row');return e&&e.style.display!=='none'&&/\\$/.test(e.innerText)})()",
+     "timeout": 45000
+    },
+    {
+     "focus": "#comps-offer-row"
+    }
+   ],
+   "hold": 4,
+   "needs_focus": true,
+   "line": "with a suggested offer range."
+  },
+  {
+   "id": "plan",
+   "do": [
+    {
+     "unscope": true
+    },
+    {
+     "eval": "dcOfferPlan.open()"
+    },
+    {
+     "wait": 1500
+    },
+    {
+     "focus": "#op-opening",
+     "pick": "parent2"
+    }
+   ],
+   "hold": 5.5,
+   "needs_focus": true,
+   "line": "Then build your offer plan: opening, target and walk-away, in one tap."
+  },
+  {
+   "id": "close",
+   "do": [],
+   "hold": 4,
+   "line": "Know your number before you make an offer."
+  }
+ ],
+ "extra_lines": {
+  "paste": "DealCaddie does it for you. Just paste the listing."
+ },
+ "order": [
+  "old1",
+  "old2",
+  "old3",
+  "paste",
+  "comps",
+  "offerrow",
+  "plan",
+  "close"
+ ],
+ "cover": "What should you offer?",
+ "cover_sub": "Comps, a suggested offer and your walk-away price.",
+ "cover_scene": "plan",
+ "why": "The money in real estate is made when you buy. Know your number before you offer.",
+ "ask": "Have you ever overpaid for a property? 👇",
+ "wrap": "",
+ "end": "Try it free at dealcaddie.ai."
+}
