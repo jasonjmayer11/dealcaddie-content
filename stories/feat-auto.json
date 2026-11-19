@@ -1,0 +1,141 @@
+{
+ "audience": "investor",
+ "start": "search",
+ "typePaste": true,
+ "max_len": 50,
+ "require": "Best[^\\n]{0,40}\\n?\\s*\\+\\$(?:[2-9]\\d\\d|\\d,\\d{3})/mo[\\s\\S]{0,400}Cash-on-cash[^\\n]{0,20}\\n?\\s*(?:[4-9]|\\d\\d)\\.\\d+%",
+ "requireLog": "Best[\\s\\S]{0,40}|Cash-on-cash[\\s\\S]{0,25}",
+ "title": "Stop digging up taxes, rent and insurance by hand.",
+ "blurb": "DealCaddie looks up rent, taxes, insurance and HOA for any listing automatically, and every number stays editable.",
+ "tags": "#realestateinvesting #rentalproperty #dealanalysis #cashflow",
+ "scenes": [
+  {
+   "id": "old1",
+   "laptop": {
+    "sheet": "xls0"
+   },
+   "line": "Before you can analyze a rental, you have to find the numbers."
+  },
+  {
+   "id": "old2",
+   "laptop": {
+    "cards": [
+     [
+      "taxes",
+      "tax",
+      "Property taxes",
+      "county records"
+     ],
+     [
+      "rent",
+      "rent",
+      "Rent",
+      "listing sites"
+     ],
+     [
+      "comps",
+      "comps",
+      "Sold comps",
+      "sold search"
+     ],
+     [
+      "insurance",
+      "ins",
+      "Insurance",
+      "quote in 48 hrs"
+     ],
+     [
+      "hoa",
+      null,
+      "HOA & repairs",
+      "guesswork"
+     ]
+    ]
+   },
+   "line": "Dig up the taxes. Guess the rent. Hunt down sold comps. Wait on an insurance quote. Then HOA, repairs and vacancy."
+  },
+  {
+   "id": "old3",
+   "laptop": {
+    "sheet": "xlsE",
+    "drift": true
+   },
+   "line": "An hour later, it's still a guess."
+  },
+  {
+   "id": "rent",
+   "do": [
+    {
+     "tab": "Cashflow"
+    },
+    {
+     "focus": "#live-ltr-rent",
+     "pick": "parent2"
+    }
+   ],
+   "hold": 4.5,
+   "line": "Rent estimates from real rental comps,"
+  },
+  {
+   "id": "taxes",
+   "do": [
+    {
+     "tab": "Financials"
+    },
+    {
+     "focus": "#fin-tax",
+     "pick": "parent2"
+    }
+   ],
+   "hold": 4.5,
+   "line": "property taxes and insurance, filled in for you,"
+  },
+  {
+   "id": "edit",
+   "do": [
+    {
+     "focus": "#fin-price",
+     "pick": "card"
+    }
+   ],
+   "hold": 5,
+   "line": "and every number stays editable, so your judgment still counts."
+  },
+  {
+   "id": "close",
+   "do": [
+    {
+     "top": true
+    },
+    {
+     "wait": 500
+    },
+    {
+     "focus": "#results-top"
+    }
+   ],
+   "hold": 4.5,
+   "line": "Real numbers in seconds, not an hour of browser tabs."
+  }
+ ],
+ "extra_lines": {
+  "paste": "DealCaddie looks it all up for you. Just paste the listing link."
+ },
+ "order": [
+  "old1",
+  "old2",
+  "old3",
+  "paste",
+  "rent",
+  "taxes",
+  "edit",
+  "close"
+ ],
+ "wrap": "",
+ "end": "Try it free at dealcaddie.ai.",
+ "cover": "The numbers, found for you.",
+ "cover_sub": "Rent, taxes, insurance, HOA. Automatically.",
+ "cover_scene": "taxes",
+ "why": "The slowest part of analyzing a rental is finding the numbers. DealCaddie does it for you.",
+ "ask": "Which number takes you longest to find? 👇"
+}

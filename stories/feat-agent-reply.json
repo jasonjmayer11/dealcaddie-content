@@ -1,0 +1,154 @@
+{
+ "audience": "agent",
+ "start": "none",
+ "max_len": 50,
+ "title": "Agents: your client texts \"is it a deal?\" Answer in seconds.",
+ "blurb": "DealCaddie Agent Pro: reply to investor clients with a full, branded analysis link in seconds instead of an hour of research.",
+ "tags": "#realestateagent #realtor #investorfriendly #agentlife",
+ "scenes": [
+  {
+   "id": "old1",
+   "laptop": {
+    "sheet": "xls0"
+   },
+   "line": "Agents: your investor client texts, is this one a deal?"
+  },
+  {
+   "id": "old2",
+   "laptop": {
+    "cards": [
+     [
+      "taxes",
+      "tax",
+      "Property taxes",
+      "county records"
+     ],
+     [
+      "rent",
+      "rent",
+      "Rent",
+      "listing sites"
+     ],
+     [
+      "comps",
+      "comps",
+      "Sold comps",
+      "sold search"
+     ],
+     [
+      "insurance",
+      "ins",
+      "Insurance",
+      "quote in 48 hrs"
+     ],
+     [
+      "hoa",
+      null,
+      "HOA & repairs",
+      "guesswork"
+     ]
+    ]
+   },
+   "line": "Now you're digging up taxes, guessing the rent, pulling comps, and waiting on insurance."
+  },
+  {
+   "id": "old3",
+   "laptop": {
+    "sheet": "xlsE",
+    "drift": true
+   },
+   "line": "By the time you reply, they've moved on."
+  },
+  {
+   "id": "send",
+   "min_dur": 5.6,
+   "chat": {
+    "to_title": "To: Mike R.",
+    "from_title": "Jordan Ellis",
+    "from_name": "Jordan Ellis",
+    "msg": "Ran the numbers. Take a look:",
+    "title": "1105 S Zenobia St · 8.1/10",
+    "sub": "dealcaddie.ai"
+   },
+   "line": "With DealCaddie Agent Pro, you reply in seconds with the full analysis."
+  },
+  {
+   "id": "b1",
+   "do": [
+    {
+     "goto": "/share/demo15e6d86ab"
+    },
+    {
+     "wait": 2500
+    },
+    {
+     "top": true
+    },
+    {
+     "focus": ".agent-nav",
+     "pick": "self"
+    }
+   ],
+   "hold": 4.5,
+   "needs_focus": true,
+   "line": "Branded with your name and photo,"
+  },
+  {
+   "id": "b2",
+   "do": [
+    {
+     "focus": "#sh-key-numbers"
+    }
+   ],
+   "hold": 4.5,
+   "needs_focus": true,
+   "line": "with every number your client will ask about,"
+  },
+  {
+   "id": "b3",
+   "do": [
+    {
+     "focus": "text:^\\s*Cashflow by Strategy",
+     "pick": "card"
+    }
+   ],
+   "hold": 4.5,
+   "needs_focus": true,
+   "line": "and every strategy side by side."
+  },
+  {
+   "id": "close",
+   "do": [
+    {
+     "top": true
+    },
+    {
+     "wait": 400
+    },
+    {
+     "focus": "#sh-score",
+     "pick": "card"
+    }
+   ],
+   "hold": 4.5,
+   "line": "Be the agent who answers first, with real numbers."
+  }
+ ],
+ "order": [
+  "old1",
+  "old2",
+  "old3",
+  "send",
+  "b1",
+  "b2",
+  "b3",
+  "close"
+ ],
+ "wrap": "",
+ "end": "Try it free at dealcaddie.ai.",
+ "cover": "\"Is it a deal?\" Answered in seconds.",
+ "cover_sub": "A branded analysis link, not an hour of research.",
+ "cover_scene": "b2",
+ "why": "Investor clients stay with the agent who answers first, with real numbers.",
+ "ask": "Agents: how long does it take you to answer \"is it a deal?\" 👇"
+}
