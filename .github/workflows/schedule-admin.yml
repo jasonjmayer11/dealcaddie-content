@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "list or cancel"
+        description: "list, cancel, cancelmany, find, unpublish, history, accounts, analytics"
         required: true
         default: list
       job_id:

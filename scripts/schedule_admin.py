@@ -66,3 +66,21 @@ elif sys.argv[1] == "analytics":
         for pf, v in (j.get("platforms") or {}).items():
             m = (v or {}).get("post_metrics") or {}
             print("\t".join([str(ts)[:16], pf, rid[:44], json.dumps(m)[:220], title]))
+elif sys.argv[1] == "cancelmany":
+    for jid in [x.strip() for x in sys.argv[2].split(",") if x.strip()]:
+        r = requests.delete(f"{API}/{jid}", headers=H, timeout=60); print(jid, r.status_code, r.text[:120])
+elif sys.argv[1] == "find":
+    page = 1
+    while page <= 10:
+        r = requests.get("https://api.upload-post.com/api/uploadposts/history", headers=H, params={"page": page, "limit": 50}, timeout=60)
+        h = r.json().get("history") or []
+        for x in h:
+            if sys.argv[2].lower() in json.dumps(x).lower():
+                print(json.dumps({k: x.get(k) for k in ("upload_timestamp", "platform", "success", "request_id", "platform_post_id", "post_id", "post_url", "media_name", "profile_username")}))
+        if len(h) < 50: break
+        page += 1
+elif sys.argv[1] == "unpublish":
+    pf, pid = sys.argv[2].split(":", 1)
+    r = requests.post("https://api.upload-post.com/api/uploadposts/posts/unpublish", headers=H,
+                      json={"platform": pf, "user": "dealcaddie", "post_id": pid}, timeout=60)
+    print(r.status_code, r.text)
