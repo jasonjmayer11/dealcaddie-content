@@ -10,7 +10,7 @@
   {
    "lines": [
     {
-     "voice": "Put less than twenty percent down, and you pay for insurance that protects the bank, not you. It's called {P M I|PMI}.",
+     "voice": "Put less than twenty percent down, and you pay for insurance that protects the bank, not you. It's called {pee em eye|PMI}.",
      "do": [
       "sub~it's"
      ],
@@ -32,38 +32,12 @@
    },
    "lines": [
     {
-     "voice": "With a *small* down payment, the *bank* has more on the line if you stop paying. {P M I|PMI} *covers* that risk, so the bank can say yes.",
+     "voice": "With a *small* down payment, the *bank* has more on the line if you stop paying. That's where {pee em eye|PMI} comes in. It *covers* that risk, so the bank can say yes.",
      "do": [
       "y~small",
       "bk~bank",
       "rk~if",
       "sh~covers"
-     ]
-    }
-   ]
-  },
-  {
-   "visual": {
-    "type": "timeline",
-    "events": [
-     {
-      "year": "1957",
-      "text": "First modern PMI company starts in *Milwaukee*",
-      "on": "t1"
-     },
-     {
-      "year": "1998",
-      "text": "Federal law gives you the right to *cancel it*",
-      "on": "t2"
-     }
-    ]
-   },
-   "lines": [
-    {
-     "voice": "It's not new. Modern {P M I|PMI} started in {nineteen fifty-seven|1957}, with a Milwaukee lawyer. And since {nineteen ninety-eight|1998}, federal law lets you cancel it.",
-     "do": [
-      "t1~modern",
-      "t2~1998"
      ]
     }
    ]
@@ -158,10 +132,10 @@
    "end": true,
    "lines": [
     {
-     "voice": "DealCaddie adds {P M I|PMI} automatically when you put less than twenty percent down. We read the greens. You take the shot."
+     "voice": "Put less than twenty percent down, and DealCaddie automatically adds the {pee em eye|PMI}. We read the greens. You take the shot."
     }
    ]
   }
  ],
- "caption": "Why you pay for the bank's insurance: PMI, explained simply.\n\nWhat it is: private mortgage insurance. Put less than 20% down on a conventional loan and you pay it, but it protects the lender, not you. With a small down payment the lender has more on the line if you stop paying; PMI covers that risk so the lender can say yes.\n\nWhere it came from: modern PMI dates to 1957, when a Milwaukee attorney started a company to insure these loans. The Homeowners Protection Act of 1998 gave borrowers the right to cancel it.\n\nWho chooses it: house hackers buying a place to live with a small down payment, and investors who'd rather keep cash for repairs or the next deal.\n\nCount it in your numbers. It's part of your monthly payment, and leaving it out makes a deal look better than it is.\n\nThe good news: you can request cancellation at 20% equity (based on the original value), and it ends automatically at 22%. FHA mortgage insurance has different rules.\n\n#realestateinvesting #pmi #firsttimehomebuyer #househacking #realestateexplained"
+ "caption": "Why you pay for the bank's insurance: PMI, explained simply.\n\nWhat it is: private mortgage insurance. Put less than 20% down on a conventional loan and you pay it, but it protects the lender, not you. With a small down payment the lender has more on the line if you stop paying; PMI covers that risk so the lender can say yes.\n\nWho chooses it: house hackers buying a place to live with a small down payment, and investors who'd rather keep cash for repairs or the next deal.\n\nCount it in your numbers. It's part of your monthly payment, and leaving it out makes a deal look better than it is.\n\nThe good news: you can request cancellation at 20% equity (based on the original value), and it ends automatically at 22%. FHA mortgage insurance has different rules.\n\n#realestateinvesting #pmi #firsttimehomebuyer #househacking #realestateexplained"
 }
