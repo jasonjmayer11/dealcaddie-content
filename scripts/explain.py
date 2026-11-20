@@ -31,7 +31,7 @@ VIS_Y = 470                      # top of the visual area
 CAP_Y = 1370                     # captions (kept above the platform UI at the bottom)
 
 # ------------------------------------------------------------------ voice + timeline
-LEAD, GAP, LEADIN = 0.25, 0.12, 0.06
+LEAD, GAP, LEADIN = 0.2, 0.06, 0.04
 t = LEAD; clips = []; events = {}; scenes = []
 for si, sc in enumerate(M["scenes"]):
     sc["_t0"] = t; sc["_units"] = []
@@ -50,10 +50,10 @@ for si, sc in enumerate(M["scenes"]):
                 k, _, n = ev.partition("#"); events[k] = units[min(int(n), len(units) - 1)]["t0"]
             else:
                 k, _, f = ev.partition("@"); events[k] = t + d * float(f or 0)
-        t += d + GAP + ln.get("pause", 0.22)
+        t += d + GAP + ln.get("pause", 0.12)
     sc["_t1"] = t
     scenes.append(sc)
-TOTAL = t + M.get("tail", 1.6)
+TOTAL = t + M.get("tail", 2.2)
 HOOK_END = scenes[1]["_t0"] - 0.1 if len(scenes) > 1 else 2.0   # hook shrinks into the header here
 print(f"total {TOTAL:.1f}s, hook ends {HOOK_END:.1f}s")
 
@@ -303,8 +303,8 @@ def caption(units, now, size=64, max_rows=2):
         for u, l in row:
             s_ = now - (u["t0"] - LEADIN)
             if s_ >= 0:
-                k = ease_out(s_ / 0.16)
-                im.alpha_composite(l if k >= .999 else with_a(l, k), (x, r * lh + int((1 - k) * 14)))
+                k = ease_out(s_ / 0.07)
+                im.alpha_composite(l if k >= .999 else with_a(l, k), (x, r * lh + int((1 - k) * 6)))
             x += l.width + 16
     return im
 
@@ -371,17 +371,28 @@ def body(now):
         place(f, caption(cu, now), CX, CAP_Y)
     return f
 
+BADGE_H = 104
+def _badges():
+    d = os.path.join(ROOT, "assets", "badges")
+    a = Image.open(os.path.join(d, "app-store-badge@hi.png")).convert("RGBA"); g = Image.open(os.path.join(d, "google-play-badge@hi.png")).convert("RGBA")
+    a = a.resize((int(a.width * BADGE_H / a.height), BADGE_H), Image.LANCZOS); g = g.resize((int(g.width * BADGE_H / g.height), BADGE_H), Image.LANCZOS)
+    row = Image.new("RGBA", (a.width + g.width + 32, BADGE_H), (0, 0, 0, 0)); row.alpha_composite(a, (0, 0)); row.alpha_composite(g, (a.width + 32, 0))
+    return row
+END_LOGO = logo_layer(520)
+END_LINE = rich(scenes[-1].get("end_line", "Run the real numbers on any listing."), F_HEAD, 58, INK, FOREST, 880)
+END_AVAIL = T("AVAILABLE ON", F_SEMI, 26, MUTED, 0.24)
+END_BADGES = _badges()
+END_SITE = T("dealcaddie.ai", F_SEMI, 36, MUTED)
+
 def end_frame(now):
-    """Soft close: logo, series line, follow nudge, site."""
-    sc = scenes[-1]; tt = now - sc["_t0"] + 0.15
-    f = BG.copy()
-    p, dy = enter(tt, 0.0, 0.7, 24); place(f, logo_layer(560), CX, 560 + dy, p, 0.97 + 0.03 * p)
-    p, dy = enter(tt, 0.25); place(f, rich(sc.get("end_line", "Run the real numbers on any listing."), F_HEAD, 56, INK, FOREST, 900), CX, 780 + dy, p)
-    p, dy = enter(tt, 0.5); place(f, pill(M.get("series", "REAL ESTATE, EXPLAINED"), fill=GOLD, color=INK, size=28, track=0.2), CX, 960 + dy, p)
-    p, dy = enter(tt, 0.7); place(f, T("Follow for the next one  ·  dealcaddie.ai", F_SEMI, 40, MUTED), CX, 1060 + dy, p)
-    for units in sc["_units"]:
-        if units and units[0]["t0"] - LEADIN <= now: cu = units
-    if sc["_units"] and now >= sc["_units"][0][0]["t0"] - LEADIN: place(f, caption(cu, now), CX, CAP_Y)
+    """Clean close: logo, one line, store badges, site. No captions: the voice says what's on screen."""
+    tt = now - scenes[-1]["_t0"] + 0.15
+    f = BG.copy(); y = 610
+    p, dy = enter(tt, 0.0, 0.8, 20); place(f, END_LOGO, CX, y + dy, p, 0.98 + 0.02 * p); y += END_LOGO.height + 70
+    p, dy = enter(tt, 0.2, 0.7, 16); place(f, END_LINE, CX, y + dy, p); y += END_LINE.height + 90
+    p, dy = enter(tt, 0.45, 0.7, 16); place(f, END_AVAIL, CX, y + dy, p); y += END_AVAIL.height + 26
+    place(f, END_BADGES, CX, y + dy, p); y += BADGE_H + 70
+    p, dy = enter(tt, 0.65, 0.7, 12); place(f, END_SITE, CX, y + dy, p)
     return f
 
 def frame(now):
@@ -390,7 +401,7 @@ def frame(now):
     if scenes[-1].get("end") and now >= scenes[-1]["_t0"] - 0.15:
         s_ = now - (scenes[-1]["_t0"] - 0.15)
         e = end_frame(now)
-        if s_ < 0.35: e = Image.blend(body(scenes[-1]["_t0"] - 0.16), e, s_ / 0.35)
+        if s_ < 0.5: e = Image.blend(body(scenes[-1]["_t0"] - 0.16), e, ease_in_out(s_ / 0.5))
         return e.convert("RGB")
     s_ = now - HOOK_END; tr = 0.55
     f = body(now)
@@ -425,7 +436,7 @@ with wave.open(vw, "wb") as w_:
 tracks = sorted(x[:-4] for x in os.listdir(os.path.join(ROOT, "music")) if x.endswith(".m4a"))
 track = os.environ.get("MUSIC_TRACK") or M.get("music") or tracks[zlib.crc32(HOOK["text"].encode()) % len(tracks)]
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", silent, "-i", vw, "-stream_loop", "-1", "-i", os.path.join(ROOT, "music", track + ".m4a"),
-                "-filter_complex", f"[2:a]volume=0.10,afade=t=out:st={TOTAL - 1.5:.2f}:d=1.5,atrim=0:{TOTAL:.2f}[m];"
+                "-filter_complex", f"[2:a]volume=0.10,afade=t=out:st={TOTAL - 2.2:.2f}:d=2.2,atrim=0:{TOTAL:.2f}[m];"
                 "[1:a]aresample=48000,highpass=f=70,acompressor=threshold=-18dB:ratio=3:attack=5:release=80[v];"
                 "[v][m]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-15:TP=-1.5[a]",
                 "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-shortest", out_mp4], check=True)

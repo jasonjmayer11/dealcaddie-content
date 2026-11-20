@@ -1,49 +1,242 @@
 {
-  "hook": {"text": "The 1% rule is *dead.*", "sub": "Here's what replaced it."},
-  "header": "The 1% rule is *dead.*",
-  "post_title": "The 1% rule is dead. Here's what replaced it.",
-  "example": "Example numbers for illustration · 25% down · 7% · 30-year loan",
-  "scenes": [
-    {"lines": [{"voice": "The {one percent|1%} rule is dead.", "pause": 0.15},
-               {"voice": "Here's what replaced it.", "do": ["sub#0"], "pause": 0.35}]},
-    {"visual": {"type": "stack", "rows": [
-        {"label": "Price", "value": "$300,000", "on": "p"},
-        {"op": "×", "label": "The 1% rule", "value": "1%", "on": "r"},
-        {"op": "=", "label": "Rent needed / mo", "value": "$3,000", "on": "res", "result": true, "tone": "gold"}]},
-     "lines": [{"voice": "The old rule: a rental should bring in {one percent|1%} of its price, every month.", "do": ["r~1%", "p~price"]},
-               {"voice": "A {three hundred thousand dollar|$300,000} house? {Three thousand|$3,000} a month in rent.", "do": ["res~$3,000"]}]},
-    {"visual": {"type": "bars", "title": "RENT ON A $300K HOUSE", "items": [
-        {"label": "What the rule needs", "value": 3000, "on": "b1", "tone": "gold", "suffix": "/mo"},
-        {"label": "What it often rents for", "value": 2000, "on": "b2", "tone": "ink", "suffix": "/mo"}],
-        "stamp": {"text": "0.67%  ·  FAILS", "on": "st", "tone": "bad"}},
-     "lines": [{"voice": "In a lot of markets, that house rents for closer to {two thousand|$2,000}.", "do": ["b1@0", "b2~$2,000"]},
-               {"voice": "That's {point six seven percent|0.67%}. It fails the rule.", "do": ["st~fails"]}]},
-    {"visual": {"type": "check", "title": "What the 1% rule *ignores*", "items": [
-        {"text": "Your interest rate", "mark": "x", "on": "c1"},
-        {"text": "Insurance", "mark": "x", "on": "c2"},
-        {"text": "Property taxes", "mark": "x", "on": "c3"},
-        {"text": "Repairs and vacancy", "mark": "x", "on": "c4"}]},
-     "lines": [{"voice": "Worse, it ignores your *interest* rate, *insurance*, property *taxes*, and *repairs*.", "do": ["c1~interest", "c2~insurance", "c3~taxes", "c4~repairs"]},
-               {"voice": "The stuff that decides if you make money.", "pause": 0.25}]},
-    {"visual": {"type": "stack", "row_h": 118, "gap": 26, "rows": [
-        {"label": "Rent", "value": "$2,000", "on": "l1", "tone": "good"},
-        {"op": "−", "label": "Mortgage", "sub": "$225K loan", "value": "$1,497", "on": "l2"},
-        {"op": "−", "label": "Taxes + insurance", "value": "$450", "on": "l3"},
-        {"op": "−", "label": "Repairs, vacancy, CapEx", "value": "$300", "on": "l4"},
-        {"op": "=", "label": "Cash flow / mo", "value": "−$247", "on": "l5", "result": true, "tone": "bad"}]},
-     "lines": [{"voice": "What replaced it? *Real* monthly cash flow.", "pause": 0.2},
-               {"voice": "Rent, {two thousand|$2,000}. Minus the mortgage, {fourteen ninety-seven|$1,497}. Taxes and insurance, {four fifty|$450}. Repairs, vacancy and CapEx, {three hundred|$300}.", "do": ["l1~$2,000", "l2~mortgage", "l3~taxes", "l4~repairs"]},
-               {"voice": "That's {negative two forty-seven|−$247} a month.", "do": ["l5~$247"], "pause": 0.4}]},
-    {"visual": {"type": "morph", "on": "m", "dur": 1.8, "note": "Break-even price ≈ $250K", "rows": [
-        {"label": "Purchase price", "from": 300000, "to": 250000, "fmt": "$"},
-        {"label": "Cash flow / mo", "from": -247, "to": 0, "fmt": "$", "tone_from": "bad", "tone_to": "good"}]},
-     "lines": [{"voice": "So what price works? Drop it to about {two hundred fifty thousand|$250K},", "do": ["m~drop"]},
-               {"voice": "and the same house breaks even.", "pause": 0.4}]},
-    {"visual": {"type": "big", "text": "The rule isn't the problem. The *price* is.", "size": 96, "sub": "Run the real numbers before you fall in love with a listing.", "sub_on": "tk2"},
-     "lines": [{"voice": "The rule isn't the problem. The *price* is.", "pause": 0.2},
-               {"voice": "Run the real numbers before you fall in love with a listing.", "do": ["tk2#0"], "pause": 0.3}]},
-    {"end": true, "end_line": "DealCaddie runs this math on *any listing.*",
-     "lines": [{"voice": "DealCaddie runs this math on any listing, in seconds. Link in bio."}]}
-  ],
-  "caption": "The 1% rule is dead. Here's what replaced it.\n\nOld rule: rent should be 1% of the price every month. A $300K house → $3,000/mo.\n\nIn a lot of markets that house rents for ~$2,000. And the rule ignores the things that decide whether you make money: your rate, insurance, taxes, repairs.\n\nWhat replaced it: real monthly cash flow.\nRent $2,000\n− Mortgage $1,497 ($225K loan, 7%, 30 yr)\n− Taxes + insurance $450\n− Repairs/vacancy/CapEx $300\n= −$247/mo\n\nBreak-even price on the same house ≈ $250K. The rule isn't the problem. The price is.\n\nExample numbers for illustration only. Your market, rate and costs will differ.\n\n#realestateinvesting #rentalproperty #cashflow #realestateexplained #firsttimeinvestor"
+ "hook": {
+  "text": "The 1% rule is *dead.*",
+  "sub": "Here's what replaced it."
+ },
+ "header": "The 1% rule is *dead.*",
+ "post_title": "The 1% rule is dead. Here's what replaced it.",
+ "example": "Example numbers for illustration · 25% down · 7% · 30-year loan",
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "The {one percent|1%} rule is dead. Here's what replaced it.",
+     "do": [
+      "sub~here's"
+     ],
+     "pause": 0.2
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "stack",
+    "rows": [
+     {
+      "label": "Price",
+      "value": "$300,000",
+      "on": "p"
+     },
+     {
+      "op": "×",
+      "label": "The 1% rule",
+      "value": "1%",
+      "on": "r"
+     },
+     {
+      "op": "=",
+      "label": "Rent needed / mo",
+      "value": "$3,000",
+      "on": "res",
+      "result": true,
+      "tone": "gold"
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "The old rule: rent should be {one percent|1%} of the price, every month. So a {three hundred thousand dollar|$300,000} house needs {three thousand|$3,000} a month.",
+     "do": [
+      "r~1%",
+      "p~price",
+      "res~$3,000"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "bars",
+    "title": "RENT ON A $300K HOUSE",
+    "items": [
+     {
+      "label": "What the rule needs",
+      "value": 3000,
+      "on": "b1",
+      "tone": "gold",
+      "suffix": "/mo"
+     },
+     {
+      "label": "What it often rents for",
+      "value": 2000,
+      "on": "b2",
+      "tone": "ink",
+      "suffix": "/mo"
+     }
+    ],
+    "stamp": {
+     "text": "0.67%  ·  FAILS",
+     "on": "st",
+     "tone": "bad"
+    }
+   },
+   "lines": [
+    {
+     "voice": "But in a lot of markets, that house rents for about {two thousand|$2,000}. That's {point six seven percent|0.67%}. It fails.",
+     "do": [
+      "b1@0",
+      "b2~$2,000",
+      "st~fails"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "check",
+    "title": "What the 1% rule *ignores*",
+    "items": [
+     {
+      "text": "Your interest rate",
+      "mark": "x",
+      "on": "c1"
+     },
+     {
+      "text": "Insurance",
+      "mark": "x",
+      "on": "c2"
+     },
+     {
+      "text": "Property taxes",
+      "mark": "x",
+      "on": "c3"
+     },
+     {
+      "text": "Repairs and vacancy",
+      "mark": "x",
+      "on": "c4"
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "And the rule ignores your *rate*, *insurance*, *taxes* and *repairs*.",
+     "do": [
+      "c1~rate",
+      "c2~insurance",
+      "c3~taxes",
+      "c4~repairs"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "stack",
+    "row_h": 118,
+    "gap": 26,
+    "rows": [
+     {
+      "label": "Rent",
+      "value": "$2,000",
+      "on": "l1",
+      "tone": "good"
+     },
+     {
+      "op": "−",
+      "label": "Mortgage",
+      "sub": "$225K loan",
+      "value": "$1,497",
+      "on": "l2"
+     },
+     {
+      "op": "−",
+      "label": "Taxes + insurance",
+      "value": "$450",
+      "on": "l3"
+     },
+     {
+      "op": "−",
+      "label": "Repairs, vacancy, CapEx",
+      "value": "$300",
+      "on": "l4"
+     },
+     {
+      "op": "=",
+      "label": "Cash flow / mo",
+      "value": "−$247",
+      "on": "l5",
+      "result": true,
+      "tone": "bad"
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "What replaced it? *Real* cash flow. Rent, {two thousand|$2,000}. Mortgage, {fourteen ninety-seven|$1,497}. Taxes and insurance, {four fifty|$450}. Repairs and vacancy, {three hundred|$300}. That's {negative two forty-seven|−$247} a month.",
+     "do": [
+      "l1~$2,000",
+      "l2~mortgage",
+      "l3~taxes",
+      "l4~repairs",
+      "l5~$247"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "morph",
+    "on": "m",
+    "dur": 1.8,
+    "note": "Break-even price ≈ $250K",
+    "rows": [
+     {
+      "label": "Purchase price",
+      "from": 300000,
+      "to": 250000,
+      "fmt": "$"
+     },
+     {
+      "label": "Cash flow / mo",
+      "from": -247,
+      "to": 0,
+      "fmt": "$",
+      "tone_from": "bad",
+      "tone_to": "good"
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "Drop the price to about {two fifty|$250K}, and it breaks even.",
+     "do": [
+      "m~drop"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "big",
+    "text": "The rule isn't the problem. The *price* is.",
+    "size": 96
+   },
+   "lines": [
+    {
+     "voice": "The rule isn't the problem. The *price* is."
+    }
+   ]
+  },
+  {
+   "end": true,
+   "end_line": "DealCaddie runs this math on *any listing.*",
+   "lines": [
+    {
+     "voice": "DealCaddie runs this math on any listing. On the App Store and Google Play."
+    }
+   ]
+  }
+ ],
+ "caption": "The 1% rule is dead. Here's what replaced it.\n\nOld rule: rent should be 1% of the price every month. A $300K house → $3,000/mo.\n\nIn a lot of markets that house rents for ~$2,000. And the rule ignores the things that decide whether you make money: your rate, insurance, taxes, repairs.\n\nWhat replaced it: real monthly cash flow.\nRent $2,000\n− Mortgage $1,497 ($225K loan, 7%, 30 yr)\n− Taxes + insurance $450\n− Repairs/vacancy/CapEx $300\n= −$247/mo\n\nBreak-even price on the same house ≈ $250K. The rule isn't the problem. The price is.\n\nExample numbers for illustration only. Your market, rate and costs will differ.\n\n#realestateinvesting #rentalproperty #cashflow #realestateexplained #firsttimeinvestor"
 }

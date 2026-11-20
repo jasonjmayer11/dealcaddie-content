@@ -26,23 +26,19 @@ jobs:
         with:
           path: |
             ~/.cache/pip
-            ~/kokoro
-          key: kokoro-onnx-v1
+            ~/.cache/huggingface
+          key: kokoro-v1
       - name: Install dependencies
         run: |
           curl -fsSL --retry 3 -o /tmp/ffmpeg.tar.xz \
             https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz
           mkdir -p /tmp/ffmpeg && tar -xf /tmp/ffmpeg.tar.xz -C /tmp/ffmpeg --strip-components=1
           echo "/tmp/ffmpeg/bin" >> "$GITHUB_PATH"
-          pip install --quiet kokoro-onnx pillow numpy
-          mkdir -p ~/kokoro && cd ~/kokoro
-          for f in kokoro-v1.0.onnx voices-v1.0.bin; do
-            [ -f "$f" ] || curl -fsSL --retry 3 -o "$f" "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/$f"
-          done
-      - name: Build the video
+          sudo apt-get update -qq && sudo apt-get install -y -qq espeak-ng
+          pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+          pip install --quiet "kokoro>=0.9.4" soundfile pillow numpy
+      - name: Build the video (real per-word timestamps from kokoro, so captions land on the word)
         id: build
-        env:
-          KOKORO_ONNX_DIR: /home/runner/kokoro
         run: |
           SLUG="explain-${{ github.event.inputs.episode }}-$(date -u +%Y%m%d-%H%M)"
           echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
