@@ -71,8 +71,12 @@ def T(text, path, size, fill, tracking=0.0):
 
 def rich(text, path, size, color, accent, max_w, tracking=-0.02, line_h=1.06):
     """*accent* words, wrapped and centred."""
-    words = text.split(); rows, cur, wsum = [], [], 0; sp = int(size * 0.26)
+    words = text.replace("\n", " \n ").split(" "); rows, cur, wsum = [], [], 0; sp = int(size * 0.26)
     for w in words:
+        if not w: continue
+        if w == "\n":
+            if cur: rows.append(cur)
+            cur, wsum = [], 0; continue
         acc = "*" in w; l = T(w.replace("*", ""), path, size, accent if acc else color, tracking)
         if cur and wsum + sp + l.width > max_w: rows.append(cur); cur, wsum = [], 0
         cur.append(l); wsum += (sp if len(cur) > 1 else 0) + l.width
@@ -379,7 +383,7 @@ def _badges():
     row = Image.new("RGBA", (a.width + g.width + 32, BADGE_H), (0, 0, 0, 0)); row.alpha_composite(a, (0, 0)); row.alpha_composite(g, (a.width + 32, 0))
     return row
 END_LOGO = logo_layer(520)
-END_LINE = rich(scenes[-1].get("end_line", "Run the real numbers on any listing."), F_HEAD, 58, INK, FOREST, 880)
+END_LINE = rich(scenes[-1].get("end_line", "We read the greens.\nYou take the *shot.*"), F_NUM, 66, INK, GOLD_D, 900, line_h=1.12)
 END_AVAIL = T("AVAILABLE ON", F_SEMI, 26, MUTED, 0.24)
 END_BADGES = _badges()
 END_SITE = T("dealcaddie.ai", F_SEMI, 36, MUTED)
