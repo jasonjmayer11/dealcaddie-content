@@ -36,9 +36,19 @@ t = LEAD; clips = []; events = {}; scenes = []
 for si, sc in enumerate(M["scenes"]):
     sc["_t0"] = t; sc["_units"] = []
     for ln in sc["lines"]:
-        a, units = speak_timed(ln["voice"]); d = len(a) / SR
-        for u in units: u["t0"] += t; u["t1"] += t
-        clips.append((t, a)); sc["_units"].append(units)
+        # each sentence is its own take, with a short beat after it, so a new idea never runs into the last one
+        parts, depth, cur_ = [], 0, ""
+        for ch in ln["voice"]:
+            depth += ch == "{"; depth -= ch == "}"; cur_ += ch
+            if depth == 0 and ch in ".?!:" and cur_.strip() and not re.search(r"\d[.:]$", cur_): parts.append(cur_.strip()); cur_ = ""
+        if cur_.strip(): parts.append(cur_.strip())
+        units, tt, a_all = [], t, []
+        for j, part in enumerate(parts):
+            a_, us = speak_timed(part)
+            for u in us: u["t0"] += tt; u["t1"] += tt
+            clips.append((tt, a_)); units += us
+            tt += len(a_) / SR + (ln.get("beat", M.get("beat", 0.34)) if j < len(parts) - 1 else 0)
+        d = tt - t; sc["_units"].append(units)
         cursor = 0
         for ev in ln.get("do", []):              # "id~word" (next unit starting with word), "id#3", "id@0.5"
             if "~" in ev:

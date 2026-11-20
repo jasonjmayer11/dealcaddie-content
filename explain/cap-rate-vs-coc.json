@@ -1,7 +1,7 @@
 {
  "hook": {
   "text": "Cap rate is *not* your return.",
-  "sub": "The difference, in plain English."
+  "sub": "Here's what it actually means."
  },
  "header": "Cap rate vs *cash-on-cash*",
  "post_title": "Cap rate is NOT your return. Cap rate vs cash-on-cash, in plain English.",
@@ -10,11 +10,34 @@
   {
    "lines": [
     {
-     "voice": "Cap rate is not your return. Here's the difference, in plain English.",
+     "voice": "Cap rate is not your return. Here's what it actually means.",
      "do": [
       "sub~here's"
      ],
-     "pause": 0.2
+     "pause": 0.25
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "big",
+    "text": "*NOI*",
+    "size": 220,
+    "accent_color": [
+     3,
+     144,
+     58
+    ],
+    "sub": "Net Operating Income: what a rental earns in a year, *before* the mortgage.",
+    "sub_on": "nd"
+   },
+   "lines": [
+    {
+     "voice": "First, one term you need: {N O I|NOI}. It stands for net operating income. It's what a rental earns in a year, before you pay the mortgage.",
+     "do": [
+      "nd~it"
+     ],
+     "pause": 0.3
     }
    ]
   },
@@ -51,7 +74,7 @@
    },
    "lines": [
     {
-     "voice": "First, {N O I|NOI}. *Rent* comes in. *Taxes*, *insurance*, *repairs* and *vacancy* go out. What's *left* is {N O I|NOI}: what the house earns before any mortgage.",
+     "voice": "*Rent* comes in. *Taxes*, *insurance*, *repairs* and *vacancy* go out. What's *left* is your {N O I|NOI}. It tells you if the house itself makes money.",
      "do": [
       "in~rent",
       "o1~taxes",
@@ -59,7 +82,8 @@
       "o3~repairs",
       "o4~vacancy",
       "pl~left"
-     ]
+     ],
+     "pause": 0.3
     }
    ]
   },
@@ -84,41 +108,12 @@
    },
    "lines": [
     {
-     "voice": "Cap rate is that {N O I|NOI} divided by the price. It's your return if you paid all *cash*. Think of it as the property's *grade*.",
+     "voice": "Cap rate is that {N O I|NOI}, divided by the price. It's your return if you paid all *cash*. Think of it as the property's *grade*.",
      "do": [
       "cash~cash",
       "g~grade"
-     ]
-    }
-   ]
-  },
-  {
-   "visual": {
-    "type": "flow",
-    "bank": {
-     "label": "Mortgage",
-     "on": "bk",
-     "take": 0.85
-    },
-    "pile": {
-     "label": "NOI",
-     "start": 1.0,
-     "on": "n0",
-     "relabel": {
-      "label": "Your cash flow",
-      "value": "$1,536/yr",
-      "on": "cf"
-     }
-    }
-   },
-   "lines": [
-    {
-     "voice": "But most people borrow. The *bank* takes its mortgage out of that {N O I|NOI}, and what's left is your *cash* flow.",
-     "do": [
-      "n0#0",
-      "bk~bank",
-      "cf~cash"
-     ]
+     ],
+     "pause": 0.3
     }
    ]
   },
@@ -149,13 +144,14 @@
    },
    "lines": [
     {
-     "voice": "Divide that by the cash you put in, and you get cash-on-cash. Same house: paid in cash, it returns {six and a half percent|6.5%}. With this loan, you get {one point eight|1.8%}.",
+     "voice": "But most people use a loan, and the bank takes its cut first. Your return on the cash you put in is called cash-on-cash. Same house. Paid in cash: {six and a half percent|6.5%}. With a loan: {one point eight|1.8%}.",
      "do": [
       "L#0",
       "R#0",
       "Lv~6.5%",
       "Rv~1.8%"
-     ]
+     ],
+     "pause": 0.3
     }
    ]
   },
@@ -163,16 +159,12 @@
    "visual": {
     "type": "big",
     "text": "Cap rate grades the *property.* Cash-on-cash grades *your deal.*",
-    "size": 90,
-    "sub": "Check both before you buy.",
-    "sub_on": "cb"
+    "size": 90
    },
    "lines": [
     {
-     "voice": "Cap rate grades the property. Cash-on-cash grades your deal. Check both before you buy.",
-     "do": [
-      "cb~check"
-     ]
+     "voice": "Cap rate grades the property. Cash-on-cash grades your deal.",
+     "pause": 0.3
     }
    ]
   },
@@ -185,5 +177,5 @@
    ]
   }
  ],
- "caption": "Cap rate is NOT your return. Here's the difference, in plain English.\n\nNOI (net operating income): rent minus taxes, insurance, repairs and vacancy. What the house earns before any mortgage.\n\nCap rate = NOI ÷ price. Your return if you paid all cash. Think of it as the property's grade.\n$19,500 ÷ $300,000 = 6.5%\n\nCash-on-cash = what's left after the mortgage ÷ the cash you actually put in. Your return on YOUR money.\nWith 25% down at 7%: $1,536 ÷ $84,000 = 1.8%\n\nCap rate grades the property. Cash-on-cash grades your deal. Check both.\n\nExample numbers for illustration.\n\n#realestateinvesting #rentalproperty #realestateexplained #caprate #cashoncash"
+ "caption": "Cap rate is NOT your return. Here's the difference, in plain English.\n\nNOI = net operating income: what a rental earns in a year, before the mortgage. Rent in, minus taxes, insurance, repairs and vacancy. It tells you if the house itself makes money.\n\nCap rate = NOI ÷ price. Your return if you paid all cash. Think of it as the property's grade.\n$19,500 ÷ $300,000 = 6.5%\n\nCash-on-cash = what's left after the mortgage ÷ the cash you actually put in. Your return on YOUR money.\nWith 25% down at 7%: $1,536 ÷ $84,000 = 1.8%\n\nCap rate grades the property. Cash-on-cash grades your deal. Check both.\n\nExample numbers for illustration.\n\n#realestateinvesting #rentalproperty #realestateexplained #caprate #cashoncash"
 }
