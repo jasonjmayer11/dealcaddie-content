@@ -42,12 +42,13 @@ for si, sc in enumerate(M["scenes"]):
             depth += ch == "{"; depth -= ch == "}"; cur_ += ch
             if depth == 0 and ch in ".?!:" and cur_.strip() and not re.search(r"\d[.:]$", cur_): parts.append(cur_.strip()); cur_ = ""
         if cur_.strip(): parts.append(cur_.strip())
+        if "beat" not in ln and "beat" not in M: parts = [ln["voice"]]            # default: one natural take per line
         units, tt, a_all = [], t, []
         for j, part in enumerate(parts):
             a_, us = speak_timed(part)
             for u in us: u["t0"] += tt; u["t1"] += tt
             clips.append((tt, a_)); units += us
-            tt += len(a_) / SR + (ln.get("beat", M.get("beat", 0.34)) if j < len(parts) - 1 else 0)
+            tt += len(a_) / SR + (ln.get("beat", M.get("beat", 0.3)) if j < len(parts) - 1 else 0)
         d = tt - t; sc["_units"].append(units)
         cursor = 0
         for ev in ln.get("do", []):              # "id~word" (next unit starting with word), "id#3", "id@0.5"

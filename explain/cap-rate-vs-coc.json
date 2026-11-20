@@ -33,11 +33,14 @@
    },
    "lines": [
     {
-     "voice": "First, one term you need: {N O I|NOI}. It stands for net operating income. It's what a rental earns in a year, before you pay the mortgage.",
+     "voice": "First, one term you need: {N O I|NOI}.",
+     "pause": 0.35
+    },
+    {
+     "voice": "It stands for net operating income. It's what a rental earns in a year, before you pay the mortgage.",
      "do": [
       "nd~it"
-     ],
-     "pause": 0.3
+     ]
     }
    ]
   },
