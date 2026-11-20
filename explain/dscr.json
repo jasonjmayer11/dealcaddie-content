@@ -1,0 +1,38 @@
+{
+  "hook": {"text": "It's not *your income.*", "sub": "What a rental lender actually looks at."},
+  "header": "What a rental lender *looks at*",
+  "post_title": "What a rental lender actually looks at (it's not your income)",
+  "example": "Example numbers for illustration · lender rules vary",
+  "scenes": [
+    {"lines": [{"voice": "It's not your income.", "pause": 0.1},
+               {"voice": "Here's what a rental lender actually looks at.", "do": ["sub#0"], "pause": 0.35}]},
+    {"visual": {"type": "big", "text": "DSCR", "size": 220, "accent_color": [3, 144, 58], "sub": "Debt Service Coverage Ratio", "sub_on": "d2"},
+     "lines": [{"voice": "With a DSCR loan, the lender cares about one number.", "pause": 0.15},
+               {"voice": "The *debt service coverage ratio.* Does the rent cover the payment?", "do": ["d2~debt"]}]},
+    {"visual": {"type": "stack", "rows": [
+        {"label": "Monthly rent", "value": "$2,400", "on": "f1", "tone": "good"},
+        {"op": "÷", "label": "Monthly payment", "sub": "incl. taxes + insurance", "value": "$1,920", "on": "f2"},
+        {"op": "=", "label": "DSCR", "value": "1.25", "on": "f3", "result": true, "tone": "good"}]},
+     "lines": [{"voice": "Take the *rent*, and divide it by the full *payment*, including taxes and insurance.", "do": ["f1~rent", "f2~payment"]},
+               {"voice": "{Twenty-four hundred|$2,400} divided by {nineteen twenty|$1,920}... is {one point two five|1.25}.", "do": ["f3~1.25"], "pause": 0.35}]},
+    {"visual": {"type": "gauge", "min": 0.6, "max": 1.6, "label": "DSCR",
+                "zones": [[0.6, 1.0, "bad"], [1.0, 1.2, "warn"], [1.2, 1.6, "good"]],
+                "ticks": [1.0, 1.2],
+                "needle": [{"value": 1.25, "on": "g1", "note": "Lenders like this", "tone": "good"},
+                           {"value": 0.92, "on": "g2", "note": "Rent doesn't cover it", "tone": "bad"},
+                           {"value": 1.04, "on": "g3", "note": "Tight: many say no", "tone": "warn"}]},
+     "lines": [{"voice": "Many lenders like to see about {one point two|1.2} or higher.", "do": ["g1@0"]},
+               {"voice": "Under one? The rent doesn't even cover the payment.", "do": ["g2~under"]},
+               {"voice": "Same house at {two thousand|$2,000} rent is {one point oh four|1.04}. Many lenders pass, or charge a higher rate.", "do": ["g3~$2,000"], "pause": 0.3}]},
+    {"visual": {"type": "check", "title": "3 ways to *raise* your DSCR", "items": [
+        {"text": "Put more down", "mark": "check", "on": "k1"},
+        {"text": "Negotiate the price", "mark": "check", "on": "k2"},
+        {"text": "Find more rent", "mark": "check", "on": "k3"}],
+        "note": "Know your number *before* you call a lender.", "note_on": "k4"},
+     "lines": [{"voice": "Three ways to raise it: put *more* down, *negotiate* the price, or find *more* rent.", "do": ["k1~more", "k2~negotiate", "k3~find"]},
+               {"voice": "Know your number before you call a lender.", "do": ["k4#0"], "pause": 0.3}]},
+    {"end": true, "end_line": "DealCaddie shows the DSCR on *any listing.*",
+     "lines": [{"voice": "DealCaddie shows the DSCR on any listing, in seconds. Link in bio."}]}
+  ],
+  "caption": "It's not your income. On a DSCR loan, the lender looks at one number: does the rent cover the payment?\n\nDSCR = monthly rent ÷ monthly payment (incl. taxes + insurance)\n$2,400 ÷ $1,920 = 1.25\n\nMany lenders like ~1.2 or higher. Under 1.0, the rent doesn't cover the payment. Same house at $2,000 rent = 1.04, and many lenders pass or price it higher.\n\n3 ways to raise it: more down, a better price, more rent.\n\nExample numbers for illustration only. Lender requirements vary; talk to a lender for your situation.\n\n#realestateinvesting #dscrloan #rentalproperty #realestateexplained #investorfinancing"
+}
