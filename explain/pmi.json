@@ -1,0 +1,132 @@
+{
+ "hook": {
+  "text": "Under 20% down? *You pay this.*",
+  "sub": "PMI, explained."
+ },
+ "header": "*PMI*, explained",
+ "post_title": "Under 20% down? You pay this. PMI, explained.",
+ "example": "Example numbers for illustration · PMI rates vary by credit and down payment",
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "Under twenty percent down? You pay this.",
+     "do": [
+      "sub#0"
+     ],
+     "pause": 0.2
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "big",
+    "text": "PMI",
+    "size": 220,
+    "accent_color": [
+     3,
+     144,
+     58
+    ],
+    "sub": "Private Mortgage Insurance",
+    "sub_on": "p1"
+   },
+   "lines": [
+    {
+     "voice": "It's called {P M I|PMI}, private mortgage insurance. It protects the lender, not you.",
+     "do": [
+      "p1~private"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "stack",
+    "rows": [
+     {
+      "label": "Loan",
+      "sub": "$300K house · 10% down",
+      "value": "$270,000",
+      "on": "q1"
+     },
+     {
+      "op": "×",
+      "label": "PMI rate",
+      "sub": "example, per year",
+      "value": "0.6%",
+      "on": "q2"
+     },
+     {
+      "op": "=",
+      "label": "PMI / month",
+      "value": "$135",
+      "on": "q3",
+      "result": true,
+      "tone": "bad"
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "Put ten percent down on a {three hundred thousand dollar|$300,000} house, and you borrow {two seventy|$270,000}. At about {point six percent|0.6%} a year, that's around {a hundred thirty-five|$135} a month.",
+     "do": [
+      "q1~$270,000",
+      "q2~0.6%",
+      "q3~$135"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "check",
+    "title": "When it *goes away*",
+    "items": [
+     {
+      "text": "Ask to cancel at 80% of value",
+      "mark": "check",
+      "on": "r1"
+     },
+     {
+      "text": "Drops off on its own at 78%",
+      "mark": "check",
+      "on": "r2"
+     }
+    ],
+    "note": "Conventional loans · based on original value"
+   },
+   "lines": [
+    {
+     "voice": "On a conventional loan, you can ask to cancel once you owe *eighty* percent of the original value. It drops off on its own at *seventy-eight.*",
+     "do": [
+      "r1~ask",
+      "r2~drops"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "big",
+    "text": "PMI can get you in the door *years sooner.*",
+    "size": 92,
+    "sub": "Just know the cost."
+   },
+   "lines": [
+    {
+     "voice": "PMI isn't always bad. It can get you in years sooner. Just know the cost."
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie adds PMI when you put less than twenty percent down. We read the greens. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "Under 20% down? You pay PMI: private mortgage insurance. It protects the lender, not you.\n\nExample: $300K house, 10% down → $270K loan. At ~0.6%/yr, PMI ≈ $135/mo. Your rate depends on credit score and down payment.\n\nWhen it goes away (conventional loans): you can request cancellation at 80% loan-to-value based on the original value, and it ends automatically at 78%. FHA mortgage insurance works differently.\n\nPMI isn't always bad. It can get you in the door years sooner. Just know the cost.\n\nExample numbers for illustration; talk to your lender.\n\n#realestateinvesting #rentalproperty #realestateexplained #pmi #firsttimehomebuyer"
+}

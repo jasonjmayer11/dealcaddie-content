@@ -1,0 +1,192 @@
+{
+ "hook": {
+  "text": "6.5% cap rate. *1.8%* return.",
+  "sub": "Same house. Here's why."
+ },
+ "header": "Cap rate vs *cash-on-cash*",
+ "post_title": "6.5% cap rate, 1.8% return. Cap rate vs cash-on-cash, explained.",
+ "example": "Example numbers for illustration · 25% down · 7% · 30-year loan",
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "Six and a half percent cap rate. One point eight percent return. Same house. Here's why.",
+     "do": [
+      "sub~same"
+     ],
+     "pause": 0.2
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "stack",
+    "rows": [
+     {
+      "label": "Rent / year",
+      "value": "$30,000",
+      "on": "a1",
+      "tone": "good"
+     },
+     {
+      "op": "−",
+      "label": "Operating costs / year",
+      "sub": "taxes, insurance, repairs, vacancy",
+      "value": "$10,500",
+      "on": "a2"
+     },
+     {
+      "op": "=",
+      "label": "NOI",
+      "sub": "net operating income",
+      "value": "$19,500",
+      "on": "a3",
+      "result": true,
+      "tone": "gold"
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "Cap rate starts with *N O I*: yearly rent, minus operating costs. {Thirty thousand|$30,000}, minus {ten five|$10,500}, is {nineteen five|$19,500}.",
+     "do": [
+      "a1~$30,000",
+      "a2~$10,500",
+      "a3~$19,500"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "stack",
+    "rows": [
+     {
+      "label": "NOI",
+      "value": "$19,500",
+      "on": "b1"
+     },
+     {
+      "op": "÷",
+      "label": "Price",
+      "value": "$300,000",
+      "on": "b2"
+     },
+     {
+      "op": "=",
+      "label": "Cap rate",
+      "value": "6.5%",
+      "on": "b3",
+      "result": true,
+      "tone": "good"
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "Divide by the price, {three hundred thousand|$300,000}. That's a {six and a half percent|6.5%} cap rate, as if you paid cash.",
+     "do": [
+      "b1@0",
+      "b2~$300,000",
+      "b3~6.5%"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "stack",
+    "rows": [
+     {
+      "label": "NOI",
+      "value": "$19,500",
+      "on": "c1"
+     },
+     {
+      "op": "−",
+      "label": "Mortgage / year",
+      "sub": "$225K loan",
+      "value": "$17,964",
+      "on": "c2"
+     },
+     {
+      "op": "=",
+      "label": "Cash flow / year",
+      "value": "$1,536",
+      "on": "c3",
+      "result": true,
+      "tone": "warn"
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "But you have a loan. Subtract the mortgage, {seventeen nine sixty-four|$17,964}, and you keep {fifteen thirty-six|$1,536} a year.",
+     "do": [
+      "c1@0",
+      "c2~$17,964",
+      "c3~$1,536"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "stack",
+    "rows": [
+     {
+      "label": "Cash flow / year",
+      "value": "$1,536",
+      "on": "d1"
+     },
+     {
+      "op": "÷",
+      "label": "Cash you put in",
+      "sub": "down payment + closing costs",
+      "value": "$84,000",
+      "on": "d2"
+     },
+     {
+      "op": "=",
+      "label": "Cash-on-cash",
+      "value": "1.8%",
+      "on": "d3",
+      "result": true,
+      "tone": "bad"
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "Divide by the cash you put in, {eighty-four thousand|$84,000}. Cash-on-cash: {one point eight percent|1.8%}.",
+     "do": [
+      "d1@0",
+      "d2~$84,000",
+      "d3~1.8%"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "big",
+    "text": "Cap rate rates the *property.* Cash-on-cash rates *your deal.*",
+    "size": 90
+   },
+   "lines": [
+    {
+     "voice": "Cap rate rates the property. Cash-on-cash rates your deal."
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie shows both on any listing. We read the greens. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "6.5% cap rate. 1.8% return. Same house.\n\nCap rate = NOI ÷ price. It rates the property as if you paid cash.\n$30,000 rent − $10,500 operating costs = $19,500 NOI\n$19,500 ÷ $300,000 = 6.5%\n\nCash-on-cash = yearly cash flow ÷ cash you put in. It rates YOUR deal, loan included.\n$19,500 − $17,964 mortgage = $1,536/yr\n$1,536 ÷ $84,000 (down + closing) = 1.8%\n\nExample numbers for illustration (25% down, 7%, 30 yr).\n\n#realestateinvesting #rentalproperty #realestateexplained #caprate"
+}

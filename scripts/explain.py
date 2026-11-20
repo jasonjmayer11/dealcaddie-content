@@ -71,13 +71,17 @@ def T(text, path, size, fill, tracking=0.0):
 
 def rich(text, path, size, color, accent, max_w, tracking=-0.02, line_h=1.06):
     """*accent* words, wrapped and centred."""
-    words = text.replace("\n", " \n ").split(" "); rows, cur, wsum = [], [], 0; sp = int(size * 0.26)
+    words = text.replace("\n", " \n ").split(" "); rows, cur, wsum = [], [], 0; sp = int(size * 0.26); in_acc = False
     for w in words:
         if not w: continue
         if w == "\n":
             if cur: rows.append(cur)
             cur, wsum = [], 0; continue
-        acc = "*" in w; l = T(w.replace("*", ""), path, size, accent if acc else color, tracking)
+        starts, ends = w.startswith("*"), w.rstrip(".,!?:;").endswith("*")   # *multi word accent spans*
+        if starts: in_acc = True
+        acc = in_acc or ("*" in w)
+        if ends: in_acc = False
+        l = T(w.replace("*", ""), path, size, accent if acc else color, tracking)
         if cur and wsum + sp + l.width > max_w: rows.append(cur); cur, wsum = [], 0
         cur.append(l); wsum += (sp if len(cur) > 1 else 0) + l.width
     if cur: rows.append(cur)

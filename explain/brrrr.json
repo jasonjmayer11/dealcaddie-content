@@ -1,0 +1,198 @@
+{
+ "hook": {
+  "text": "Buy a house. *Get your cash back.*",
+  "sub": "BRRRR, explained."
+ },
+ "header": "*BRRRR*, explained",
+ "post_title": "Buy a house. Get your cash back. BRRRR, explained.",
+ "example": "Example numbers for illustration · bought with cash · before closing costs",
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "Buy a house. Get your cash back. Here's how.",
+     "do": [
+      "sub~here's"
+     ],
+     "pause": 0.2
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "check",
+    "title": "*BRRRR*",
+    "items": [
+     {
+      "text": "Buy",
+      "mark": "check",
+      "on": "s1"
+     },
+     {
+      "text": "Rehab",
+      "mark": "check",
+      "on": "s2"
+     },
+     {
+      "text": "Rent",
+      "mark": "check",
+      "on": "s3"
+     },
+     {
+      "text": "Refinance",
+      "mark": "check",
+      "on": "s4"
+     },
+     {
+      "text": "Repeat",
+      "mark": "check",
+      "on": "s5"
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "It's called BRRRR: buy, rehab, rent, refinance, repeat.",
+     "do": [
+      "s1~buy",
+      "s2~rehab",
+      "s3~rent",
+      "s4~refinance",
+      "s5~repeat"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "stack",
+    "rows": [
+     {
+      "label": "Purchase",
+      "value": "$150,000",
+      "on": "t1"
+     },
+     {
+      "op": "+",
+      "label": "Rehab",
+      "value": "$40,000",
+      "on": "t2"
+     },
+     {
+      "op": "=",
+      "label": "All-in",
+      "value": "$190,000",
+      "on": "t3",
+      "result": true,
+      "tone": "gold"
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "Buy a fixer for {one fifty|$150,000}. Put {forty|$40,000} into it. You're in for {one ninety|$190,000}.",
+     "do": [
+      "t1~$150,000",
+      "t2~$40,000",
+      "t3~$190,000"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "stack",
+    "rows": [
+     {
+      "label": "After-repair value",
+      "value": "$260,000",
+      "on": "u1"
+     },
+     {
+      "op": "×",
+      "label": "Refinance at",
+      "value": "75%",
+      "on": "u2"
+     },
+     {
+      "op": "=",
+      "label": "New loan",
+      "value": "$195,000",
+      "on": "u3",
+      "result": true,
+      "tone": "good"
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "Fixed up, it's worth {two sixty|$260,000}. A lender refinances at {seventy-five percent|75%}: {one ninety-five|$195,000}.",
+     "do": [
+      "u1~$260,000",
+      "u2~75%",
+      "u3~$195,000"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "stack",
+    "rows": [
+     {
+      "label": "New loan",
+      "value": "$195,000",
+      "on": "v1",
+      "tone": "good"
+     },
+     {
+      "op": "−",
+      "label": "All-in",
+      "value": "$190,000",
+      "on": "v2"
+     },
+     {
+      "op": "=",
+      "label": "Cash left in the deal",
+      "value": "$0",
+      "on": "v3",
+      "result": true,
+      "tone": "good",
+      "count": false
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "That pays back everything you put in, before closing costs. Your cash is free for the next one.",
+     "do": [
+      "v1@0",
+      "v2~everything",
+      "v3~free"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "big",
+    "text": "It only works if the *after-repair value* is real.",
+    "size": 90
+   },
+   "lines": [
+    {
+     "voice": "The catch? It only works if the after-repair value is real. Overpay or overspend, and your cash stays stuck."
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie runs the BRRRR math on any listing. We read the greens. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "Buy a house. Get your cash back. That's BRRRR: buy, rehab, rent, refinance, repeat.\n\nExample:\nBuy $150,000 + rehab $40,000 = $190,000 all-in\nAfter-repair value $260,000 × 75% refinance = $195,000 new loan\nThat repays what you put in (before closing costs), so your cash is free for the next deal.\n\nThe catch: it only works if the after-repair value is real. Overpay or overspend and your cash stays stuck. Lenders also have seasoning rules and rates that change the math.\n\nExample numbers for illustration.\n\n#realestateinvesting #rentalproperty #realestateexplained #brrrr"
+}

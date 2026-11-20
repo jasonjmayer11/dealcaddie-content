@@ -1,0 +1,197 @@
+{
+ "hook": {
+  "text": "Half your rent is *already gone.*",
+  "sub": "The 50% rule, explained."
+ },
+ "header": "The *50% rule*",
+ "post_title": "Half your rent is already gone. The 50% rule, explained.",
+ "example": "Example numbers for illustration · 25% down · 7% · 30-year loan",
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "Half your rent is already gone. The fifty percent rule, explained.",
+     "do": [
+      "sub~the"
+     ],
+     "pause": 0.2
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "check",
+    "title": "Where *half* the rent goes",
+    "items": [
+     {
+      "text": "Property taxes",
+      "mark": "x",
+      "on": "e1"
+     },
+     {
+      "text": "Insurance",
+      "mark": "x",
+      "on": "e2"
+     },
+     {
+      "text": "Repairs and CapEx",
+      "mark": "x",
+      "on": "e3"
+     },
+     {
+      "text": "Vacancy",
+      "mark": "x",
+      "on": "e4"
+     },
+     {
+      "text": "Management",
+      "mark": "x",
+      "on": "e5"
+     }
+    ],
+    "note": "And that's *before* the mortgage.",
+    "note_on": "e6"
+   },
+   "lines": [
+    {
+     "voice": "The rule says about half your rent goes to *costs*: taxes, insurance, repairs, vacancy and management. And that's before the mortgage.",
+     "do": [
+      "e1~taxes",
+      "e2~insurance",
+      "e3~repairs",
+      "e4~vacancy",
+      "e5~management",
+      "e6~and"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "stack",
+    "rows": [
+     {
+      "label": "Rent",
+      "value": "$2,000",
+      "on": "f1",
+      "tone": "good"
+     },
+     {
+      "op": "−",
+      "label": "Half for costs",
+      "value": "$1,000",
+      "on": "f2"
+     },
+     {
+      "op": "=",
+      "label": "Left for the mortgage",
+      "value": "$1,000",
+      "on": "f3",
+      "result": true,
+      "tone": "gold"
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "So on {two thousand|$2,000} rent, about {a thousand|$1,000} is left for the mortgage.",
+     "do": [
+      "f1~$2,000",
+      "f2~about",
+      "f3~$1,000"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "stack",
+    "rows": [
+     {
+      "label": "Left for the mortgage",
+      "value": "$1,000",
+      "on": "g1"
+     },
+     {
+      "op": "−",
+      "label": "Mortgage",
+      "sub": "$300K price · $225K loan",
+      "value": "$1,497",
+      "on": "g2"
+     },
+     {
+      "op": "=",
+      "label": "Cash flow / mo",
+      "value": "−$497",
+      "on": "g3",
+      "result": true,
+      "tone": "bad"
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "A {three hundred thousand dollar|$300,000} house has a {fourteen ninety-seven|$1,497} mortgage. That's {negative four ninety-seven|−$497} a month.",
+     "do": [
+      "g1@0",
+      "g2~$1,497",
+      "g3~$497"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "morph",
+    "on": "h",
+    "dur": 1.8,
+    "note": "Max price ≈ $200K",
+    "rows": [
+     {
+      "label": "Purchase price",
+      "from": 300000,
+      "to": 200000,
+      "fmt": "$"
+     },
+     {
+      "label": "Cash flow / mo",
+      "from": -497,
+      "to": 0,
+      "fmt": "$",
+      "tone_from": "bad",
+      "tone_to": "good"
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "The price that works? About {two hundred thousand|$200K}.",
+     "do": [
+      "h~about"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "big",
+    "text": "A fast *screen.* Not the final answer.",
+    "size": 96
+   },
+   "lines": [
+    {
+     "voice": "Use it to screen fast. Then run the real numbers."
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie runs the real numbers on any listing. We read the greens. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "Half your rent is already gone.\n\nThe 50% rule: about half of rent goes to operating costs (taxes, insurance, repairs/CapEx, vacancy, management), before the mortgage.\n\n$2,000 rent → ~$1,000 left for the mortgage.\nA $300K house (25% down, 7%, 30 yr) = $1,497/mo → −$497/mo.\nMax price that works ≈ $200K.\n\nIt's a quick, conservative screen. Real costs vary by property, so run the real numbers before you offer.\n\nExample numbers for illustration.\n\n#realestateinvesting #rentalproperty #realestateexplained #50percentrule"
+}
