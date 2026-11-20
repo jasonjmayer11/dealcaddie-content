@@ -1,0 +1,119 @@
+{
+ "hook": {
+  "text": "What is *cash-on-cash* return?",
+  "sub": "Your return on YOUR money."
+ },
+ "header": "What is *cash-on-cash?*",
+ "post_title": "What is cash-on-cash return? Your return on YOUR money.",
+ "example": "Example: $300K house · 25% down · 7% · 30-yr loan",
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "What is cash-on-cash return? It's your return on the money you actually put in.",
+     "do": [
+      "sub~it's"
+     ],
+     "pause": 0.25
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "flow",
+    "source": {
+     "label": "Rent",
+     "on": "in"
+    },
+    "sinks": [
+     {
+      "label": "Costs",
+      "on": "o1",
+      "take": 0.15
+     }
+    ],
+    "bank": {
+     "label": "Mortgage",
+     "on": "bk",
+     "take": 0.75
+    },
+    "pile": {
+     "label": "Your cash flow",
+     "on": "cf"
+    }
+   },
+   "lines": [
+    {
+     "voice": "Start with the *rent*. Pay the *costs*. Then the *bank* takes its mortgage. What's left is your *cash* flow.",
+     "do": [
+      "in~rent",
+      "o1~costs",
+      "bk~bank",
+      "cf~cash"
+     ],
+     "pause": 0.3
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "compare",
+    "left": {
+     "title": "PAID ALL CASH",
+     "on": "L",
+     "put_in": "Put in $300K",
+     "bag": 1.0,
+     "value": "6.5%",
+     "label": "Cash-on-cash",
+     "val_on": "Lv",
+     "tone": "good"
+    },
+    "right": {
+     "title": "USED A LOAN",
+     "on": "R",
+     "put_in": "Put in $84K",
+     "bag": 0.55,
+     "bank": true,
+     "value": "1.8%",
+     "label": "Cash-on-cash",
+     "val_on": "Rv",
+     "tone": "bad"
+    }
+   },
+   "lines": [
+    {
+     "voice": "Divide that by the cash you put in. Same house. Paid in cash: {six and a half percent|6.5%}. With this loan: {one point eight|1.8%}.",
+     "do": [
+      "L#0",
+      "R#0",
+      "Lv~6.5%",
+      "Rv~1.8%"
+     ],
+     "pause": 0.3
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "big",
+    "text": "It tells you what *your money* actually earns.",
+    "size": 92
+   },
+   "lines": [
+    {
+     "voice": "That's why it matters. It tells you what your money actually earns.",
+     "pause": 0.3
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie shows cash-on-cash on any listing. We read the greens. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "What is cash-on-cash return? Your return on the money you actually put in.\n\nRent comes in. Costs go out. The bank takes its mortgage. What's left is your cash flow.\n\nCash-on-cash = yearly cash flow ÷ cash you put in (down payment + closing costs).\n\nSame $300K house:\nPaid all cash: 6.5%\nWith 25% down at 7%: 1.8%\n\nIt tells you what YOUR money actually earns.\n\nExample numbers for illustration.\n\n#realestateinvesting #cashoncash #rentalproperty #realestateexplained"
+}

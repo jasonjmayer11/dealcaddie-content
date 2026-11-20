@@ -1,0 +1,151 @@
+{
+ "hook": {
+  "text": "What is a *cap rate?*",
+  "sub": "Explained in 30 seconds."
+ },
+ "header": "What is a *cap rate?*",
+ "post_title": "What is a cap rate? Explained in 30 seconds.",
+ "example": "Example: $300K house · NOI $19,500/yr",
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "What is a cap rate? Here it is, in thirty seconds.",
+     "do": [
+      "sub~here"
+     ],
+     "pause": 0.25
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "big",
+    "text": "*NOI*",
+    "size": 220,
+    "accent_color": [
+     3,
+     144,
+     58
+    ],
+    "sub": "Net Operating Income: what a rental earns in a year, *before* the mortgage.",
+    "sub_on": "nd"
+   },
+   "lines": [
+    {
+     "voice": "First, one term you need: {N O I|NOI}.",
+     "pause": 0.35
+    },
+    {
+     "voice": "It stands for net operating income. It's what a rental earns in a year, before you pay the mortgage.",
+     "do": [
+      "nd~it"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "flow",
+    "source": {
+     "label": "Rent",
+     "on": "in"
+    },
+    "sinks": [
+     {
+      "label": "Taxes",
+      "on": "o1"
+     },
+     {
+      "label": "Insurance",
+      "on": "o2"
+     },
+     {
+      "label": "Repairs",
+      "on": "o3"
+     },
+     {
+      "label": "Vacancy",
+      "on": "o4"
+     }
+    ],
+    "pile": {
+     "label": "NOI",
+     "value": "$19,500/yr",
+     "on": "pl"
+    }
+   },
+   "lines": [
+    {
+     "voice": "*Rent* comes in. *Taxes*, *insurance*, *repairs* and *vacancy* go out. What's *left* is your {N O I|NOI}. It tells you if the house itself makes money.",
+     "do": [
+      "in~rent",
+      "o1~taxes",
+      "o2~insurance",
+      "o3~repairs",
+      "o4~vacancy",
+      "pl~left"
+     ],
+     "pause": 0.3
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "house",
+    "bag": {
+     "label": "Paid all cash",
+     "on": "cash"
+    },
+    "seal": {
+     "value": "6.5%",
+     "label": "CAP RATE",
+     "on": "g",
+     "tone": "good"
+    },
+    "caption": {
+     "text": "NOI ÷ price = the property's grade",
+     "on": "g",
+     "sub": "$19,500 ÷ $300,000 = 6.5%"
+    }
+   },
+   "lines": [
+    {
+     "voice": "Cap rate is that {N O I|NOI}, divided by the price. It's your return if you paid all *cash*. Think of it as the property's *grade*.",
+     "do": [
+      "cash~cash",
+      "g~grade"
+     ],
+     "pause": 0.3
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "big",
+    "text": "Higher cap rate = the house earns more *for its price.*",
+    "size": 88,
+    "sub": "Use it to compare properties side by side.",
+    "sub_on": "cp"
+   },
+   "lines": [
+    {
+     "voice": "The higher the cap rate, the more the house earns for its price. Use it to compare properties side by side.",
+     "do": [
+      "cp~use"
+     ],
+     "pause": 0.3
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie shows the cap rate on any listing. We read the greens. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "What is a cap rate? Explained in 30 seconds.\n\nFirst, NOI (net operating income): what a rental earns in a year, before the mortgage. Rent comes in; taxes, insurance, repairs and vacancy go out. What's left is NOI.\n\nCap rate = NOI ÷ price. It's your return if you paid all cash, like a grade for the property.\nExample: $19,500 ÷ $300,000 = 6.5%\n\nThe higher the cap rate, the more the house earns for its price. Use it to compare properties side by side.\n\nExample numbers for illustration.\n\n#realestateinvesting #caprate #rentalproperty #realestateexplained"
+}
