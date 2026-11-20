@@ -1,187 +1,129 @@
 {
  "hook": {
   "text": "Buy a house. *Get your cash back.*",
-  "sub": "BRRRR, explained."
+  "sub": "The BRRRR method, made simple."
  },
- "header": "*BRRRR*, explained",
- "post_title": "Buy a house. Get your cash back. BRRRR, explained.",
+ "header": "The *BRRRR* method",
+ "post_title": "Buy a house. Get your cash back. The BRRRR method, made simple.",
  "example": "Example numbers for illustration · bought with cash · before closing costs",
  "scenes": [
   {
    "lines": [
     {
-     "voice": "Buy a house. Get your cash back. Here's how.",
+     "voice": "Buy a house, fix it up, and get your cash back. It's called the {burr|BRRRR} method.",
      "do": [
-      "sub~here's"
+      "sub~it's"
      ],
-     "pause": 0.2
+     "pause": 0.15
     }
    ]
   },
   {
    "visual": {
-    "type": "check",
-    "title": "*BRRRR*",
-    "items": [
+    "type": "journey",
+    "steps": [
      {
-      "text": "Buy",
-      "mark": "check",
-      "on": "s1"
+      "label": "Buy",
+      "on": "j1",
+      "tag": "Buy a fixer: $150K"
      },
      {
-      "text": "Rehab",
-      "mark": "check",
-      "on": "s2"
-     },
-     {
-      "text": "Rent",
-      "mark": "check",
-      "on": "s3"
-     },
-     {
-      "text": "Refinance",
-      "mark": "check",
-      "on": "s4"
-     },
-     {
-      "text": "Repeat",
-      "mark": "check",
-      "on": "s5"
-     }
-    ]
-   },
-   "lines": [
-    {
-     "voice": "It's called BRRRR: buy, rehab, rent, refinance, repeat.",
-     "do": [
-      "s1~buy",
-      "s2~rehab",
-      "s3~rent",
-      "s4~refinance",
-      "s5~repeat"
-     ]
-    }
-   ]
-  },
-  {
-   "visual": {
-    "type": "stack",
-    "rows": [
-     {
-      "label": "Purchase",
-      "value": "$150,000",
-      "on": "t1"
-     },
-     {
-      "op": "+",
       "label": "Rehab",
-      "value": "$40,000",
-      "on": "t2"
+      "on": "j2",
+      "tag": "Fix it up: +$40K"
      },
      {
-      "op": "=",
-      "label": "All-in",
-      "value": "$190,000",
-      "on": "t3",
-      "result": true,
-      "tone": "gold"
+      "label": "Rent",
+      "on": "j3",
+      "tag": "A tenant moves in"
+     },
+     {
+      "label": "Refinance",
+      "on": "j4",
+      "tag": "Ask the bank for a new loan"
+     },
+     {
+      "label": "Repeat",
+      "on": "j5",
+      "tag": "Same cash, next house"
      }
-    ]
-   },
-   "lines": [
-    {
-     "voice": "Buy a fixer for {one fifty|$150,000}. Put {forty|$40,000} into it. You're in for {one ninety|$190,000}.",
-     "do": [
-      "t1~$150,000",
-      "t2~$40,000",
-      "t3~$190,000"
+    ],
+    "ev": {
+     "appraise": "ap",
+     "loan": "ln"
+    },
+    "tags": {
+     "appraise": "Appraised at $260K",
+     "loan": "75% loan = $195K back to you"
+    },
+    "meter": {
+     "label": "Your cash in the deal",
+     "keys": [
+      [
+       "j1",
+       150000
+      ],
+      [
+       "j2",
+       190000
+      ],
+      [
+       "ln",
+       0
+      ]
      ]
     }
-   ]
-  },
-  {
-   "visual": {
-    "type": "stack",
-    "rows": [
-     {
-      "label": "After-repair value",
-      "value": "$260,000",
-      "on": "u1"
-     },
-     {
-      "op": "×",
-      "label": "Refinance at",
-      "value": "75%",
-      "on": "u2"
-     },
-     {
-      "op": "=",
-      "label": "New loan",
-      "value": "$195,000",
-      "on": "u3",
-      "result": true,
-      "tone": "good"
-     }
-    ]
    },
    "lines": [
     {
-     "voice": "Fixed up, it's worth {two sixty|$260,000}. A lender refinances at {seventy-five percent|75%}: {one ninety-five|$195,000}.",
+     "voice": "Step one: *buy* a beat-up house, below market. Say, {a hundred fifty thousand|$150K}.",
      "do": [
-      "u1~$260,000",
-      "u2~75%",
-      "u3~$195,000"
+      "j1~buy"
      ]
-    }
-   ]
-  },
-  {
-   "visual": {
-    "type": "stack",
-    "rows": [
-     {
-      "label": "New loan",
-      "value": "$195,000",
-      "on": "v1",
-      "tone": "good"
-     },
-     {
-      "op": "−",
-      "label": "All-in",
-      "value": "$190,000",
-      "on": "v2"
-     },
-     {
-      "op": "=",
-      "label": "Cash left in the deal",
-      "value": "$0",
-      "on": "v3",
-      "result": true,
-      "tone": "good",
-      "count": false
-     }
-    ]
-   },
-   "lines": [
+    },
     {
-     "voice": "That pays back everything you put in, before closing costs. Your cash is free for the next one.",
+     "voice": "Step two: *rehab*. Fix the roof, the doors, the windows. Another {forty thousand|$40K}.",
      "do": [
-      "v1@0",
-      "v2~everything",
-      "v3~free"
+      "j2~rehab"
      ]
+    },
+    {
+     "voice": "Step three: *rent* it out, so a tenant pays the bills.",
+     "do": [
+      "j3~rent"
+     ]
+    },
+    {
+     "voice": "Step four: *refinance*. The bank *appraises* the fixed-up house at {two sixty|$260K}, and lends you {seventy-five percent|75%}. That's {one ninety-five|$195K}, back in your pocket.",
+     "do": [
+      "j4~refinance",
+      "ap~appraises",
+      "ln~$195K"
+     ]
+    },
+    {
+     "voice": "That covers what you put in. Step five: *repeat*, with the same money.",
+     "do": [
+      "j5~repeat"
+     ],
+     "pause": 0.6
     }
    ]
   },
   {
    "visual": {
     "type": "big",
-    "text": "It only works if the *after-repair value* is real.",
-    "size": 90
+    "text": "The catch: the *fixed-up value* has to be real.",
+    "size": 92,
+    "sub": "Overpay or overspend, and your cash stays stuck.",
+    "sub_on": "ov"
    },
    "lines": [
     {
-     "voice": "The catch? It only works if the after-repair value is real. Overpay or overspend, and your cash stays stuck."
+     "voice": "The catch? The fixed-up value has to be real. Overpay or overspend, and your cash stays stuck.",
+     "do": [
+      "ov~overpay"
+     ]
     }
    ]
   },
@@ -189,10 +131,10 @@
    "end": true,
    "lines": [
     {
-     "voice": "DealCaddie runs the BRRRR math on any listing. We read the greens. You take the shot."
+     "voice": "DealCaddie runs the {burr|BRRRR} numbers on any listing, so you find the deals that work. We read the greens. You take the shot."
     }
    ]
   }
  ],
- "caption": "Buy a house. Get your cash back. That's BRRRR: buy, rehab, rent, refinance, repeat.\n\nExample:\nBuy $150,000 + rehab $40,000 = $190,000 all-in\nAfter-repair value $260,000 × 75% refinance = $195,000 new loan\nThat repays what you put in (before closing costs), so your cash is free for the next deal.\n\nThe catch: it only works if the after-repair value is real. Overpay or overspend and your cash stays stuck. Lenders also have seasoning rules and rates that change the math.\n\nExample numbers for illustration.\n\n#realestateinvesting #rentalproperty #realestateexplained #brrrr"
+ "caption": "Buy a house. Get your cash back. That's the BRRRR method (say it like you're cold: \"burr\").\n\n1. Buy a beat-up house below market: $150K\n2. Rehab it: +$40K (you're in for $190K)\n3. Rent it out so a tenant pays the bills\n4. Refinance: the bank appraises it at $260K and lends 75% = $195K back to you\n5. Repeat with the same money\n\nThe catch: the fixed-up value has to be real. Overpay or overspend and your cash stays stuck. Lenders also have seasoning rules, and rates and closing costs change the math.\n\nExample numbers for illustration.\n\n#realestateinvesting #brrrr #rentalproperty #realestateexplained #fixandrent"
 }

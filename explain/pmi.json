@@ -1,79 +1,96 @@
 {
  "hook": {
-  "text": "Under 20% down? *You pay this.*",
-  "sub": "PMI, explained."
+  "text": "Why you pay for *the bank's* insurance.",
+  "sub": "PMI, explained simply."
  },
  "header": "*PMI*, explained",
- "post_title": "Under 20% down? You pay this. PMI, explained.",
- "example": "Example numbers for illustration · PMI rates vary by credit and down payment",
+ "post_title": "Why you pay for the bank's insurance. PMI, explained simply.",
+ "example": "For illustration · conventional loans · rules vary by loan type",
  "scenes": [
   {
    "lines": [
     {
-     "voice": "Under twenty percent down? You pay this.",
+     "voice": "Put less than twenty percent down, and you pay for insurance that protects the bank, not you. It's called {P M I|PMI}.",
      "do": [
-      "sub#0"
+      "sub~it's"
      ],
-     "pause": 0.2
+     "pause": 0.15
     }
    ]
   },
   {
    "visual": {
-    "type": "big",
-    "text": "PMI",
-    "size": 220,
-    "accent_color": [
-     3,
-     144,
-     58
-    ],
-    "sub": "Private Mortgage Insurance",
-    "sub_on": "p1"
+    "type": "shield",
+    "you_on": "y",
+    "you_label": "Under 20% down",
+    "bank_on": "bk",
+    "bank_label": "The lender",
+    "risk_on": "rk",
+    "risk_label": "If you stop paying…",
+    "shield_on": "sh",
+    "shield_label": "PMI covers the lender's loss"
    },
    "lines": [
     {
-     "voice": "It's called {P M I|PMI}, private mortgage insurance. It protects the lender, not you.",
+     "voice": "With a *small* down payment, the *bank* has more on the line if you stop paying. {P M I|PMI} *covers* that risk, so the bank can say yes.",
      "do": [
-      "p1~private"
+      "y~small",
+      "bk~bank",
+      "rk~if",
+      "sh~covers"
      ]
     }
    ]
   },
   {
    "visual": {
-    "type": "stack",
-    "rows": [
+    "type": "timeline",
+    "events": [
      {
-      "label": "Loan",
-      "sub": "$300K house · 10% down",
-      "value": "$270,000",
-      "on": "q1"
+      "year": "1957",
+      "text": "First modern PMI company starts in *Milwaukee*",
+      "on": "t1"
      },
      {
-      "op": "×",
-      "label": "PMI rate",
-      "sub": "example, per year",
-      "value": "0.6%",
-      "on": "q2"
-     },
-     {
-      "op": "=",
-      "label": "PMI / month",
-      "value": "$135",
-      "on": "q3",
-      "result": true,
-      "tone": "bad"
+      "year": "1998",
+      "text": "Federal law gives you the right to *cancel it*",
+      "on": "t2"
      }
     ]
    },
    "lines": [
     {
-     "voice": "Put ten percent down on a {three hundred thousand dollar|$300,000} house, and you borrow {two seventy|$270,000}. At about {point six percent|0.6%} a year, that's around {a hundred thirty-five|$135} a month.",
+     "voice": "It's not new. Modern {P M I|PMI} started in {nineteen fifty-seven|1957}, with a Milwaukee lawyer. And since {nineteen ninety-eight|1998}, federal law lets you cancel it.",
      "do": [
-      "q1~$270,000",
-      "q2~0.6%",
-      "q3~$135"
+      "t1~modern",
+      "t2~1998"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "people",
+    "people": [
+     {
+      "title": "House *hackers*",
+      "sub": "Buy a duplex, live in one unit, rent the other",
+      "on": "h1"
+     },
+     {
+      "title": "Cash *savers*",
+      "sub": "Keep money for repairs or the next deal",
+      "on": "h2",
+      "bag": true
+     }
+    ]
+   },
+   "lines": [
+    {
+     "voice": "Who uses it? House *hackers*, buying a home with a small down payment. And investors *keeping* cash for repairs, or the next deal.",
+     "do": [
+      "h1~hackers",
+      "h2~keeping"
      ]
     }
    ]
@@ -81,27 +98,41 @@
   {
    "visual": {
     "type": "check",
-    "title": "When it *goes away*",
+    "title": "Your *real* monthly payment",
     "items": [
      {
-      "text": "Ask to cancel at 80% of value",
+      "text": "Mortgage",
       "mark": "check",
-      "on": "r1"
+      "on": "u1"
      },
      {
-      "text": "Drops off on its own at 78%",
+      "text": "Taxes",
       "mark": "check",
-      "on": "r2"
+      "on": "u2"
+     },
+     {
+      "text": "Insurance",
+      "mark": "check",
+      "on": "u3"
+     },
+     {
+      "text": "PMI",
+      "mark": "check",
+      "on": "u4"
      }
     ],
-    "note": "Conventional loans · based on original value"
+    "note": "Leave it out, and the deal looks *better than it is.*",
+    "note_on": "u5"
    },
    "lines": [
     {
-     "voice": "On a conventional loan, you can ask to cancel once you owe *eighty* percent of the original value. It drops off on its own at *seventy-eight.*",
+     "voice": "Count it in your numbers, right next to your mortgage, taxes and insurance. Leave it out, and a deal looks better than it is.",
      "do": [
-      "r1~ask",
-      "r2~drops"
+      "u4~count",
+      "u1~mortgage",
+      "u2~taxes",
+      "u3~insurance",
+      "u5~leave"
      ]
     }
    ]
@@ -109,13 +140,17 @@
   {
    "visual": {
     "type": "big",
-    "text": "PMI can get you in the door *years sooner.*",
-    "size": 92,
-    "sub": "Just know the cost."
+    "text": "The good news: it *comes off.*",
+    "size": 100,
+    "sub": "Ask to cancel at 20% equity. It ends on its own at 22%.",
+    "sub_on": "gn"
    },
    "lines": [
     {
-     "voice": "PMI isn't always bad. It can get you in years sooner. Just know the cost."
+     "voice": "The good news: it comes off, once you have about twenty percent equity.",
+     "do": [
+      "gn~once"
+     ]
     }
    ]
   },
@@ -123,10 +158,10 @@
    "end": true,
    "lines": [
     {
-     "voice": "DealCaddie adds PMI when you put less than twenty percent down. We read the greens. You take the shot."
+     "voice": "DealCaddie adds {P M I|PMI} automatically when you put less than twenty percent down. We read the greens. You take the shot."
     }
    ]
   }
  ],
- "caption": "Under 20% down? You pay PMI: private mortgage insurance. It protects the lender, not you.\n\nExample: $300K house, 10% down → $270K loan. At ~0.6%/yr, PMI ≈ $135/mo. Your rate depends on credit score and down payment.\n\nWhen it goes away (conventional loans): you can request cancellation at 80% loan-to-value based on the original value, and it ends automatically at 78%. FHA mortgage insurance works differently.\n\nPMI isn't always bad. It can get you in the door years sooner. Just know the cost.\n\nExample numbers for illustration; talk to your lender.\n\n#realestateinvesting #rentalproperty #realestateexplained #pmi #firsttimehomebuyer"
+ "caption": "Why you pay for the bank's insurance: PMI, explained simply.\n\nWhat it is: private mortgage insurance. Put less than 20% down on a conventional loan and you pay it, but it protects the lender, not you. With a small down payment the lender has more on the line if you stop paying; PMI covers that risk so the lender can say yes.\n\nWhere it came from: modern PMI dates to 1957, when a Milwaukee attorney started a company to insure these loans. The Homeowners Protection Act of 1998 gave borrowers the right to cancel it.\n\nWho chooses it: house hackers buying a place to live with a small down payment, and investors who'd rather keep cash for repairs or the next deal.\n\nCount it in your numbers. It's part of your monthly payment, and leaving it out makes a deal look better than it is.\n\nThe good news: you can request cancellation at 20% equity (based on the original value), and it ends automatically at 22%. FHA mortgage insurance has different rules.\n\n#realestateinvesting #pmi #firsttimehomebuyer #househacking #realestateexplained"
 }

@@ -1,18 +1,18 @@
 {
  "hook": {
-  "text": "6.5% cap rate. *1.8%* return.",
-  "sub": "Same house. Here's why."
+  "text": "Cap rate is *not* your return.",
+  "sub": "The difference, in plain English."
  },
  "header": "Cap rate vs *cash-on-cash*",
- "post_title": "6.5% cap rate, 1.8% return. Cap rate vs cash-on-cash, explained.",
- "example": "Example numbers for illustration · 25% down · 7% · 30-year loan",
+ "post_title": "Cap rate is NOT your return. Cap rate vs cash-on-cash, in plain English.",
+ "example": "Example: $300K house · NOI $19,500/yr · 25% down · 7% · 30-yr loan",
  "scenes": [
   {
    "lines": [
     {
-     "voice": "Six and a half percent cap rate. One point eight percent return. Same house. Here's why.",
+     "voice": "Cap rate is not your return. Here's the difference, in plain English.",
      "do": [
-      "sub~same"
+      "sub~here's"
      ],
      "pause": 0.2
     }
@@ -20,149 +20,141 @@
   },
   {
    "visual": {
-    "type": "stack",
-    "rows": [
+    "type": "flow",
+    "source": {
+     "label": "Rent",
+     "on": "in"
+    },
+    "sinks": [
      {
-      "label": "Rent / year",
-      "value": "$30,000",
-      "on": "a1",
-      "tone": "good"
+      "label": "Taxes",
+      "on": "o1"
      },
      {
-      "op": "−",
-      "label": "Operating costs / year",
-      "sub": "taxes, insurance, repairs, vacancy",
-      "value": "$10,500",
-      "on": "a2"
+      "label": "Insurance",
+      "on": "o2"
      },
      {
-      "op": "=",
-      "label": "NOI",
-      "sub": "net operating income",
-      "value": "$19,500",
-      "on": "a3",
-      "result": true,
-      "tone": "gold"
+      "label": "Repairs",
+      "on": "o3"
+     },
+     {
+      "label": "Vacancy",
+      "on": "o4"
      }
-    ]
+    ],
+    "pile": {
+     "label": "NOI",
+     "value": "$19,500/yr",
+     "on": "pl"
+    }
    },
    "lines": [
     {
-     "voice": "Cap rate starts with *N O I*: yearly rent, minus operating costs. {Thirty thousand|$30,000}, minus {ten five|$10,500}, is {nineteen five|$19,500}.",
+     "voice": "First, {N O I|NOI}. *Rent* comes in. *Taxes*, *insurance*, *repairs* and *vacancy* go out. What's *left* is {N O I|NOI}: what the house earns before any mortgage.",
      "do": [
-      "a1~$30,000",
-      "a2~$10,500",
-      "a3~$19,500"
+      "in~rent",
+      "o1~taxes",
+      "o2~insurance",
+      "o3~repairs",
+      "o4~vacancy",
+      "pl~left"
      ]
     }
    ]
   },
   {
    "visual": {
-    "type": "stack",
-    "rows": [
-     {
-      "label": "NOI",
-      "value": "$19,500",
-      "on": "b1"
-     },
-     {
-      "op": "÷",
-      "label": "Price",
-      "value": "$300,000",
-      "on": "b2"
-     },
-     {
-      "op": "=",
-      "label": "Cap rate",
-      "value": "6.5%",
-      "on": "b3",
-      "result": true,
-      "tone": "good"
-     }
-    ]
+    "type": "house",
+    "bag": {
+     "label": "Paid all cash",
+     "on": "cash"
+    },
+    "seal": {
+     "value": "6.5%",
+     "label": "CAP RATE",
+     "on": "g",
+     "tone": "good"
+    },
+    "caption": {
+     "text": "NOI ÷ price = the property's grade",
+     "on": "g",
+     "sub": "$19,500 ÷ $300,000 = 6.5%"
+    }
    },
    "lines": [
     {
-     "voice": "Divide by the price, {three hundred thousand|$300,000}. That's a {six and a half percent|6.5%} cap rate, as if you paid cash.",
+     "voice": "Cap rate is that {N O I|NOI} divided by the price. It's your return if you paid all *cash*. Think of it as the property's *grade*.",
      "do": [
-      "b1@0",
-      "b2~$300,000",
-      "b3~6.5%"
+      "cash~cash",
+      "g~grade"
      ]
     }
    ]
   },
   {
    "visual": {
-    "type": "stack",
-    "rows": [
-     {
-      "label": "NOI",
-      "value": "$19,500",
-      "on": "c1"
-     },
-     {
-      "op": "−",
-      "label": "Mortgage / year",
-      "sub": "$225K loan",
-      "value": "$17,964",
-      "on": "c2"
-     },
-     {
-      "op": "=",
-      "label": "Cash flow / year",
-      "value": "$1,536",
-      "on": "c3",
-      "result": true,
-      "tone": "warn"
+    "type": "flow",
+    "bank": {
+     "label": "Mortgage",
+     "on": "bk",
+     "take": 0.85
+    },
+    "pile": {
+     "label": "NOI",
+     "start": 1.0,
+     "on": "n0",
+     "relabel": {
+      "label": "Your cash flow",
+      "value": "$1,536/yr",
+      "on": "cf"
      }
-    ]
+    }
    },
    "lines": [
     {
-     "voice": "But you have a loan. Subtract the mortgage, {seventeen nine sixty-four|$17,964}, and you keep {fifteen thirty-six|$1,536} a year.",
+     "voice": "But most people borrow. The *bank* takes its mortgage out of that {N O I|NOI}, and what's left is your *cash* flow.",
      "do": [
-      "c1@0",
-      "c2~$17,964",
-      "c3~$1,536"
+      "n0#0",
+      "bk~bank",
+      "cf~cash"
      ]
     }
    ]
   },
   {
    "visual": {
-    "type": "stack",
-    "rows": [
-     {
-      "label": "Cash flow / year",
-      "value": "$1,536",
-      "on": "d1"
-     },
-     {
-      "op": "÷",
-      "label": "Cash you put in",
-      "sub": "down payment + closing costs",
-      "value": "$84,000",
-      "on": "d2"
-     },
-     {
-      "op": "=",
-      "label": "Cash-on-cash",
-      "value": "1.8%",
-      "on": "d3",
-      "result": true,
-      "tone": "bad"
-     }
-    ]
+    "type": "compare",
+    "left": {
+     "title": "PAID ALL CASH",
+     "on": "L",
+     "put_in": "Put in $300K",
+     "bag": 1.0,
+     "value": "6.5%",
+     "label": "Return (cap rate)",
+     "val_on": "Lv",
+     "tone": "good"
+    },
+    "right": {
+     "title": "USED A LOAN",
+     "on": "R",
+     "put_in": "Put in $84K",
+     "bag": 0.55,
+     "bank": true,
+     "value": "1.8%",
+     "label": "Cash-on-cash",
+     "val_on": "Rv",
+     "tone": "bad"
+    }
    },
    "lines": [
     {
-     "voice": "Divide by the cash you put in, {eighty-four thousand|$84,000}. Cash-on-cash: {one point eight percent|1.8%}.",
+     "voice": "Divide that by the cash you put in, and you get cash-on-cash. Same house: paid in cash, it returns {six and a half percent|6.5%}. With this loan, you get {one point eight|1.8%}.",
      "do": [
-      "d1@0",
-      "d2~$84,000",
-      "d3~1.8%"
+      "L#0",
+      "R#0",
+      "Lv~6.5%",
+      "Rv~1.8%"
      ]
     }
    ]
@@ -170,12 +162,17 @@
   {
    "visual": {
     "type": "big",
-    "text": "Cap rate rates the *property.* Cash-on-cash rates *your deal.*",
-    "size": 90
+    "text": "Cap rate grades the *property.* Cash-on-cash grades *your deal.*",
+    "size": 90,
+    "sub": "Check both before you buy.",
+    "sub_on": "cb"
    },
    "lines": [
     {
-     "voice": "Cap rate rates the property. Cash-on-cash rates your deal."
+     "voice": "Cap rate grades the property. Cash-on-cash grades your deal. Check both before you buy.",
+     "do": [
+      "cb~check"
+     ]
     }
    ]
   },
@@ -188,5 +185,5 @@
    ]
   }
  ],
- "caption": "6.5% cap rate. 1.8% return. Same house.\n\nCap rate = NOI ÷ price. It rates the property as if you paid cash.\n$30,000 rent − $10,500 operating costs = $19,500 NOI\n$19,500 ÷ $300,000 = 6.5%\n\nCash-on-cash = yearly cash flow ÷ cash you put in. It rates YOUR deal, loan included.\n$19,500 − $17,964 mortgage = $1,536/yr\n$1,536 ÷ $84,000 (down + closing) = 1.8%\n\nExample numbers for illustration (25% down, 7%, 30 yr).\n\n#realestateinvesting #rentalproperty #realestateexplained #caprate"
+ "caption": "Cap rate is NOT your return. Here's the difference, in plain English.\n\nNOI (net operating income): rent minus taxes, insurance, repairs and vacancy. What the house earns before any mortgage.\n\nCap rate = NOI ÷ price. Your return if you paid all cash. Think of it as the property's grade.\n$19,500 ÷ $300,000 = 6.5%\n\nCash-on-cash = what's left after the mortgage ÷ the cash you actually put in. Your return on YOUR money.\nWith 25% down at 7%: $1,536 ÷ $84,000 = 1.8%\n\nCap rate grades the property. Cash-on-cash grades your deal. Check both.\n\nExample numbers for illustration.\n\n#realestateinvesting #rentalproperty #realestateexplained #caprate #cashoncash"
 }

@@ -1,173 +1,129 @@
 {
  "hook": {
-  "text": "Half your rent is *already gone.*",
-  "sub": "The 50% rule, explained."
+  "text": "The 50% rule: a *2-second* rental check.",
+  "sub": "What it is, and how to use it."
  },
  "header": "The *50% rule*",
- "post_title": "Half your rent is already gone. The 50% rule, explained.",
- "example": "Example numbers for illustration · 25% down · 7% · 30-year loan",
+ "post_title": "The 50% rule: a 2-second rental check. What it is and how to use it.",
+ "example": "Example numbers for illustration · real costs vary by property",
  "scenes": [
   {
    "lines": [
     {
-     "voice": "Half your rent is already gone. The fifty percent rule, explained.",
+     "voice": "The fifty percent rule is a two-second check to see if a rental could make money. Here's how it works.",
      "do": [
-      "sub~the"
+      "sub~here's"
      ],
-     "pause": 0.2
+     "pause": 0.15
     }
    ]
   },
   {
    "visual": {
-    "type": "check",
-    "title": "Where *half* the rent goes",
+    "type": "split",
+    "on": "r0",
+    "split_on": "sp",
+    "total": "Rent  $2,000 / mo",
+    "left": {
+     "label": "Costs",
+     "value": "≈ $1,000",
+     "items": [
+      "Taxes",
+      "Insurance",
+      "Repairs",
+      "Vacancy",
+      "Management"
+     ],
+     "items_on": [
+      "i1",
+      "i2",
+      "i3",
+      "i4",
+      "i5"
+     ]
+    },
+    "right": {
+     "label": "Left for the mortgage",
+     "value": "≈ $1,000",
+     "items": [
+      "Mortgage",
+      "Your profit"
+     ],
+     "items_on": [
+      "m1",
+      "m2"
+     ]
+    }
+   },
+   "lines": [
+    {
+     "voice": "Take the rent. About *half* of it goes to costs: taxes, insurance, repairs, vacancy and management. The other half has to cover your *mortgage*, and your profit.",
+     "do": [
+      "r0#0",
+      "sp~half",
+      "i1~taxes",
+      "i2~insurance",
+      "i3~repairs",
+      "i4~vacancy",
+      "i5~management",
+      "m1~mortgage",
+      "m2~profit"
+     ]
+    }
+   ]
+  },
+  {
+   "visual": {
+    "type": "bars",
+    "title": "$2,000 RENT, $300K HOUSE",
     "items": [
      {
-      "text": "Property taxes",
-      "mark": "x",
-      "on": "e1"
+      "label": "Half the rent",
+      "value": 1000,
+      "on": "b1",
+      "tone": "good",
+      "suffix": "/mo"
      },
      {
-      "text": "Insurance",
-      "mark": "x",
-      "on": "e2"
-     },
-     {
-      "text": "Repairs and CapEx",
-      "mark": "x",
-      "on": "e3"
-     },
-     {
-      "text": "Vacancy",
-      "mark": "x",
-      "on": "e4"
-     },
-     {
-      "text": "Management",
-      "mark": "x",
-      "on": "e5"
+      "label": "The mortgage",
+      "value": 1497,
+      "on": "b2",
+      "tone": "bad",
+      "suffix": "/mo"
      }
     ],
-    "note": "And that's *before* the mortgage.",
-    "note_on": "e6"
+    "stamp": {
+     "text": "OVER HALF  ·  SKIP IT",
+     "on": "st",
+     "tone": "bad"
+    }
    },
    "lines": [
     {
-     "voice": "The rule says about half your rent goes to *costs*: taxes, insurance, repairs, vacancy and management. And that's before the mortgage.",
+     "voice": "So, is the mortgage less than half the rent? Here, half is {a thousand|$1,000}, but the mortgage is {fourteen ninety-seven|$1,497}. Skip it.",
      "do": [
-      "e1~taxes",
-      "e2~insurance",
-      "e3~repairs",
-      "e4~vacancy",
-      "e5~management",
-      "e6~and"
+      "b1~half",
+      "b2~$1,497",
+      "st~skip"
      ]
     }
    ]
   },
   {
    "visual": {
-    "type": "stack",
-    "rows": [
-     {
-      "label": "Rent",
-      "value": "$2,000",
-      "on": "f1",
-      "tone": "good"
-     },
-     {
-      "op": "−",
-      "label": "Half for costs",
-      "value": "$1,000",
-      "on": "f2"
-     },
-     {
-      "op": "=",
-      "label": "Left for the mortgage",
-      "value": "$1,000",
-      "on": "f3",
-      "result": true,
-      "tone": "gold"
-     }
-    ]
+    "type": "screen",
+    "on": "sc",
+    "pass": [
+     2,
+     6
+    ],
+    "step": 0.3
    },
    "lines": [
     {
-     "voice": "So on {two thousand|$2,000} rent, about {a thousand|$1,000} is left for the mortgage.",
+     "voice": "That's why it's useful. Check ten listings in a minute, and only dig into the ones that pass.",
      "do": [
-      "f1~$2,000",
-      "f2~about",
-      "f3~$1,000"
-     ]
-    }
-   ]
-  },
-  {
-   "visual": {
-    "type": "stack",
-    "rows": [
-     {
-      "label": "Left for the mortgage",
-      "value": "$1,000",
-      "on": "g1"
-     },
-     {
-      "op": "−",
-      "label": "Mortgage",
-      "sub": "$300K price · $225K loan",
-      "value": "$1,497",
-      "on": "g2"
-     },
-     {
-      "op": "=",
-      "label": "Cash flow / mo",
-      "value": "−$497",
-      "on": "g3",
-      "result": true,
-      "tone": "bad"
-     }
-    ]
-   },
-   "lines": [
-    {
-     "voice": "A {three hundred thousand dollar|$300,000} house has a {fourteen ninety-seven|$1,497} mortgage. That's {negative four ninety-seven|−$497} a month.",
-     "do": [
-      "g1@0",
-      "g2~$1,497",
-      "g3~$497"
-     ]
-    }
-   ]
-  },
-  {
-   "visual": {
-    "type": "morph",
-    "on": "h",
-    "dur": 1.8,
-    "note": "Max price ≈ $200K",
-    "rows": [
-     {
-      "label": "Purchase price",
-      "from": 300000,
-      "to": 200000,
-      "fmt": "$"
-     },
-     {
-      "label": "Cash flow / mo",
-      "from": -497,
-      "to": 0,
-      "fmt": "$",
-      "tone_from": "bad",
-      "tone_to": "good"
-     }
-    ]
-   },
-   "lines": [
-    {
-     "voice": "The price that works? About {two hundred thousand|$200K}.",
-     "do": [
-      "h~about"
+      "sc~check"
      ]
     }
    ]
@@ -175,12 +131,17 @@
   {
    "visual": {
     "type": "big",
-    "text": "A fast *screen.* Not the final answer.",
-    "size": 96
+    "text": "Passed the screen? *Now run the real numbers.*",
+    "size": 90,
+    "sub": "Every house is different.",
+    "sub_on": "ed"
    },
    "lines": [
     {
-     "voice": "Use it to screen fast. Then run the real numbers."
+     "voice": "Then run the real numbers on those, because every house is different.",
+     "do": [
+      "ed~every"
+     ]
     }
    ]
   },
@@ -188,10 +149,10 @@
    "end": true,
    "lines": [
     {
-     "voice": "DealCaddie runs the real numbers on any listing. We read the greens. You take the shot."
+     "voice": "DealCaddie runs the full numbers on any listing, in seconds. We read the greens. You take the shot."
     }
    ]
   }
  ],
- "caption": "Half your rent is already gone.\n\nThe 50% rule: about half of rent goes to operating costs (taxes, insurance, repairs/CapEx, vacancy, management), before the mortgage.\n\n$2,000 rent → ~$1,000 left for the mortgage.\nA $300K house (25% down, 7%, 30 yr) = $1,497/mo → −$497/mo.\nMax price that works ≈ $200K.\n\nIt's a quick, conservative screen. Real costs vary by property, so run the real numbers before you offer.\n\nExample numbers for illustration.\n\n#realestateinvesting #rentalproperty #realestateexplained #50percentrule"
+ "caption": "The 50% rule: a 2-second check to see if a rental could make money.\n\nThe idea: about half the rent goes to operating costs (taxes, insurance, repairs, vacancy, management). The other half has to cover the mortgage and your profit.\n\nThe test: is the mortgage less than half the rent?\n$2,000 rent → half = $1,000\nMortgage on a $300K house (25% down, 7%) = $1,497 → skip it.\n\nUse it to screen 10 listings in a minute, then run the real numbers on the ones that pass. Real costs vary by property.\n\nExample numbers for illustration.\n\n#realestateinvesting #rentalproperty #realestateexplained #50percentrule"
 }

@@ -292,7 +292,425 @@ def v_morph(sp, now):
 def with_a(l, a):
     l = l.copy(); l.putalpha(l.getchannel("A").point(lambda v: int(v * a))); return l
 
-VIS = {"stack": v_stack, "bars": v_bars, "check": v_check, "big": v_big, "gauge": v_gauge, "morph": v_morph}
+# ------------------------------------------------------------------ illustrations: the concept, drawn (house, tenant, bills, bank, cash)
+SS = 3                                                    # supersample for smooth vector edges
+BILL_G = (39, 165, 82); SKY = (205, 228, 242); SLATE = (64, 78, 72); TENANT = (66, 110, 168)
+
+def _canvas(w, h): return Image.new("RGBA", (w * SS, h * SS), (0, 0, 0, 0))
+def _down(im, w, h): return im.resize((w, h), Image.LANCZOS)
+
+_sc = {}
+def sprite(kind, s):
+    key = (kind, s)
+    if key in _sc: return _sc[key]
+    if kind == "house":
+        w = h = s; im = _canvas(w, h); g = ImageDraw.Draw(im); k = s * SS
+        g.ellipse([.10 * k, .88 * k, .90 * k, .99 * k], fill=(14, 33, 23, 40))
+        g.rectangle([.66 * k, .14 * k, .76 * k, .34 * k], fill=(120, 60, 40, 255))
+        g.rounded_rectangle([.17 * k, .42 * k, .83 * k, .93 * k], radius=.02 * k, fill=WHITE + (255,), outline=LINE + (255,), width=int(.012 * k))
+        g.polygon([(.06 * k, .47 * k), (.5 * k, .08 * k), (.94 * k, .47 * k)], fill=FOREST + (255,))
+        g.polygon([(.06 * k, .47 * k), (.5 * k, .08 * k), (.5 * k, .15 * k), (.13 * k, .47 * k)], fill=(19, 84, 50, 255))
+        for x0 in (.24, .62):
+            g.rounded_rectangle([x0 * k, .54 * k, (x0 + .14) * k, .68 * k], radius=.012 * k, fill=SKY + (255,), outline=(150, 170, 160, 255), width=int(.008 * k))
+            g.line([((x0 + .07) * k, .54 * k), ((x0 + .07) * k, .68 * k)], fill=(150, 170, 160, 255), width=int(.006 * k))
+        g.rounded_rectangle([.43 * k, .63 * k, .57 * k, .93 * k], radius=.05 * k, fill=GOLD + (255,))
+        g.ellipse([.535 * k, .77 * k, .555 * k, .79 * k], fill=GOLD_D + (255,))
+    elif kind in ("tenant", "you"):
+        w, h = s, int(s * 1.15); im = _canvas(w, h); g = ImageDraw.Draw(im); k = s * SS
+        col = TENANT if kind == "tenant" else FOREST
+        g.ellipse([.31 * k, .02 * k, .69 * k, .40 * k], fill=(232, 190, 150, 255))
+        g.pieslice([.31 * k, .0 * k, .69 * k, .30 * k], 180, 360, fill=(70, 50, 40, 255))
+        g.rounded_rectangle([.12 * k, .46 * k, .88 * k, 1.13 * k], radius=.3 * k, fill=col + (255,))
+    elif kind == "bank":
+        w = h = s; im = _canvas(w, h); g = ImageDraw.Draw(im); k = s * SS; c = SLATE + (255,)
+        g.polygon([(.08 * k, .32 * k), (.5 * k, .06 * k), (.92 * k, .32 * k)], fill=c)
+        g.rectangle([.12 * k, .34 * k, .88 * k, .40 * k], fill=c)
+        for i in range(4):
+            x = .19 + i * .19; g.rectangle([x * k, .43 * k, (x + .10) * k, .80 * k], fill=c)
+        g.rectangle([.08 * k, .83 * k, .92 * k, .92 * k], fill=c)
+        d = T("$", F_NUM, int(s * .2), WHITE); im2 = _down(im, w, h); im2.alpha_composite(d, ((w - d.width) // 2, int(h * .13))); _sc[key] = im2; return im2
+    elif kind == "bill":
+        w, h = s, int(s * .52); im = _canvas(w, h); g = ImageDraw.Draw(im); k = SS
+        g.rounded_rectangle([0, 0, w * k - 1, h * k - 1], radius=8 * k, fill=BILL_G + (255,))
+        g.rounded_rectangle([6 * k, 6 * k, (w - 6) * k, (h - 6) * k], radius=6 * k, outline=(150, 220, 170, 255), width=2 * k)
+        g.ellipse([(w / 2 - h * .3) * k, h * .2 * k, (w / 2 + h * .3) * k, h * .8 * k], fill=(26, 135, 64, 255))
+        im2 = _down(im, w, h); d = T("$", F_NUM, int(h * .5), WHITE); im2.alpha_composite(d, ((w - d.width) // 2, (h - d.height) // 2 + 2)); _sc[key] = im2; return im2
+    elif kind == "bag":
+        w = h = s; im = _canvas(w, h); g = ImageDraw.Draw(im); k = s * SS
+        g.ellipse([.12 * k, .30 * k, .88 * k, .98 * k], fill=GOLD + (255,))
+        g.polygon([(.36 * k, .34 * k), (.30 * k, .10 * k), (.70 * k, .10 * k), (.64 * k, .34 * k)], fill=GOLD + (255,))
+        g.rectangle([.33 * k, .27 * k, .67 * k, .33 * k], fill=GOLD_D + (255,))
+        im2 = _down(im, w, h); d = T("$", F_NUM, int(s * .38), WHITE); im2.alpha_composite(d, ((w - d.width) // 2, int(h * .45))); _sc[key] = im2; return im2
+    out = _down(im, w, h); _sc[key] = out; return out
+
+_rot = {}
+def bill_rot(s, deg):
+    deg = int(deg) // 6 * 6; key = (s, deg)
+    if key not in _rot: _rot[key] = sprite("bill", s).rotate(deg, expand=True, resample=Image.BICUBIC)
+    return _rot[key]
+
+def fly(im, ev, now, a, b, n=6, size=86, dur=0.75, stagger=0.13, arc=-120):
+    """A stream of dollar bills arcing from a to b, starting when ev is spoken."""
+    s_ = since(ev, now)
+    if s_ is None: return
+    for i in range(n):
+        u = (s_ - i * stagger) / dur
+        if not 0 < u < 1: continue
+        e = ease_in_out(u); x = a[0] + (b[0] - a[0]) * e; y = a[1] + (b[1] - a[1]) * e + arc * 4 * e * (1 - e)
+        sp = bill_rot(size, (i * 37 + u * 160) % 360 - 180)
+        al = min(1, u * 5, (1 - u) * 5); place(im, with_a(sp, al) if al < 1 else sp, x, y - sp.height / 2)
+
+def label_under(im, text, x, y, a=1.0, size=32, color=INK):
+    l = T(text, F_SEMI, size, color); place(im, l, x, y, a)
+
+def tile(text, tone=RED, size=30):
+    return pill(text, fill=WHITE, color=tone, size=size, track=0.02, padx=24, pady=14)
+
+def pile(im, level, cx, base, size=170):
+    n = int(round(level * 12))
+    for i in range(n):
+        b = sprite("bill", size); place(im, b, cx + (10 if i % 2 else -10), base - b.height - i * 16)
+    return base - (n * 13 + sprite("bill", size).height if n else 0)
+
+def pop(ev, now, dur=0.4):
+    s_ = since(ev, now)
+    if s_ is None: return 0, 1
+    k = ease_out(s_ / dur); return min(1, k * 1.6), 1.25 - 0.25 * k
+
+def v_flow(sp, now):
+    """Rent flows in, costs (and the bank) take their cut, what's left piles up."""
+    im = Image.new("RGBA", (W, VH), (0, 0, 0, 0))
+    HX, HY, HS = CX - 40, 300, 440
+    house = sprite("house", HS); place(im, house, HX, HY - HS // 2)
+    src = sp.get("source"); lvl = sp.get("pile", {}).get("start", 0.0)
+    if src:
+        tx, ty = 135, HY - 40; t_ = sprite("tenant", 180)
+        place(im, t_, tx, ty - t_.height // 2); label_under(im, src.get("who", "Tenant"), tx, ty + t_.height // 2 + 12, 1, 34, MUTED)
+        rp = pop(src["on"], now)
+        if rp[0]: place(im, pill(src["label"], fill=BILL_G, color=WHITE, size=38, track=0.04), tx, ty - t_.height // 2 - 86, rp[0], rp[1])
+        fly(im, src["on"], now, (tx + 50, ty), (HX - 40, HY), n=8, size=104, arc=-160)
+        s_ = since(src["on"], now)
+        if s_ is not None: lvl = max(lvl, min(1.0, ease_out((s_ - 0.5) / 1.2)))
+    sinks = sp.get("sinks", []); sx = W - 140
+    for i, sk in enumerate(sinks):
+        sy = 130 + i * 128; a, sc = pop(sk["on"], now)
+        if a: place(im, tile(sk["label"], TONE[sk.get("tone", "bad")], 36), sx, sy - 36, a, sc)
+        fly(im, sk["on"], now, (HX + 80, HY + 60), (sx - 70, sy), n=3, size=84, arc=-60)
+        s_ = since(sk["on"], now)
+        if s_ is not None: lvl -= sk.get("take", 0.09) * min(1, ease_out(s_ / 0.9))
+    bk = sp.get("bank")
+    if bk:
+        bx, by = W - 175, 470; b_ = sprite("bank", 220); a, sc = pop(bk["on"], now, 0.5)
+        if a:
+            place(im, b_, bx, by - b_.height // 2, a, sc)
+            place(im, tile(bk["label"], SLATE), bx, by + b_.height // 2 + 6, a)
+        fly(im, bk["on"], now, (CX - 40, 640), (bx, by), n=9, size=100, arc=-100, stagger=0.1)
+        s_ = since(bk["on"], now)
+        if s_ is not None: lvl -= bk.get("take", 0.75) * min(1, ease_out(s_ / 1.3))
+    pl = sp.get("pile")
+    if pl:
+        top = pile(im, max(0.0, lvl), CX - 40, VH - 10)
+        lab, val = pl.get("label"), pl.get("value")
+        rl = pl.get("relabel")
+        if rl and shown(rl["on"], now): lab, val = rl["label"], rl.get("value")
+        if pl.get("on") and shown(pl["on"], now) and lab:
+            ev = rl["on"] if rl and shown(rl["on"], now) else pl["on"]; a, sc = pop(ev, now)
+            c = pill(lab + (f"   {val}" if val else ""), fill=FOREST, color=WHITE, size=42, track=0.02, padx=36, pady=20)
+            place(im, c, CX + 250, VH - 150, a, sc)
+    return im
+
+def seal(text, label, tone, d=250):
+    im = _canvas(d, d); g = ImageDraw.Draw(im); k = d * SS
+    g.ellipse([0, 0, k - 1, k - 1], fill=TONE[tone] + (255,)); g.ellipse([.07 * k, .07 * k, .93 * k, .93 * k], outline=(255, 255, 255, 200), width=int(.015 * k))
+    im = _down(im, d, d); v = T(text, F_NUM, int(d * .27), WHITE, -0.02); l = T(label, F_NUM, int(d * .085), WHITE, 0.18)
+    im.alpha_composite(v, ((d - v.width) // 2, int(d * .30))); im.alpha_composite(l, ((d - l.width) // 2, int(d * .62)))
+    return im.rotate(-8, resample=Image.BICUBIC)
+
+def v_house(sp, now):
+    """One house, the buyer, and a grade seal stamped on it."""
+    im = Image.new("RGBA", (W, VH), (0, 0, 0, 0))
+    HS = 470; house = sprite("house", HS); place(im, house, CX + 70, 30)
+    bg = sp.get("bag")
+    if bg:
+        a, sc = pop(bg["on"], now, 0.5)
+        if a:
+            y_ = sprite("you", 180); place(im, y_, 170, 240, a)
+            bag = sprite("bag", 160); place(im, bag, 310, 300, a, sc)
+            label_under(im, bg["label"], 240, 480, a, 38, INK)
+    se = sp.get("seal")
+    if se:
+        a, sc = pop(se["on"], now, 0.45)
+        if a: place(im, seal(se["value"], se["label"], se.get("tone", "good"), 290), CX + 330, 0, a, sc)
+    cp = sp.get("caption")
+    if cp and shown(cp["on"], now):
+        a, sc = pop(cp["on"], now)
+        place(im, pill(cp["text"], fill=WHITE, color=INK, size=42, track=0.02, padx=38, pady=22), CX, 580, a)
+        if cp.get("sub"): label_under(im, cp["sub"], CX, 690, a, 36, MUTED)
+    return im
+
+def v_compare(sp, now):
+    """Same house, two buyers: who put in what, who takes a cut, and the return each one gets."""
+    im = Image.new("RGBA", (W, VH), (0, 0, 0, 0))
+    for side, x in (("left", CX - 255), ("right", CX + 255)):
+        p = sp[side]; a, _ = pop(p["on"], now, 0.5)
+        if not a: continue
+        c, pad = card(480, 760); place(im, c, x, -pad + 10, a)
+        place(im, pill(p["title"], fill=FOREST if side == "left" else SLATE, color=WHITE, size=28, track=0.06), x, 40, a)
+        place(im, sprite("house", 230), x, 100, a)
+        bx_ = x - 40 if p.get("bank") else x
+        place(im, sprite("you", 100), bx_ - 110, 355, a)
+        bag = sprite("bag", max(40, int(130 * p.get("bag", 1.0)))); place(im, bag, bx_, 470 - bag.height, a)
+        label_under(im, p["put_in"], bx_ - 40, 482, a, 30, INK)
+        if p.get("bank"):
+            place(im, sprite("bank", 100), x + 150, 368, a); label_under(im, "+ mortgage", x + 150, 482, a, 26, MUTED)
+        va, vsc = pop(p["val_on"], now, 0.5)
+        if va:
+            v = T(count(p["value"], min(1, (since(p["val_on"], now) or 0) / 0.8)), F_NUM, 120, TONE[p.get("tone", "good")], -0.03)
+            place(im, v, x, 545, va, vsc); label_under(im, p["label"], x, 690, va, 32, INK)
+    return im
+
+# ------------------------------------------------------------------ BRRRR-style journey: one house, transformed step by step
+def _fixer(s):
+    im = _canvas(s, s); g = ImageDraw.Draw(im); k = s * SS
+    g.ellipse([.10 * k, .88 * k, .90 * k, .99 * k], fill=(14, 33, 23, 40))
+    g.rectangle([.66 * k, .20 * k, .74 * k, .34 * k], fill=(110, 90, 80, 255))
+    g.polygon([(.18 * k, .42 * k), (.83 * k, .44 * k), (.82 * k, .93 * k), (.17 * k, .93 * k)], fill=(214, 200, 176, 255), outline=(150, 135, 110, 255))
+    g.polygon([(.06 * k, .48 * k), (.5 * k, .10 * k), (.94 * k, .46 * k)], fill=(96, 84, 74, 255))
+    g.polygon([(.42 * k, .22 * k), (.55 * k, .18 * k), (.58 * k, .30 * k), (.47 * k, .34 * k)], fill=(248, 246, 241, 255))     # roof hole
+    g.line([(.30 * k, .30 * k), (.36 * k, .40 * k)], fill=(70, 60, 52, 255), width=int(.01 * k))
+    g.rectangle([.24 * k, .54 * k, .38 * k, .68 * k], fill=(60, 60, 60, 255))                                               # broken window
+    for y0 in (.56, .62):
+        g.polygon([(.22 * k, (y0 - .01) * k), (.40 * k, (y0 + .02) * k), (.40 * k, (y0 + .05) * k), (.22 * k, (y0 + .02) * k)], fill=(176, 132, 82, 255))
+    g.rectangle([.62 * k, .54 * k, .76 * k, .68 * k], fill=(120, 140, 150, 255)); g.line([(.63 * k, .55 * k), (.75 * k, .67 * k)], fill=WHITE + (255,), width=int(.006 * k))
+    door = Image.new("RGBA", (int(.14 * k), int(.30 * k)), (126, 96, 66, 255)); door = door.rotate(9, expand=True, resample=Image.BICUBIC)
+    im.alpha_composite(door, (int(.42 * k), int(.62 * k)))
+    g.line([(.70 * k, .74 * k), (.74 * k, .80 * k), (.71 * k, .86 * k)], fill=(120, 105, 85, 255), width=int(.006 * k))  # crack
+    for x0 in (.20, .28, .80):
+        g.polygon([(x0 * k, .93 * k), ((x0 + .02) * k, .84 * k), ((x0 + .04) * k, .93 * k)], fill=(120, 150, 80, 255))     # weeds
+    return _down(im, s, s)
+
+def _person(s, body, hat=None, extra=None):
+    w, h = s, int(s * 1.15); im = _canvas(w, h); g = ImageDraw.Draw(im); k = s * SS
+    g.ellipse([.31 * k, .06 * k, .69 * k, .42 * k], fill=(232, 190, 150, 255))
+    if hat == "hard":
+        g.pieslice([.26 * k, -.02 * k, .74 * k, .36 * k], 180, 360, fill=(245, 196, 40, 255)); g.rectangle([.22 * k, .16 * k, .78 * k, .2 * k], fill=(220, 170, 20, 255))
+    else:
+        g.pieslice([.31 * k, .04 * k, .69 * k, .32 * k], 180, 360, fill=(70, 50, 40, 255))
+    g.rounded_rectangle([.12 * k, .48 * k, .88 * k, 1.13 * k], radius=.3 * k, fill=body + (255,))
+    if extra == "vest":
+        g.rectangle([.30 * k, .52 * k, .36 * k, 1.1 * k], fill=(250, 250, 200, 255)); g.rectangle([.64 * k, .52 * k, .70 * k, 1.1 * k], fill=(250, 250, 200, 255))
+    if extra == "clip":
+        g.rounded_rectangle([.56 * k, .62 * k, .92 * k, 1.05 * k], radius=.03 * k, fill=(196, 160, 110, 255)); g.rectangle([.61 * k, .68 * k, .87 * k, 1.0 * k], fill=WHITE + (255,))
+        for yy in (.75, .82, .89): g.line([(.65 * k, yy * k), (.83 * k, yy * k)], fill=(150, 160, 155, 255), width=int(.012 * k))
+    return _down(im, w, h)
+
+def _hammer(s):
+    im = _canvas(s, s); g = ImageDraw.Draw(im); k = s * SS
+    g.rounded_rectangle([.44 * k, .25 * k, .56 * k, .98 * k], radius=.04 * k, fill=(150, 100, 50, 255))
+    g.rounded_rectangle([.18 * k, .08 * k, .82 * k, .30 * k], radius=.04 * k, fill=(90, 96, 100, 255))
+    return _down(im, s, s)
+
+JS = {}
+def jsprite(kind, s):
+    key = (kind, s)
+    if key not in JS:
+        JS[key] = {"fixer": lambda: _fixer(s), "builder": lambda: _person(s, (232, 110, 30), "hard", "vest"),
+                   "appraiser": lambda: _person(s, (90, 100, 110), None, "clip"), "hammer": lambda: _hammer(s)}[kind]()
+    return JS[key]
+
+def sparkle(im, x, y, r, a):
+    g = ImageDraw.Draw(im); c = GOLD_L + (int(255 * a),)
+    g.polygon([(x, y - r), (x + r * .25, y - r * .25), (x + r, y), (x + r * .25, y + r * .25), (x, y + r), (x - r * .25, y + r * .25), (x - r, y), (x - r * .25, y - r * .25)], fill=c)
+
+def v_journey(sp, now):
+    im = Image.new("RGBA", (W, VH), (0, 0, 0, 0)); steps = sp["steps"]; E = sp.get("ev", {})
+    cur = -1
+    for i, st in enumerate(steps):
+        if shown(st["on"], now): cur = i
+    # step strip
+    cw, gap = 176, 14; x0 = CX - (len(steps) * cw + (len(steps) - 1) * gap) // 2
+    for i, st in enumerate(steps):
+        done, on = i < cur, i == cur
+        fill = GOLD if on else (FOREST if done else (230, 226, 214)); col = INK if on else (WHITE if done else MUTED)
+        c = Image.new("RGBA", (cw, 64), (0, 0, 0, 0)); ImageDraw.Draw(c).rounded_rectangle([0, 0, cw - 1, 63], radius=32, fill=fill)
+        l = T(("✓ " if done else "") + st["label"], F_NUM, 26, col, 0.02); c.alpha_composite(l, ((cw - l.width) // 2, (64 - l.height) // 2 + 2))
+        sc = 1.0 + (0.08 * (1 - ease_out((since(st["on"], now) or 0) / 0.4)) if on else 0)
+        place(im, c, x0 + i * (cw + gap) + cw // 2, 0, 1, sc)
+    HS = 400; hx, hy = CX, 110
+    def stime(k): return since(k, now)
+    # house: fixer -> fixed during rehab; slides out on repeat
+    rh = stime(steps[1]["on"]) if len(steps) > 1 else None; k_fix = 0 if rh is None else ease_in_out((rh - 0.6) / 2.0)
+    rp = stime(steps[4]["on"]) if len(steps) > 4 else None; slide = 0 if rp is None else ease_in_out((rp - 0.3) / 1.0)
+    hxx = hx - slide * 640
+    if k_fix < 1: place(im, jsprite("fixer", HS), hxx, hy, 1 - k_fix if k_fix > 0 else 1)
+    if k_fix > 0: place(im, sprite("house", HS), hxx, hy, k_fix)
+    if 0 < k_fix < 1:
+        for j in range(5):
+            ph = (rh * 3 + j * .7) % 1; sparkle(im, hxx - 150 + j * 75, hy + 80 + (j * 53) % 220, 22 * math.sin(ph * math.pi), 1)
+    if slide > 0:                                                  # the next fixer slides in
+        place(im, jsprite("fixer", HS), hx + 640 - slide * 640, hy, slide)
+    # you + your bag (left), shrinks when you pay, refills on the refinance loan
+    you = sprite("you", 150); place(im, you, 140, 300)
+    paid = stime(steps[0]["on"]); loan = stime(E["loan"]) if E.get("loan") else None
+    bag_k = 1.0
+    if paid is not None: bag_k = 1 - 0.55 * ease_out(paid / 1.0)
+    if rh is not None: bag_k -= 0.25 * ease_out(rh / 1.0)
+    if loan is not None: bag_k += 0.8 * ease_out((loan - 0.4) / 1.0)
+    bag = sprite("bag", max(40, int(150 * max(0.2, min(1.0, bag_k))))); place(im, bag, 250, 470 - bag.height)
+    fly(im, steps[0]["on"], now, (230, 380), (hx - 60, hy + 230), n=5, size=90, arc=-120)
+    # right side actor by step
+    ax, ay = W - 150, 300; slot = None
+    if cur == 1: slot = "builder"
+    elif cur == 2: slot = "tenant"
+    elif cur == 3: slot = "bank" if loan is not None else ("appraiser" if E.get("appraise") and shown(E["appraise"], now) else None)
+    if slot == "builder":
+        b = jsprite("builder", 160); a, sc = pop(steps[1]["on"], now, 0.5); place(im, b, ax, ay, a, sc)
+        hm = jsprite("hammer", 90).rotate(25 * math.sin(now * 11), resample=Image.BICUBIC); place(im, hm, ax - 95, ay + 40, a)
+        fly(im, steps[1]["on"], now, (230, 380), (ax - 20, ay + 60), n=4, size=84, arc=-160)
+    elif slot == "tenant":
+        t_ = sprite("tenant", 150); s_ = stime(steps[2]["on"]) or 0; a, sc = pop(steps[2]["on"], now, 0.5)
+        place(im, t_, ax - 20 * ease_out(s_ / 1.0), ay, a)
+        fly(im, steps[2]["on"], now, (ax - 60, ay + 60), (250, 400), n=4, size=84, arc=-200, stagger=0.25)
+    elif slot == "appraiser":
+        p_ = jsprite("appraiser", 160); a, sc = pop(E["appraise"], now, 0.5); place(im, p_, ax, ay, a, sc)
+    elif slot == "bank":
+        b_ = sprite("bank", 190); a, sc = pop(E["loan"], now, 0.5); place(im, b_, ax, ay + 10, a, sc)
+        fly(im, E["loan"], now, (ax - 40, ay + 90), (250, 400), n=8, size=96, arc=-200, stagger=0.1)
+    # tag under the house: what just happened
+    tag = None
+    for i, st in enumerate(steps):
+        if shown(st["on"], now) and st.get("tag"): tag, tev = st["tag"], st["on"]
+    for kk in ("appraise", "loan"):
+        if E.get(kk) and shown(E[kk], now) and sp.get("tags", {}).get(kk): tag, tev = sp["tags"][kk], E[kk]
+    if tag:
+        a, sc = pop(tev, now, 0.4); place(im, pill(tag, fill=WHITE, color=INK, size=40, track=0.02, padx=36, pady=20), CX, 540, a, sc)
+    # meter: your cash in the deal
+    mt = sp.get("meter")
+    if mt and cur >= 0:
+        v = 0.0; prev = 0.0
+        for ev, val in mt["keys"]:
+            s_ = stime(ev)
+            if s_ is None: break
+            v = prev + (val - prev) * ease_in_out(s_ / 1.2); prev = val
+        c, pad = card(900, 120, fill=WHITE)
+        c.alpha_composite(T(mt["label"], F_SEMI, 36, MUTED), (pad + 40, pad + 38))
+        col = RED if v > 1000 else GREEN
+        vl = T(("≈ $0" if v < 500 and loan is not None else money(v)), F_NUM, 64, col, -0.02)
+        c.alpha_composite(vl, (pad + 900 - 40 - vl.width, pad + (120 - vl.height) // 2 + 4))
+        place(im, c, CX, 640 - pad)
+    return im
+
+def v_split(sp, now):
+    """One rent check splits in half: costs on one side, what's left for the mortgage on the other."""
+    im = Image.new("RGBA", (W, VH), (0, 0, 0, 0))
+    a0, sc0 = pop(sp["on"], now, 0.5)
+    if not a0: return im
+    k = ease_in_out(((since(sp["split_on"], now) or 0) - 0) / 0.9) if shown(sp["split_on"], now) else 0
+    bw, bh = 880, 170; gapx = int(60 * k); hw = bw // 2
+    for side, sgn in (("left", -1), ("right", 1)):
+        p = sp[side]; col = (226, 78, 66) if side == "left" else BILL_G
+        if k == 0: col = BILL_G
+        c = Image.new("RGBA", (hw, bh), (0, 0, 0, 0)); g = ImageDraw.Draw(c)
+        r = 34
+        if side == "left": g.rounded_rectangle([0, 0, hw + r, bh - 1], radius=r, fill=col)
+        else: g.rounded_rectangle([-r, 0, hw - 1, bh - 1], radius=r, fill=col)
+        place(im, c, CX + sgn * (hw // 2 + gapx // 2), 40, a0, sc0)
+        if k > 0.5:
+            q = min(1, (k - .5) * 2)
+            l = T(p["label"], F_SEMI, 34, WHITE); v = T(p["value"], F_NUM, 64, WHITE, -0.02)
+            place(im, l, CX + sgn * (hw // 2 + gapx // 2), 62, q); place(im, v, CX + sgn * (hw // 2 + gapx // 2), 110, q)
+    if k < 0.5:
+        t = T(sp["total"], F_NUM, 72, WHITE, -0.02); place(im, t, CX, 40 + (bh - t.height) // 2, a0 * (1 - k * 2), sc0)
+    # what's in the cost half, and what the other half has to cover
+    for i, (txt, ev) in enumerate(zip(sp["left"]["items"], sp["left"]["items_on"])):
+        a, sc = pop(ev, now, 0.35)
+        if a: place(im, tile(txt, (190, 60, 50), 34), CX - hw // 2 - gapx // 2, 250 + i * 92, a, sc)
+    rp = sp["right"]
+    if rp.get("items_on"):
+        for i, (txt, ev) in enumerate(zip(rp["items"], rp["items_on"])):
+            a, sc = pop(ev, now, 0.35)
+            if a: place(im, tile(txt, FOREST, 34), CX + hw // 2 + gapx // 2, 250 + i * 92, a, sc)
+    return im
+
+def v_screen(sp, now):
+    """A grid of listings checked in seconds: most fail, the few that pass light up."""
+    im = Image.new("RGBA", (W, VH), (0, 0, 0, 0)); n = 9; passes = set(sp["pass"])
+    s_ = since(sp["on"], now)
+    for i in range(n):
+        r, c = divmod(i, 3); x = CX + (c - 1) * 300; y = 40 + r * 235
+        a = 1 if s_ is not None else 0
+        if not a: continue
+        k = (s_ - 0.3 - i * sp.get("step", 0.32))
+        ok = i in passes
+        h = sprite("house", 180); hh = h if (k < 0.2 or ok) else with_a(h, 0.35)
+        if k > 0.2 and ok:
+            g = Image.new("RGBA", (230, 230), (0, 0, 0, 0)); ImageDraw.Draw(g).ellipse([0, 0, 229, 229], fill=GOLD + (70,))
+            place(im, g.filter(ImageFilter.GaussianBlur(14)), x, y - 25)
+        place(im, hh, x, y)
+        if k > 0:
+            ic = ICON["check" if ok else "x"]; q = ease_out(k / 0.25); place(im, ic, x + 70, y + 120, min(1, q * 1.5), 1.3 - .3 * q)
+    return im
+
+def shield_sprite(s, text):
+    im = _canvas(s, int(s * 1.15)); g = ImageDraw.Draw(im); k = s * SS
+    g.polygon([(.5 * k, .02 * k), (.95 * k, .18 * k), (.92 * k, .62 * k), (.5 * k, 1.12 * k), (.08 * k, .62 * k), (.05 * k, .18 * k)], fill=GOLD + (255,))
+    g.polygon([(.5 * k, .10 * k), (.86 * k, .23 * k), (.84 * k, .60 * k), (.5 * k, 1.01 * k), (.16 * k, .60 * k), (.14 * k, .23 * k)], fill=GOLD_D + (255,))
+    im = _down(im, s, int(s * 1.15)); l = T(text, F_NUM, int(s * .26), WHITE, 0.02); im.alpha_composite(l, ((s - l.width) // 2, int(s * .36))); return im
+
+def v_shield(sp, now):
+    """You (small down payment), the house, the bank, and the PMI shield that protects the bank."""
+    im = Image.new("RGBA", (W, VH), (0, 0, 0, 0))
+    HX = CX - 90; place(im, sprite("house", 330), HX, 50)
+    a, _ = pop(sp["you_on"], now, 0.5)
+    if a:
+        place(im, sprite("you", 140), 120, 200, a); bag = sprite("bag", 64); place(im, bag, 210, 330 - bag.height, a)
+        place(im, tile(sp["you_label"], FOREST, 30), 150, 380, a)
+    BX = W - 120; a, sc = pop(sp["bank_on"], now, 0.5)
+    if a:
+        place(im, sprite("bank", 180), BX, 170, a, sc); place(im, tile(sp["bank_label"], SLATE, 30), BX, 380, a)
+    sh = since(sp["shield_on"], now); SX = CX + 230
+    r = since(sp.get("risk_on"), now) if sp.get("risk_on") else None
+    if r is not None:                                                  # missed payments fly at the bank (the shield stops them)
+        place(im, pill(sp["risk_label"], fill=(226, 78, 66), color=WHITE, size=34, track=0.02, padx=30, pady=16), CX, 470, min(1, r / 0.4))
+        end = SX - 60 if sh is not None else BX - 40
+        for i in range(3):
+            u = ((r - i * 0.5) % 1.5) / 1.0
+            if 0 < u < 1:
+                x = HX + 120 + (end - HX - 120) * ease_in_out(u); place(im, with_a(ICON["x"], min(1, u * 4, (1 - u) * 4)), x, 240 - 70 * math.sin(u * math.pi))
+    if sh is not None:
+        k = ease_out(sh / 0.5); place(im, shield_sprite(190, "PMI"), SX, 130, min(1, k * 1.5), 1.4 - .4 * k)
+        place(im, pill(sp["shield_label"], fill=GOLD, color=INK, size=34, track=0.02, padx=30, pady=16), CX, 570, min(1, k * 1.5))
+    return im
+
+def v_timeline(sp, now):
+    im = Image.new("RGBA", (W, VH), (0, 0, 0, 0)); ev = sp["events"]; n = len(ev)
+    x0, x1, y = (220, W - 220, 330) if n < 3 else (170, W - 170, 330)
+    started = [e for e in ev if shown(e["on"], now)]
+    if not started: return im
+    g = ImageDraw.Draw(im); g.rounded_rectangle([x0, y - 5, x1, y + 5], radius=5, fill=(222, 216, 200))
+    for i, e in enumerate(ev):
+        x = x0 + (x1 - x0) * i / max(1, n - 1)
+        a, sc = pop(e["on"], now, 0.5)
+        if not a: continue
+        g.ellipse([x - 22, y - 22, x + 22, y + 22], fill=GOLD if e.get("now") else FOREST)
+        yr = T(e["year"], F_NUM, 84, FOREST, -0.02); place(im, yr, x, y - 140, a, sc)
+        lab = rich(e["text"], F_SEMI, 34, INK, FOREST, 400 if n < 3 else 300, tracking=0, line_h=1.2); place(im, lab, x, y + 50, a)
+    return im
+
+def v_people(sp, now):
+    im = Image.new("RGBA", (W, VH), (0, 0, 0, 0)); ps = sp["people"]
+    for i, p in enumerate(ps):
+        x = CX + (i - (len(ps) - 1) / 2) * 500; a, sc = pop(p["on"], now, 0.5)
+        if not a: continue
+        c, pad = card(460, 700); place(im, c, x, -pad + 20, a)
+        place(im, sprite(p.get("art", "house"), 220), x, 70, a)
+        place(im, sprite("you", 110), x - 120, 200, a)
+        if p.get("bag"): place(im, sprite("bag", 90), x + 140, 240, a)
+        place(im, rich(p["title"], F_NUM, 46, INK, FOREST, 400), x, 360, a)
+        place(im, rich(p["sub"], F_MED, 32, MUTED, FOREST, 400, tracking=0, line_h=1.25), x, 450, a)
+    return im
+
+VIS = {"shield": v_shield, "timeline": v_timeline, "people": v_people, "split": v_split, "screen": v_screen, "journey": v_journey, "flow": v_flow, "house": v_house, "compare": v_compare, "stack": v_stack, "bars": v_bars, "check": v_check, "big": v_big, "gauge": v_gauge, "morph": v_morph}
 
 # ------------------------------------------------------------------ captions (spoken words pop as they're heard)
 def caption(units, now, size=64, max_rows=2):
