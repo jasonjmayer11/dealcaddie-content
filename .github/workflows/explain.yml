@@ -39,6 +39,8 @@ jobs:
           pip install --quiet "kokoro>=0.9.4" soundfile pillow numpy
       - name: Build the video (real per-word timestamps from kokoro, so captions land on the word)
         id: build
+        env:
+          WORDTIME_DEBUG: "1"
         run: |
           SLUG="explain-${{ github.event.inputs.episode }}-$(date -u +%Y%m%d-%H%M)"
           echo "slug=$SLUG" >> "$GITHUB_OUTPUT"

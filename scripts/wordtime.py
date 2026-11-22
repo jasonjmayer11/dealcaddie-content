@@ -64,9 +64,15 @@ def _real_timestamps(text):
     audio, words, off = [], [], 0.0
     for r in _pipe(text, voice=VOICE, speed=SPEED):
         a = np.asarray(r.audio.numpy() if hasattr(r.audio, "numpy") else r.audio, np.float32)
-        for tk in (r.tokens or []):
-            if _core(tk.text) and tk.start_ts is not None:
-                words.append((tk.text, off + tk.start_ts, off + (tk.end_ts or tk.start_ts)))
+        tks = [tk for tk in (r.tokens or []) if _core(tk.text) and tk.start_ts is not None]
+        # kokoro's token clock can sit a little off the audio: line the first word up with where speech actually starts
+        hop = SR // 100; fr = len(a) // hop; shift = 0.0
+        if tks and fr:
+            rms = np.sqrt(np.mean(a[:fr * hop].reshape(fr, hop) ** 2, axis=1)); on = np.flatnonzero(rms > max(rms.max() * 0.08, 1e-4))
+            if len(on): shift = max(-0.3, min(0.3, on[0] / 100 - tks[0].start_ts))
+            if os.environ.get("WORDTIME_DEBUG"): print(f"wordtime: chunk shift {shift:+.3f}s ({tks[0].text})")
+        for tk in tks:
+            words.append((tk.text, off + tk.start_ts + shift, off + (tk.end_ts or tk.start_ts) + shift))
         audio.append(a); off += len(a) / SR
     return np.concatenate(audio), words
 

@@ -16,7 +16,7 @@ from PIL import Image, ImageDraw, ImageFilter
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from reelkit import (W, H, FPS, INK, MUTED, FOREST, GREEN, RED, AMBER, WHITE, F_NUM, F_HEAD, F_SEMI, F_MED,
                      text_layer, wrap, place, ease_out, ease_in_out, gradient_bg, logo_layer, enter)
-os.environ.setdefault("VOICE_SPEED", "1.12")
+os.environ.setdefault("VOICE_SPEED", str(json.load(open(sys.argv[1])).get("voice_speed", 1.12)))
 from wordtime import speak_timed, SR
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

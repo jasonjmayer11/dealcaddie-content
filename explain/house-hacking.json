@@ -39,7 +39,7 @@
      "do": [
       "sub~here's"
      ],
-     "pause": 0.2
+     "pause": 0.15
     }
    ]
   },
@@ -84,21 +84,21 @@
      "do": [
       "w_down~smaller"
      ],
-     "pause": 0.25
+     "pause": 0.15
     },
     {
      "voice": "That's house hacking.",
      "do": [
       "w_title#0"
      ],
-     "pause": 0.35
+     "pause": 0.15
     },
     {
      "voice": "The catch? Your tenant lives next door, and you're the landlord.",
      "do": [
       "w_catch~tenant"
      ],
-     "pause": 0.6
+     "pause": 0.3
     }
    ]
   },
@@ -111,5 +111,6 @@
    ]
   }
  ],
- "caption": "Her tenant pays most of her mortgage. Here's how.\n\nMaya was tired of paying rent. So she bought a duplex: two homes under one roof. She lives in one side and rents out the other.\n\nEvery month, the tenant's rent goes toward her mortgage.\nMortgage: $3,000\nTenant pays: $1,900\nMaya's share: $1,100, less than she used to pay in rent.\n\nAnd because she lives there, she can buy with a smaller down payment than a pure investment property.\n\nThat's house hacking. The catch: your tenant lives next door, and you're the landlord.\n\nExample numbers for illustration. Maya is a fictional example.\n\n#realestateinvesting #househacking #firsttimehomebuyer #realestateexplained #duplex"
+ "caption": "Her tenant pays most of her mortgage. Here's how.\n\nMaya was tired of paying rent. So she bought a duplex: two homes under one roof. She lives in one side and rents out the other.\n\nEvery month, the tenant's rent goes toward her mortgage.\nMortgage: $3,000\nTenant pays: $1,900\nMaya's share: $1,100, less than she used to pay in rent.\n\nAnd because she lives there, she can buy with a smaller down payment than a pure investment property.\n\nThat's house hacking. The catch: your tenant lives next door, and you're the landlord.\n\nExample numbers for illustration. Maya is a fictional example.\n\n#realestateinvesting #househacking #firsttimehomebuyer #realestateexplained #duplex",
+ "voice_speed": 1.22
 }
