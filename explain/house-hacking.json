@@ -1,0 +1,115 @@
+{
+ "style": "cartoon",
+ "hook": {
+  "text": "Her tenant pays *most of her mortgage.*",
+  "sub": "Here's how."
+ },
+ "post_title": "Her tenant pays most of her mortgage. House hacking, explained.",
+ "example": "Example numbers for illustration",
+ "world": {
+  "ev": {
+   "maya": "w_maya",
+   "rentpay": "w_rent",
+   "duplex": "w_dup",
+   "sold": "w_sold",
+   "movein": "w_in",
+   "tenant": "w_ten",
+   "bills": "w_bills",
+   "meter": "w_meter",
+   "share": "w_share",
+   "down": "w_down",
+   "title": "w_title",
+   "catch": "w_catch"
+  },
+  "meter": {
+   "title": "Her monthly mortgage: $3,000",
+   "tenant_frac": 0.633,
+   "tenant": "Tenant pays $1,900",
+   "you": "Maya $1,100"
+  },
+  "title": "That's *house hacking.*",
+  "tenant_says": "The sink is leaking!",
+  "maya_says": "On it!"
+ },
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "Her tenant pays most of her mortgage. Here's how.",
+     "do": [
+      "sub~here's"
+     ],
+     "pause": 0.2
+    }
+   ]
+  },
+  {
+   "lines": [
+    {
+     "voice": "Meet Maya. She's tired of paying *rent* to someone else.",
+     "do": [
+      "w_maya~meet",
+      "w_rent~rent"
+     ]
+    },
+    {
+     "voice": "So she buys a *duplex*: two homes under one roof.",
+     "do": [
+      "w_dup~duplex",
+      "w_sold~two"
+     ]
+    },
+    {
+     "voice": "She *moves* into one side, and *rents* out the other.",
+     "do": [
+      "w_in~moves",
+      "w_ten~rents"
+     ]
+    },
+    {
+     "voice": "Every month, the tenant's rent goes toward her *mortgage*.",
+     "do": [
+      "w_bills~rent",
+      "w_meter~mortgage"
+     ]
+    },
+    {
+     "voice": "Maya's share? Just {eleven hundred|$1,100}. Less than she used to pay in rent.",
+     "do": [
+      "w_share~$1,100"
+     ]
+    },
+    {
+     "voice": "And because she lives there, she can buy with a *smaller* down payment.",
+     "do": [
+      "w_down~smaller"
+     ],
+     "pause": 0.25
+    },
+    {
+     "voice": "That's house hacking.",
+     "do": [
+      "w_title#0"
+     ],
+     "pause": 0.35
+    },
+    {
+     "voice": "The catch? Your tenant lives next door, and you're the landlord.",
+     "do": [
+      "w_catch~tenant"
+     ],
+     "pause": 0.6
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie runs the house hack numbers on any listing. We read the greens. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "Her tenant pays most of her mortgage. Here's how.\n\nMaya was tired of paying rent. So she bought a duplex: two homes under one roof. She lives in one side and rents out the other.\n\nEvery month, the tenant's rent goes toward her mortgage.\nMortgage: $3,000\nTenant pays: $1,900\nMaya's share: $1,100, less than she used to pay in rent.\n\nAnd because she lives there, she can buy with a smaller down payment than a pure investment property.\n\nThat's house hacking. The catch: your tenant lives next door, and you're the landlord.\n\nExample numbers for illustration. Maya is a fictional example.\n\n#realestateinvesting #househacking #firsttimehomebuyer #realestateexplained #duplex"
+}

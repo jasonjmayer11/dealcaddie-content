@@ -832,13 +832,226 @@ def end_frame(now):
     p, dy = enter(tt, 0.65, 0.7, 12); place(f, END_SITE, CX, y + dy, p)
     return f
 
+# ------------------------------------------------------------------ cartoon story mode: one living street, characters acting out the idea
+GROUND = 1330
+BSC = 1.2                                        # building scale
+SKY_T, SKY_B = (150, 205, 240), (214, 236, 248)
+_WB = None
+def world_bg():
+    global _WB
+    if _WB is None:
+        im = Image.new("RGB", (W, H)); g = ImageDraw.Draw(im)
+        for y in range(GROUND):
+            g.line([(0, y), (W, y)], fill=mix(SKY_T, SKY_B, y / GROUND))
+        im = im.convert("RGBA"); big = _canvas(W, H - 700); g = ImageDraw.Draw(big); k = SS
+        for cx_, r, col in ((150, 520, (150, 200, 140)), (700, 640, (130, 188, 124)), (1100, 480, (150, 200, 140))):
+            g.ellipse([(cx_ - r) * k, (GROUND - 700 - 170 + 760 - r * .45) * k, (cx_ + r) * k, (GROUND - 700 + 760 + r) * k], fill=col + (255,))
+        im.alpha_composite(_down(big, W, H - 700), (0, 700 - 760 + 170 - 170))
+        g = ImageDraw.Draw(im)
+        g.rectangle([0, GROUND, W, GROUND + 40], fill=(120, 180, 90))
+        g.rectangle([0, GROUND + 40, W, GROUND + 120], fill=(222, 216, 204)); g.line([(0, GROUND + 40), (W, GROUND + 40)], fill=(200, 194, 180), width=3)
+        for x in range(0, W, 120): g.line([(x, GROUND + 40), (x - 30, GROUND + 120)], fill=(205, 198, 184), width=2)
+        g.rectangle([0, GROUND + 120, W, H], fill=(84, 92, 96))
+        for x in range(30, W, 200): g.rectangle([x, GROUND + 330, x + 110, GROUND + 344], fill=(236, 220, 140))
+        _WB = im
+    return _WB
+
+def cloud(im, x, y, s):
+    c = _canvas(int(s * 2.2), s); g = ImageDraw.Draw(c); k = SS
+    for ox, oy, r in ((.5, .6, .38), (.95, .42, .45), (1.45, .6, .36), (1.0, .7, .35)):
+        g.ellipse([(ox - r) * s * k, (oy - r) * s * k, (ox + r) * s * k, (oy + r) * s * k], fill=(255, 255, 255, 235))
+    place(im, _down(c, int(s * 2.2), s), x, y)
+
+def person(h, shirt, hair, now, walk=0.0, wave=False, facing=1, skin=(232, 190, 150), hair_style="short", hold=None, jump=0.0):
+    """A friendly flat character. walk = walk-cycle phase speed (0 = standing)."""
+    w = int(h * .9); hh = int(h * 1.08); im = _canvas(w, hh); g = ImageDraw.Draw(im); k = SS
+    cx = w / 2; top = h * .04
+    def P(x, y): return (x * k, y * k)
+    ph = now * 9 if walk else 0; sw = math.sin(ph) * (0.42 if walk else 0)
+    hip = (cx, top + h * .62); legL = h * .36
+    for sgn in (1, -1):                                   # legs
+        a = sgn * sw; ex = hip[0] + math.sin(a) * legL; ey = hip[1] + math.cos(a) * legL
+        g.line([P(*hip), P(ex, ey)], fill=(52, 62, 78, 255), width=int(h * .085 * k)); g.ellipse([P(ex - h * .05, ey - h * .03), P(ex + h * .07, ey + h * .035)], fill=(40, 40, 44, 255))
+    sh = (cx, top + h * .34); armL = h * .27
+    for sgn in (1, -1):                                   # arms (one waves)
+        if wave and sgn == facing:
+            a = math.radians(150 + 22 * math.sin(now * 10)) * sgn
+        else:
+            a = -sgn * sw * .9 + (0.15 * sgn)
+        ex = sh[0] + math.sin(a) * armL; ey = sh[1] + math.cos(a) * armL
+        g.line([P(sh[0] + sgn * h * .1, sh[1]), P(ex + sgn * h * .1, ey)], fill=shirt + (255,), width=int(h * .075 * k))
+        g.ellipse([P(ex + sgn * h * .1 - h * .04, ey - h * .04), P(ex + sgn * h * .1 + h * .04, ey + h * .04)], fill=skin + (255,))
+    g.rounded_rectangle([P(cx - h * .17, top + h * .28), P(cx + h * .17, top + h * .66)], radius=h * .09 * k, fill=shirt + (255,))
+    hr = h * .135; hc = (cx, top + h * .15)
+    if hair_style == "long": g.rounded_rectangle([P(hc[0] - hr * 1.08, hc[1] - hr), P(hc[0] + hr * 1.08, hc[1] + hr * 1.5)], radius=hr * k, fill=hair + (255,))
+    g.ellipse([P(hc[0] - hr, hc[1] - hr), P(hc[0] + hr, hc[1] + hr)], fill=skin + (255,))
+    g.chord([P(hc[0] - hr * 1.05, hc[1] - hr * 1.1), P(hc[0] + hr * 1.05, hc[1] + hr * .5)], 180, 360, fill=hair + (255,))
+    blink = (now % 3.3) < 0.12; ex_ = hc[0] + facing * hr * .18
+    for dx in (-.38, .38):
+        if blink: g.line([P(ex_ + dx * hr - hr * .1, hc[1] + hr * .1), P(ex_ + dx * hr + hr * .1, hc[1] + hr * .1)], fill=(40, 40, 40, 255), width=int(h * .012 * k))
+        else: g.ellipse([P(ex_ + dx * hr - hr * .09, hc[1] - hr * .02), P(ex_ + dx * hr + hr * .09, hc[1] + hr * .2)], fill=(40, 40, 40, 255))
+    g.arc([P(ex_ - hr * .35, hc[1] + hr * .12), P(ex_ + hr * .35, hc[1] + hr * .62)], 20, 160, fill=(150, 70, 60, 255), width=int(h * .014 * k))
+    out = _down(im, w, hh)
+    if hold == "toolbox":
+        tb = Image.new("RGBA", (int(h * .3), int(h * .2)), (0, 0, 0, 0)); ImageDraw.Draw(tb).rounded_rectangle([0, int(h * .05), int(h * .3) - 1, int(h * .2) - 1], radius=6, fill=(214, 60, 50))
+        ImageDraw.Draw(tb).rectangle([int(h * .1), 0, int(h * .2), int(h * .06)], outline=(120, 30, 30), width=4); out.alpha_composite(tb, (int(cx + facing * h * .12 - h * .15), int(top + h * .62)))
+    return out
+
+def stand(im, spr, x, feet_y, a=1.0, bob=0.0):
+    place(im, spr, x, feet_y - spr.height + 6 - bob, a)
+
+def building(kind, lit=(False, False), sold=0.0):
+    if kind == "apartment":
+        w, h = 400, 640; im = _canvas(w, h); g = ImageDraw.Draw(im); k = SS
+        g.rectangle([0, 40 * k, w * k, h * k], fill=(150, 150, 170, 255)); g.rectangle([0, 20 * k, w * k, 60 * k], fill=(120, 120, 140, 255))
+        for r in range(5):
+            for c in range(4):
+                g.rectangle([(30 + c * 90) * k, (90 + r * 100) * k, (90 + c * 90) * k, (150 + r * 100) * k], fill=(210, 225, 235, 255))
+        g.rectangle([160 * k, 560 * k, 240 * k, h * k], fill=(90, 90, 110, 255))
+        im = _down(im, w, h); l = pill("APARTMENTS", fill=WHITE, color=INK, size=24, track=0.1); im.alpha_composite(l, ((w - l.width) // 2, 0)); return im
+    w, h = 660, 520; im = _canvas(w, h); g = ImageDraw.Draw(im); k = SS
+    g.rectangle([40 * k, 190 * k, 620 * k, h * k], fill=(246, 240, 226, 255), outline=(200, 190, 170, 255), width=3 * k)
+    g.polygon([(10 * k, 210 * k), (330 * k, 30 * k), (650 * k, 210 * k)], fill=FOREST + (255,))
+    g.rectangle([326 * k, 190 * k, 334 * k, h * k], fill=(200, 190, 170, 255))
+    for side, x0 in ((0, 40), (1, 330)):
+        on = lit[side]; win = (255, 222, 120) if on else SKY
+        for wx in (x0 + 40, x0 + 190):
+            g.rounded_rectangle([wx * k, 250 * k, (wx + 60) * k, 320 * k], radius=6 * k, fill=win + (255,), outline=(150, 140, 120, 255), width=2 * k)
+        dx = x0 + 115; g.rounded_rectangle([dx * k, 360 * k, (dx + 60) * k, h * k], radius=14 * k, fill=(GOLD if side == 0 else (70, 110, 168)) + (255,))
+    return _down(im, w, h)
+
+def bubble(text, size=34):
+    l = T(text, F_SEMI, size, INK); w, h = l.width + 56, l.height + 40
+    im = Image.new("RGBA", (w, h + 26), (0, 0, 0, 0)); g = ImageDraw.Draw(im)
+    g.rounded_rectangle([0, 0, w - 1, h - 1], radius=24, fill=WHITE, outline=(210, 205, 195), width=3); g.polygon([(w * .3, h - 3), (w * .42, h - 3), (w * .28, h + 24)], fill=WHITE)
+    im.alpha_composite(l, (28, 20)); return im
+
+def tween(a, b, s, dur):
+    if s is None: return a
+    k = ease_in_out(s / dur); return a + (b - a) * k
+
+def confetti(im, s, n=60):
+    rnd = np.random.RandomState(7)
+    for i in range(n):
+        x0 = rnd.randint(0, W); v = 260 + rnd.rand() * 300; c = [GOLD, BILL_G, (226, 78, 66), (70, 110, 168), GOLD_L][i % 5]
+        y = -40 + s * v - (rnd.rand() * 200); x = x0 + math.sin(s * 3 + i) * 40
+        if 0 < y < GROUND:
+            sz = 14; ImageDraw.Draw(im).rectangle([x, y, x + sz, y + sz * .5], fill=c)
+
+def world(now, final=False):
+    """The house-hack street. Every beat is keyed to a spoken word (WE[...])."""
+    E = M["world"]["ev"]
+    def ws(k):
+        if final: return 99.0
+        return since(E[k], now) if k in E else None
+    f = world_bg().copy()
+    for i, (x0, y, s, sp) in enumerate(((100, 140, 90, 14), (600, 260, 70, 9), (900, 120, 110, 11))):
+        cloud(f, (x0 + now * sp) % (W + 300) - 150, y + (420 if not final else 420), s)
+    # apartment (where Maya rents) slides away when the duplex arrives
+    dup = ws("duplex"); ap_x = tween(250, -400, dup, 1.0)
+    if ap_x > -350: b_ = building("apartment"); b_ = b_.resize((int(b_.width * BSC), int(b_.height * BSC)), Image.LANCZOS); place(f, b_, ap_x, GROUND - b_.height + 6)
+    # duplex drops in with a bounce
+    if dup is not None:
+        k = min(1, dup / 0.6); yb = GROUND - int(520 * BSC) + 6 - (1 - ease_out(k)) * 900 + (math.sin(min(1, dup / 0.9) * math.pi * 3) * 18 * max(0, 1 - dup) if dup > 0.6 else 0)
+        lit = (ws("movein") is not None and ws("movein") > 1.2, ws("tenant") is not None and ws("tenant") > 1.4)
+        b_ = building("duplex", lit); b_ = b_.resize((int(b_.width * BSC), int(b_.height * BSC)), Image.LANCZOS); place(f, b_, 600, yb)
+        sd = ws("sold")
+        if sd is not None and ws("bills") is None and not final:
+            a, sc = pop(E["sold"], now, 0.4)
+            place(f, pill("SOLD!", fill=(226, 78, 66), color=WHITE, size=44, track=0.1, padx=32, pady=18), 600, GROUND - 720, a, sc)
+    # Maya: walks in, pays rent, moves to her door, waves; later holds the toolbox
+    mt = ws("maya"); mx = tween(-140, 190, mt, 1.6)
+    mv = ws("movein")
+    if mv is not None: mx = tween(190, 426, mv, 1.2)
+    walking = (mt is not None and mt < 1.6) or (mv is not None and mv < 1.2)
+    fix = None if final else ws("catch")
+    if mt is not None or final:
+        if final: mx = 426
+        sp_ = person(370, FOREST, (60, 40, 30), now, walk=walking, wave=(final or (ws("title") is not None and ws("title") < 3)), facing=1, hair_style="long", hold="toolbox" if fix is not None else None)
+        stand(f, sp_, mx, GROUND + 70, 1, abs(math.sin(now * 9)) * 6 if walking else 0)
+    rent = ws("rentpay")
+    if rent is not None and dup is None: fly(f, E["rentpay"], now, (mx + 40, GROUND - 160), (260, GROUND - 520), n=4, size=90, arc=-160, stagger=0.35)
+    # tenant walks in to the right unit
+    tn = ws("tenant")
+    if tn is not None or final:
+        tx = 774 if final else tween(1260, 774, tn, 1.4)
+        sp_ = person(360, (70, 110, 168), (30, 30, 30), now, walk=(tn is not None and tn < 1.4 and not final), facing=-1)
+        stand(f, sp_, tx, GROUND + 70)
+    # rent goes from the tenant's side to the bank; the mortgage bar fills
+    bl = ws("bills")
+    if bl is not None or final:
+        bk = sprite("bank", 190); place(f, bk, 960, GROUND - 860, min(1, (bl or 9) / 0.4))
+        if not final: fly(f, E["bills"], now, (790, GROUND - 330), (960, GROUND - 760), n=6, size=90, arc=-120, stagger=0.3)
+    mb = None if final else ws("meter")
+    if mb is not None and fix is None:
+        mt_ = M["world"]["meter"]; a = min(1, mb / 0.4)
+        c, pad = card(900, 200); place(f, c, CX, 300 - pad, a)
+        place(f, T(mt_["title"], F_SEMI, 38, MUTED), CX, 322, a)
+        x0, x1, y0 = CX - 410, CX + 410, 386; g = ImageDraw.Draw(f)
+        g.rounded_rectangle([x0, y0, x1, y0 + 74], radius=20, fill=(233, 229, 218))
+        kt = ease_out(mb / 1.0); tw = int((x1 - x0) * mt_["tenant_frac"] * kt)
+        if tw > 30: g.rounded_rectangle([x0, y0, x0 + tw, y0 + 74], radius=20, fill=(70, 110, 168))
+        ms = ws("share")
+        if ms is not None:
+            kw = ease_out(ms / 0.8); mw = int((x1 - x0 - tw) * kw)
+            if mw > 20: g.rounded_rectangle([x0 + tw - 6, y0, x0 + tw + mw, y0 + 74], radius=20, fill=FOREST)
+            place(f, T(mt_["you"], F_NUM, 30, WHITE), x0 + tw + mw // 2, y0 + 20, min(1, ms / 0.5))
+        if tw > 200: place(f, T(mt_["tenant"], F_NUM, 30, WHITE), x0 + tw // 2, y0 + 20, a)
+    dp = None if final else ws("down")
+    if dp is not None and fix is None and ws("title") is None:
+        a, sc = pop(E["down"], now, 0.4); bag = sprite("bag", 90)
+        place(f, bag, mx, GROUND - 560, a, sc); place(f, pill("Smaller down payment", fill=WHITE, color=FOREST, size=36, track=0.02, padx=28, pady=16), mx + 80, GROUND - 660, a, sc)
+    tt = ws("title")
+    if tt is not None and fix is None and not final:
+        a, sc = pop(E["title"], now, 0.5); lay = rich(M["world"]["title"], F_NUM, 104, FOREST, GOLD_D, 960)
+        plate, pad = card(lay.width + 60, lay.height + 40, fill=(255, 255, 255)); plate.alpha_composite(lay, (pad + 30, pad + 26))
+        place(f, plate, CX, 320 - pad, a, sc); confetti(f, tt)
+    if fix is not None and not final:
+        a, sc = pop(E["catch"], now, 0.4)
+        place(f, bubble(M["world"]["tenant_says"], 40), 774, GROUND - 560, a, sc)
+        if fix > 1.4: place(f, bubble(M["world"]["maya_says"], 40), 400, GROUND - 560, min(1, (fix - 1.4) / 0.3))
+    return f
+
+def cartoon_frame(now):
+    final = now < HOOK_END
+    f = world(now, final=final)
+    place(f, LOGO_S, CX, 150, 0.95)
+    if final:                                              # the hook: the end result first, then "here's how"
+        dim = Image.new("RGBA", (W, H), (10, 52, 31, 120)); f.alpha_composite(dim)
+        hy = 330; sc = 1.0 + 0.03 * (1 - ease_out(now / 1.2))
+        lay = rich(HOOK["text"], F_NUM, HOOK.get("size", 120), WHITE, GOLD_L, 960, line_h=1.02); place(f, lay, CX, hy, 1, sc)
+        if HOOK_SUB:
+            q = prog("sub", now, 0.5) if "sub" in events else 1
+            place(f, HOOK_SUB, CX, hy + lay.height + 40 + (1 - q) * 20, q)
+    else:
+        place(f, TAG, CX, 225, 0.95)
+        s_ = now - HOOK_END
+        if s_ < 0.35:                                      # quick white flash = rewind to the start of the story
+            fl = Image.new("RGBA", (W, H), (255, 255, 255, int(255 * (1 - s_ / 0.35)))); f.alpha_composite(fl)
+    if M.get("example") and not final:
+        place(f, pill(M["example"], fill=(255, 255, 255, 220), color=MUTED, size=24, track=0.02, padx=20, pady=10), CX, GROUND + 60)
+    # captions on a soft plate over the road
+    i = scene_at(now); sc_ = scenes[i]; cu = None
+    for units in sc_["_units"]:
+        if units and units[0]["t0"] - LEADIN <= now: cu = units
+    if cu:
+        cy_ = GROUND + 170; cap = caption(cu, now)
+        plate = Image.new("RGBA", (1000, cap.height + 40), (0, 0, 0, 0)); ImageDraw.Draw(plate).rounded_rectangle([0, 0, 999, cap.height + 39], radius=30, fill=(255, 255, 255, 238))
+        place(f, plate, CX, cy_ - 22); place(f, cap, CX, cy_)
+    return f
+
 def frame(now):
+    if M.get("style") == "cartoon" and not (scenes[-1].get("end") and now >= scenes[-1]["_t0"] - 0.15):
+        f = cartoon_frame(now)
+        if scenes[-1].get("end") and now >= scenes[-1]["_t0"] - 0.65:
+            pass
+        return f.convert("RGB")
     if now < HOOK_END:
         return hook_frame(now).convert("RGB")
     if scenes[-1].get("end") and now >= scenes[-1]["_t0"] - 0.15:
         s_ = now - (scenes[-1]["_t0"] - 0.15)
         e = end_frame(now)
-        if s_ < 0.5: e = Image.blend(body(scenes[-1]["_t0"] - 0.16), e, ease_in_out(s_ / 0.5))
+        if s_ < 0.5: e = Image.blend((cartoon_frame if M.get("style") == "cartoon" else body)(scenes[-1]["_t0"] - 0.16), e, ease_in_out(s_ / 0.5))
         return e.convert("RGB")
     s_ = now - HOOK_END; tr = 0.55
     f = body(now)
@@ -858,7 +1071,7 @@ if os.environ.get("STILL"):
 silent = os.path.join(work, "silent.mp4")
 enc = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
                         "-c:v", "libx264", "-crf", "17", "-preset", os.environ.get("X264_PRESET", "medium"), "-pix_fmt", "yuv420p", silent], stdin=subprocess.PIPE)
-cover = hook_frame(1.6).convert("RGB")
+cover = (cartoon_frame(1.6) if M.get("style") == "cartoon" else hook_frame(1.6)).convert("RGB")
 cover.save(os.path.join(os.path.dirname(out_mp4), os.path.basename(out_mp4)[:-4] + "-cover.jpg"), quality=93)
 for i in range(int(TOTAL * FPS)):
     enc.stdin.write(frame(i / FPS).tobytes())
