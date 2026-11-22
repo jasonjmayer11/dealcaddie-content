@@ -862,40 +862,65 @@ def cloud(im, x, y, s):
         g.ellipse([(ox - r) * s * k, (oy - r) * s * k, (ox + r) * s * k, (oy + r) * s * k], fill=(255, 255, 255, 235))
     place(im, _down(c, int(s * 2.2), s), x, y)
 
-def person(h, shirt, hair, now, walk=0.0, wave=False, facing=1, skin=(232, 190, 150), hair_style="short", hold=None, jump=0.0):
-    """A friendly flat character. walk = walk-cycle phase speed (0 = standing)."""
-    w = int(h * .9); hh = int(h * 1.08); im = _canvas(w, hh); g = ImageDraw.Draw(im); k = SS
-    cx = w / 2; top = h * .04
+def person(h, shirt, hair, now, walk=0.0, wave=False, facing=1, skin=(234, 192, 158), hair_style="short", hold=None, jump=0.0, pants=(48, 58, 80)):
+    """A friendly, human-proportioned flat character (about 7 heads tall), with a two-joint walk cycle."""
+    w = int(h * .7); hh = int(h * 1.04); im = _canvas(w, hh); g = ImageDraw.Draw(im); k = SS
+    cx = w / 2; top = h * .03
     def P(x, y): return (x * k, y * k)
-    ph = now * 9 if walk else 0; sw = math.sin(ph) * (0.42 if walk else 0)
-    hip = (cx, top + h * .62); legL = h * .36
-    for sgn in (1, -1):                                   # legs
-        a = sgn * sw; ex = hip[0] + math.sin(a) * legL; ey = hip[1] + math.cos(a) * legL
-        g.line([P(*hip), P(ex, ey)], fill=(52, 62, 78, 255), width=int(h * .085 * k)); g.ellipse([P(ex - h * .05, ey - h * .03), P(ex + h * .07, ey + h * .035)], fill=(40, 40, 44, 255))
-    sh = (cx, top + h * .34); armL = h * .27
-    for sgn in (1, -1):                                   # arms (one waves)
+    def limb(p0, a1, l1, a2, l2, width, col, cap=None):
+        x1, y1 = p0[0] + math.sin(a1) * l1, p0[1] + math.cos(a1) * l1
+        x2, y2 = x1 + math.sin(a2) * l2, y1 + math.cos(a2) * l2
+        g.line([P(*p0), P(x1, y1), P(x2, y2)], fill=col + (255,), width=int(width * k), joint="curve")
+        for px, py in (p0, (x1, y1)): g.ellipse([P(px - width / 2, py - width / 2), P(px + width / 2, py + width / 2)], fill=col + (255,))
+        return x2, y2
+    ph = now * 8.5 if walk else 0; sw = math.sin(ph) * (0.45 if walk else 0)
+    skin_d = tuple(max(0, c - 28) for c in skin); shirt_d = tuple(max(0, c - 30) for c in shirt)
+    hip = (cx, top + h * .53); thigh, shin = h * .235, h * .225
+    # far arm (behind the body), then legs
+    sh_y = top + h * .2
+    def arm(sgn, far):
         if wave and sgn == facing:
-            a = math.radians(150 + 22 * math.sin(now * 10)) * sgn
+            a1 = math.radians(160) * sgn; a2 = math.radians(160 + 25 * math.sin(now * 10)) * sgn
         else:
-            a = -sgn * sw * .9 + (0.15 * sgn)
-        ex = sh[0] + math.sin(a) * armL; ey = sh[1] + math.cos(a) * armL
-        g.line([P(sh[0] + sgn * h * .1, sh[1]), P(ex + sgn * h * .1, ey)], fill=shirt + (255,), width=int(h * .075 * k))
-        g.ellipse([P(ex + sgn * h * .1 - h * .04, ey - h * .04), P(ex + sgn * h * .1 + h * .04, ey + h * .04)], fill=skin + (255,))
-    g.rounded_rectangle([P(cx - h * .17, top + h * .28), P(cx + h * .17, top + h * .66)], radius=h * .09 * k, fill=shirt + (255,))
-    hr = h * .135; hc = (cx, top + h * .15)
-    if hair_style == "long": g.rounded_rectangle([P(hc[0] - hr * 1.08, hc[1] - hr), P(hc[0] + hr * 1.08, hc[1] + hr * 1.5)], radius=hr * k, fill=hair + (255,))
-    g.ellipse([P(hc[0] - hr, hc[1] - hr), P(hc[0] + hr, hc[1] + hr)], fill=skin + (255,))
-    g.chord([P(hc[0] - hr * 1.05, hc[1] - hr * 1.1), P(hc[0] + hr * 1.05, hc[1] + hr * .5)], 180, 360, fill=hair + (255,))
-    blink = (now % 3.3) < 0.12; ex_ = hc[0] + facing * hr * .18
-    for dx in (-.38, .38):
-        if blink: g.line([P(ex_ + dx * hr - hr * .1, hc[1] + hr * .1), P(ex_ + dx * hr + hr * .1, hc[1] + hr * .1)], fill=(40, 40, 40, 255), width=int(h * .012 * k))
-        else: g.ellipse([P(ex_ + dx * hr - hr * .09, hc[1] - hr * .02), P(ex_ + dx * hr + hr * .09, hc[1] + hr * .2)], fill=(40, 40, 40, 255))
-    g.arc([P(ex_ - hr * .35, hc[1] + hr * .12), P(ex_ + hr * .35, hc[1] + hr * .62)], 20, 160, fill=(150, 70, 60, 255), width=int(h * .014 * k))
-    out = _down(im, w, hh)
-    if hold == "toolbox":
-        tb = Image.new("RGBA", (int(h * .3), int(h * .2)), (0, 0, 0, 0)); ImageDraw.Draw(tb).rounded_rectangle([0, int(h * .05), int(h * .3) - 1, int(h * .2) - 1], radius=6, fill=(214, 60, 50))
-        ImageDraw.Draw(tb).rectangle([int(h * .1), 0, int(h * .2), int(h * .06)], outline=(120, 30, 30), width=4); out.alpha_composite(tb, (int(cx + facing * h * .12 - h * .15), int(top + h * .62)))
-    return out
+            a1 = -sgn * sw * .8 + .08 * sgn; a2 = a1 - .25 * facing
+        col = shirt_d if far else shirt
+        ex, ey = limb((cx + sgn * h * .1, sh_y), a1, h * .16, a2, h * .15, h * .052, col)
+        g.ellipse([P(ex - h * .028, ey - h * .028), P(ex + h * .028, ey + h * .028)], fill=(skin_d if far else skin) + (255,))
+    arm(-facing, True)
+    for sgn in (1, -1):
+        a = sgn * sw; knee = max(0, -math.sin(ph + (0 if sgn > 0 else math.pi))) * .55 if walk else 0
+        col = tuple(max(0, c - (18 if sgn < 0 else 0)) for c in pants)
+        fx, fy = limb((hip[0] + sgn * h * .035, hip[1]), a, thigh, a - knee, shin, h * .072, col)
+        g.ellipse([P(fx - h * .045 + facing * h * .02, fy - h * .022), P(fx + h * .045 + facing * h * .02, fy + h * .025)], fill=(38, 36, 40, 255))
+    # torso: shoulders taper to the waist, belt line
+    g.polygon([P(cx - h * .125, sh_y - h * .01), P(cx + h * .125, sh_y - h * .01), P(cx + h * .1, top + h * .5), P(cx - h * .1, top + h * .5)], fill=shirt + (255,))
+    g.ellipse([P(cx - h * .13, sh_y - h * .018), P(cx - h * .085, sh_y + h * .03)], fill=shirt + (255,)); g.ellipse([P(cx + h * .085, sh_y - h * .018), P(cx + h * .13, sh_y + h * .03)], fill=shirt + (255,))
+    g.rounded_rectangle([P(cx - h * .102, top + h * .47), P(cx + h * .102, top + h * .56)], radius=h * .02 * k, fill=pants + (255,))
+    g.polygon([P(cx - h * .03, sh_y - h * .01), P(cx + h * .03, sh_y - h * .01), P(cx, sh_y + h * .04)], fill=shirt_d + (255,))    # collar
+    # neck + head
+    g.rectangle([P(cx - h * .024, top + h * .13), P(cx + h * .024, sh_y)], fill=skin_d + (255,))
+    hc = (cx + facing * h * .005, top + h * .085); rx, ry = h * .062, h * .074
+    if hair_style == "long":
+        g.rounded_rectangle([P(hc[0] - rx * 1.15, hc[1] - ry * .9), P(hc[0] + rx * 1.15, hc[1] + ry * 1.9)], radius=rx * k, fill=hair + (255,))
+    g.ellipse([P(hc[0] - rx * 1.12 , hc[1] - ry * .1), P(hc[0] - rx * .8, hc[1] + ry * .3)], fill=skin_d + (255,))
+    g.ellipse([P(hc[0] + rx * .8, hc[1] - ry * .1), P(hc[0] + rx * 1.12, hc[1] + ry * .3)], fill=skin_d + (255,))
+    g.ellipse([P(hc[0] - rx, hc[1] - ry), P(hc[0] + rx, hc[1] + ry)], fill=skin + (255,))
+    g.chord([P(hc[0] - rx * 1.04, hc[1] - ry * 1.08), P(hc[0] + rx * 1.04, hc[1] + ry * (.25 if hair_style == "long" else .05))], 180, 360, fill=hair + (255,))
+    if hair_style == "long":
+        g.pieslice([P(hc[0] - rx * 1.1, hc[1] - ry * 1.0), P(hc[0] + rx * .3, hc[1] + ry * .6)], 180, 270, fill=hair + (255,))
+    # face: brows, eyes (blink), nose, smile — set toward the facing side
+    fx0 = hc[0] + facing * rx * .12; ey = hc[1] + ry * .08; blink = (now % 3.4) < 0.12
+    for dx in (-.36, .36):
+        x0 = fx0 + dx * rx
+        g.line([P(x0 - rx * .16, ey - ry * .2), P(x0 + rx * .16, ey - ry * .23)], fill=tuple(max(0, c - 10) for c in hair) + (255,), width=max(1, int(h * .006 * k)))
+        if blink: g.line([P(x0 - rx * .11, ey), P(x0 + rx * .11, ey)], fill=(50, 40, 40, 255), width=max(1, int(h * .005 * k)))
+        else:
+            g.ellipse([P(x0 - rx * .11, ey - ry * .09), P(x0 + rx * .11, ey + ry * .09)], fill=(250, 250, 250, 255))
+            g.ellipse([P(x0 - rx * .07 + facing * rx * .03, ey - ry * .07), P(x0 + rx * .07 + facing * rx * .03, ey + ry * .07)], fill=(55, 45, 40, 255))
+    g.line([P(fx0 + facing * rx * .05, ey + ry * .1), P(fx0 + facing * rx * .14, ey + ry * .32), P(fx0, ey + ry * .34)], fill=skin_d + (255,), width=max(1, int(h * .005 * k)))
+    g.arc([P(fx0 - rx * .28, ey + ry * .3), P(fx0 + rx * .28, ey + ry * .62)], 15, 165, fill=(170, 80, 70, 255), width=max(1, int(h * .007 * k)))
+    arm(facing, False)
+    return _down(im, w, hh)
 
 def stand(im, spr, x, feet_y, a=1.0, bob=0.0):
     place(im, spr, x, feet_y - spr.height + 6 - bob, a)
@@ -967,7 +992,7 @@ def world(now, final=False):
     fix = None if final else ws("catch")
     if mt is not None or final:
         if final: mx = 426
-        sp_ = person(370, FOREST, (60, 40, 30), now, walk=walking, wave=(final or (ws("title") is not None and ws("title") < 3)), facing=1, hair_style="long", hold="toolbox" if fix is not None else None)
+        sp_ = person(430, FOREST, (60, 40, 30), now, walk=walking, wave=(final or (ws("title") is not None and ws("title") < 3)), facing=1, hair_style="long", hold="toolbox" if fix is not None else None)
         stand(f, sp_, mx, GROUND + 70, 1, abs(math.sin(now * 9)) * 6 if walking else 0)
     rent = ws("rentpay")
     if rent is not None and dup is None: fly(f, E["rentpay"], now, (mx + 40, GROUND - 160), (260, GROUND - 520), n=4, size=90, arc=-160, stagger=0.35)
@@ -975,7 +1000,7 @@ def world(now, final=False):
     tn = ws("tenant")
     if tn is not None or final:
         tx = 774 if final else tween(1260, 774, tn, 1.4)
-        sp_ = person(360, (70, 110, 168), (30, 30, 30), now, walk=(tn is not None and tn < 1.4 and not final), facing=-1)
+        sp_ = person(420, (70, 110, 168), (30, 30, 30), now, walk=(tn is not None and tn < 1.4 and not final), facing=-1)
         stand(f, sp_, tx, GROUND + 70)
     # rent goes from the tenant's side to the bank; the mortgage bar fills
     bl = ws("bills")
@@ -985,7 +1010,7 @@ def world(now, final=False):
     mb = None if final else ws("meter")
     if mb is not None and fix is None:
         mt_ = M["world"]["meter"]; a = min(1, mb / 0.4)
-        EXO = 80 if M.get("example") else 0
+        EXO = 110 if M.get("example") else 0
         c, pad = card(900, 200); place(f, c, CX, 300 + EXO - pad, a)
         place(f, T(mt_["title"], F_SEMI, 38, MUTED), CX, 322 + EXO, a)
         x0, x1, y0 = CX - 410, CX + 410, 386 + EXO; g = ImageDraw.Draw(f)
@@ -1006,7 +1031,7 @@ def world(now, final=False):
     if tt is not None and fix is None and not final:
         a, sc = pop(E["title"], now, 0.5); lay = rich(M["world"]["title"], F_NUM, 104, FOREST, GOLD_D, 960)
         plate, pad = card(lay.width + 60, lay.height + 40, fill=(255, 255, 255)); plate.alpha_composite(lay, (pad + 30, pad + 26))
-        place(f, plate, CX, 320 + (80 if M.get("example") else 0) - pad, a, sc); confetti(f, tt)
+        place(f, plate, CX, 320 + (110 if M.get("example") else 0) - pad, a, sc); confetti(f, tt)
     if fix is not None and not final:
         a, sc = pop(E["catch"], now, 0.4)
         place(f, bubble(M["world"]["tenant_says"], 40), 774, GROUND - 560, a, sc)
@@ -1099,7 +1124,7 @@ def stage_world(now, final=False):
         kind = it["kind"]
         if kind == "person":
             wv = any(ws(w0) is not None and (ws(w1) is None if w1 else ws(w0) < 2.5) for w0, w1 in it.get("waves", []))
-            spr = person(it.get("size", 360), tuple(it.get("shirt", (70, 110, 168))), tuple(it.get("hair", (40, 30, 25))), now, walk=moving, wave=wv or (final and it.get("hook_wave")),
+            spr = person(int(it.get("size", 360) * 1.15), tuple(it.get("shirt", (70, 110, 168))), tuple(it.get("hair", (40, 30, 25))), now, walk=moving, wave=wv or (final and it.get("hook_wave")),
                          facing=dirx, hair_style=it.get("hair_style", "short"))
             stand(f, spr, x, y + 70, a, abs(math.sin(now * 9)) * 6 if moving else 0)
             hold = it.get("hold")
@@ -1140,7 +1165,7 @@ def stage_world(now, final=False):
         s_ = ws(ov.get("on")); off = ws(ov["off"]) if ov.get("off") else None
         if s_ is None or (off is not None and not final): continue
         a, sc = (1, 1) if final else pop(ov["on"], now, 0.45)
-        k_ = ov["kind"]; y = ov.get("y", 330) + (80 if M.get("example") else 0)      # clear the example note under the header
+        k_ = ov["kind"]; y = ov.get("y", 330) + (110 if M.get("example") else 0)      # clear the example note under the header
         if k_ == "bubble":
             p_ = pos.get(ov["at"], (CX, GROUND)); place(f, bubble(ov["text"], 40), p_[0] + ov.get("dx", 0), p_[1] - ov.get("above", 560), a, sc)
         elif k_ == "title":
@@ -1201,7 +1226,7 @@ def cartoon_frame(now):
         if s_ < 0.35:                                      # quick white flash = rewind to the start of the story
             fl = Image.new("RGBA", (W, H), (255, 255, 255, int(255 * (1 - s_ / 0.35)))); f.alpha_composite(fl)
     if M.get("example") and not final:
-        place(f, pill(M["example"], fill=(255, 255, 255, 220), color=MUTED, size=24, track=0.02, padx=20, pady=10), CX, 272)
+        place(f, pill(M["example"], fill=(255, 255, 255, 220), color=MUTED, size=24, track=0.02, padx=20, pady=10), CX, 296)
     # captions on a soft plate over the road
     i = scene_at(now); sc_ = scenes[i]; cu = None
     for units in sc_["_units"]:
