@@ -142,12 +142,7 @@
    "end": true,
    "lines": [
     {
-     "voice": "DealCaddie shows the cap rate on any listing.",
-     "pause": 0.25
-    },
-    {
-     "voice": "We read the green. You take the shot.",
-     "beat": 0.2
+     "voice": "DealCaddie shows the cap rate on any listing. We read the green. You take the shot."
     }
    ]
   }

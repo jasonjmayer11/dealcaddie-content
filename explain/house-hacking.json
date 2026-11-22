@@ -29,7 +29,8 @@
   },
   "title": "That's *house hacking.*",
   "tenant_says": "The sink is leaking!",
-  "maya_says": "On it!"
+  "maya_says": "On it!",
+  "down_label": "Less cash down = more capital saved"
  },
  "scenes": [
   {
@@ -80,18 +81,18 @@
      ]
     },
     {
-     "voice": "And because she lives there, she can buy with a *smaller* down payment.",
+     "voice": "And because she lives there, she can buy with a *smaller* down payment, which saves her capital.",
      "do": [
       "w_down~smaller"
      ],
-     "pause": 0.15
+     "pause": 0.12
     },
     {
-     "voice": "That's house hacking.",
+     "voice": "That's house hacking. It lets everyday people, without deep pockets, buy a small multifamily they live in, and get help paying down the mortgage.",
+     "pause": 0.25,
      "do": [
-      "w_title#0"
-     ],
-     "pause": 0.15
+      "w_title~that's"
+     ]
     },
     {
      "voice": "The catch? Your tenant lives next door, and you're the landlord.",
@@ -106,16 +107,11 @@
    "end": true,
    "lines": [
     {
-     "voice": "DealCaddie runs the house hack numbers on any listing.",
-     "pause": 0.25
-    },
-    {
-     "voice": "We read the green. You take the shot.",
-     "beat": 0.2
+     "voice": "DealCaddie runs the house hack numbers on any listing. We read the green. You take the shot."
     }
    ]
   }
  ],
- "caption": "Her tenant pays most of her mortgage. Here's how.\n\nMaya was tired of paying rent. So she bought a duplex: two homes under one roof. She lives in one side and rents out the other.\n\nEvery month, the tenant's rent goes toward her mortgage.\nMortgage: $3,000\nTenant pays: $1,900\nMaya's share: $1,100, less than she used to pay in rent.\n\nAnd because she lives there, she can buy with a smaller down payment than a pure investment property.\n\nThat's house hacking. The catch: your tenant lives next door, and you're the landlord.\n\nExample numbers for illustration. Maya is a fictional example.\n\n#realestateinvesting #househacking #firsttimehomebuyer #realestateexplained #duplex",
+ "caption": "Her tenant pays most of her mortgage. Here's how.\n\nMaya was tired of paying rent. So she bought a duplex: two homes under one roof. She lives in one side and rents out the other.\n\nEvery month, the tenant's rent goes toward her mortgage.\nMortgage: $3,000\nTenant pays: $1,900\nMaya's share: $1,100, less than she used to pay in rent.\n\nAnd because she lives there, she can buy with a smaller down payment than a pure investment property, which saves her capital.\n\nHouse hacking lets everyday people without deep pockets buy an owner-occupied multifamily and get help paying down the mortgage.\n\nThat's house hacking. The catch: your tenant lives next door, and you're the landlord.\n\nExample numbers for illustration. Maya is a fictional example.\n\n#realestateinvesting #househacking #firsttimehomebuyer #realestateexplained #duplex",
  "voice_speed": 1.22
 }

@@ -64,7 +64,7 @@ for si, sc in enumerate(M["scenes"]):
         t += d + GAP + ln.get("pause", 0.12)
     sc["_t1"] = t
     scenes.append(sc)
-TOTAL = t + M.get("tail", 2.2)
+TOTAL = t + M.get("tail", 1.5)
 HOOK_END = scenes[1]["_t0"] - 0.1 if len(scenes) > 1 else 2.0   # hook shrinks into the header here
 print(f"total {TOTAL:.1f}s, hook ends {HOOK_END:.1f}s")
 
@@ -1017,25 +1017,26 @@ def world(now, final=False):
         bk = sprite("bank", 190); place(f, bk, 960, GROUND - 860, min(1, (bl or 9) / 0.4))
         if not final: fly(f, E["bills"], now, (885, GROUND - 330), (960, GROUND - 760), n=6, size=90, arc=-120, stagger=0.3)
     mb = None if final else ws("meter")
-    if mb is not None and fix is None:
+    if mb is not None and fix is None and ws("title") is None:
         mt_ = M["world"]["meter"]; a = min(1, mb / 0.4)
         EXO = 110 if M.get("example") else 0
         c, pad = card(900, 200); place(f, c, CX, 300 + EXO - pad, a)
         place(f, T(mt_["title"], F_SEMI, 38, MUTED), CX, 322 + EXO, a)
         x0, x1, y0 = CX - 410, CX + 410, 386 + EXO; g = ImageDraw.Draw(f)
         g.rounded_rectangle([x0, y0, x1, y0 + 74], radius=20, fill=(233, 229, 218))
+        # tenant's share fills from the right (his side of the duplex, his blue); Maya's from the left in her door's gold
         kt = ease_out(mb / 1.0); tw = int((x1 - x0) * mt_["tenant_frac"] * kt)
-        if tw > 30: g.rounded_rectangle([x0, y0, x0 + tw, y0 + 74], radius=20, fill=(70, 110, 168))
+        if tw > 30: g.rounded_rectangle([x1 - tw, y0, x1, y0 + 74], radius=20, fill=(70, 110, 168))
+        if tw > 200: place(f, T(mt_["tenant"], F_NUM, 30, WHITE), x1 - tw // 2, y0 + 20, a)
         ms = ws("share")
         if ms is not None:
-            kw = ease_out(ms / 0.8); mw = int((x1 - x0 - tw) * kw)
-            if mw > 20: g.rounded_rectangle([x0 + tw - 6, y0, x0 + tw + mw, y0 + 74], radius=20, fill=FOREST)
-            place(f, T(mt_["you"], F_NUM, 30, WHITE), x0 + tw + mw // 2, y0 + 20, min(1, ms / 0.5))
-        if tw > 200: place(f, T(mt_["tenant"], F_NUM, 30, WHITE), x0 + tw // 2, y0 + 20, a)
+            full = int((x1 - x0) * (1 - mt_["tenant_frac"])); mw = int(full * ease_out(ms / 0.8))
+            if mw > 20: g.rounded_rectangle([x0, y0, x0 + mw + (6 if mw >= full - 2 else 0), y0 + 74], radius=20, fill=GOLD)
+            if mw > 150: place(f, T(mt_["you"], F_NUM, 30, INK), x0 + mw // 2, y0 + 20, min(1, ms / 0.5))
     dp = None if final else ws("down")
     if dp is not None and fix is None and ws("title") is None:
         a, sc = pop(E["down"], now, 0.4); bag = sprite("bag", 90)
-        place(f, bag, mx, GROUND - 560, a, sc); place(f, pill("Smaller down payment", fill=WHITE, color=FOREST, size=36, track=0.02, padx=28, pady=16), mx + 80, GROUND - 660, a, sc)
+        place(f, bag, mx, GROUND - 560, a, sc); place(f, pill(M["world"].get("down_label", "Smaller down payment"), fill=WHITE, color=FOREST, size=36, track=0.02, padx=28, pady=16), mx + 80, GROUND - 660, a, sc)
     tt = ws("title")
     if tt is not None and fix is None and not final:
         a, sc = pop(E["title"], now, 0.5); lay = rich(M["world"]["title"], F_NUM, 104, FOREST, GOLD_D, 960)

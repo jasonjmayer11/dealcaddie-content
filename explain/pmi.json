@@ -132,12 +132,7 @@
    "end": true,
    "lines": [
     {
-     "voice": "Put less than twenty percent down, and DealCaddie automatically adds the {pee em eye|PMI}.",
-     "pause": 0.25
-    },
-    {
-     "voice": "We read the green. You take the shot.",
-     "beat": 0.2
+     "voice": "Put less than twenty percent down, and DealCaddie automatically adds the {pee em eye|PMI}. We read the green. You take the shot."
     }
    ]
   }
