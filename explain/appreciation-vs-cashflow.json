@@ -1,0 +1,193 @@
+{
+ "hook": {
+  "text": "How a rental *makes you money.*",
+  "sub": "Two ways. Most people only know one."
+ },
+ "post_title": "How a rental makes you money: cash flow vs appreciation.",
+ "example": "Example numbers for illustration",
+ "stage": {
+  "items": [
+   {
+    "id": "h",
+    "kind": "house",
+    "x": 600,
+    "size": 430
+   },
+   {
+    "id": "you",
+    "kind": "person",
+    "x": -150,
+    "on": "cf",
+    "shirt": [
+     10,
+     90,
+     50
+    ],
+    "hair_style": "long",
+    "moves": [
+     {
+      "on": "cf",
+      "x": 190,
+      "dur": 1.4
+     }
+    ],
+    "hook": true,
+    "waves": [
+     [
+      "now",
+      null
+     ]
+    ]
+   },
+   {
+    "id": "bag",
+    "kind": "bag",
+    "x": 300,
+    "size": 120,
+    "on": "cf",
+    "scale_keys": [
+     [
+      "cf",
+      0.4
+     ],
+     [
+      "extra",
+      1.0
+     ]
+    ],
+    "hook": true
+   }
+  ],
+  "flights": [
+   {
+    "on": "extra",
+    "from": "h",
+    "to": "bag",
+    "from_dy": -200,
+    "to_dy": -60,
+    "n": 7,
+    "size": 80,
+    "stagger": 0.28,
+    "arc": -160
+   }
+  ],
+  "overlays": [
+   {
+    "kind": "pill",
+    "on": "now",
+    "off": "ap",
+    "text": "Cash flow = money now",
+    "fill": [
+     3,
+     144,
+     58
+    ],
+    "color": [
+     255,
+     255,
+     255
+    ],
+    "size": 44,
+    "y": 420
+   },
+   {
+    "kind": "counter",
+    "on": "ap",
+    "off": "tt",
+    "label": "Home value",
+    "keys": [
+     [
+      "ap",
+      300000
+     ],
+     [
+      "years",
+      420000
+     ]
+    ],
+    "dur": 2.4,
+    "y": 330,
+    "tone": "good"
+   },
+   {
+    "kind": "pill",
+    "on": "later",
+    "off": "tt",
+    "text": "Appreciation = money later",
+    "fill": [
+     201,
+     168,
+     76
+    ],
+    "size": 44,
+    "y": 520
+   },
+   {
+    "kind": "title",
+    "on": "tt",
+    "text": "Know which one *you're buying.*"
+   }
+  ]
+ },
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "How does a rental make you money? Two ways. Most people only know one.",
+     "do": [
+      "sub~two"
+     ],
+     "pause": 0.15
+    }
+   ]
+  },
+  {
+   "lines": [
+    {
+     "voice": "Way one: *cash* flow. Each month the rent covers the bills, and the *extra* lands in your pocket.",
+     "do": [
+      "cf~cash",
+      "extra~extra"
+     ]
+    },
+    {
+     "voice": "That's money *now*.",
+     "do": [
+      "now~now"
+     ]
+    },
+    {
+     "voice": "Way two: *appreciation*. Over the *years*, the house itself is worth more.",
+     "do": [
+      "ap~appreciation",
+      "years~years"
+     ]
+    },
+    {
+     "voice": "That's money *later*, when you sell or refinance.",
+     "do": [
+      "later~later"
+     ]
+    },
+    {
+     "voice": "Some markets give you more cash flow. Others, more appreciation. Know which one you're buying.",
+     "do": [
+      "tt~know"
+     ],
+     "pause": 0.3
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie shows cash flow and long-term projections on any listing. We read the greens. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "How does a rental make you money? Two ways.\n\n1. Cash flow: each month the rent covers the bills and the extra lands in your pocket. Money now.\n\n2. Appreciation: over the years, the house itself is worth more. Money later, when you sell or refinance.\n\nSome markets lean toward cash flow, others toward appreciation. Know which one you're buying.\n\nExample numbers for illustration; appreciation is never guaranteed.\n\n#realestateinvesting #realestateexplained #rentalproperty #cashflow #appreciation",
+ "style": "cartoon",
+ "voice_speed": 1.22
+}

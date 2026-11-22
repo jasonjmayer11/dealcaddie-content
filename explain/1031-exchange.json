@@ -1,0 +1,224 @@
+{
+ "hook": {
+  "text": "Sell a rental. *Delay the tax bill.*",
+  "sub": "The 1031 exchange, explained."
+ },
+ "post_title": "Sell a rental and delay the tax bill: the 1031 exchange, explained.",
+ "example": "Not tax advice · rules are strict, talk to a tax pro",
+ "stage": {
+  "items": [
+   {
+    "id": "you",
+    "kind": "person",
+    "x": 170,
+    "shirt": [
+     10,
+     90,
+     50
+    ],
+    "hook_wave": true
+   },
+   {
+    "id": "h",
+    "kind": "house",
+    "x": 560,
+    "size": 360,
+    "off": "nx",
+    "hook": false
+   },
+   {
+    "id": "tax",
+    "kind": "envelope",
+    "x": 330,
+    "y": 900,
+    "size": 150,
+    "text": "TAX BILL",
+    "on": "tax",
+    "off": "dl",
+    "hook": false
+   },
+   {
+    "id": "qi",
+    "kind": "person",
+    "x": 1260,
+    "on": "mid",
+    "shirt": [
+     90,
+     100,
+     110
+    ],
+    "moves": [
+     {
+      "on": "mid",
+      "x": 900,
+      "dur": 1.2,
+      "face": -1
+     }
+    ],
+    "hook": false,
+    "label": "Middleman",
+    "label_y": 1378,
+    "label_on": "mid"
+   },
+   {
+    "id": "t",
+    "kind": "tower",
+    "x": 560,
+    "size": 560,
+    "text": "4 UNITS",
+    "on": "nx",
+    "drop": true,
+    "hook": true
+   }
+  ],
+  "flights": [
+   {
+    "on": "money",
+    "from": "h",
+    "to": "qi",
+    "from_dy": -200,
+    "to_dy": -250,
+    "n": 6,
+    "size": 86,
+    "stagger": 0.2
+   },
+   {
+    "on": "nx",
+    "from": "qi",
+    "to": "t",
+    "from_dy": -250,
+    "to_dy": -300,
+    "n": 6,
+    "size": 86,
+    "stagger": 0.2
+   }
+  ],
+  "overlays": [
+   {
+    "kind": "pill",
+    "on": "sold",
+    "off": "mid",
+    "text": "SOLD for a profit",
+    "fill": [
+     226,
+     78,
+     66
+    ],
+    "color": [
+     255,
+     255,
+     255
+    ],
+    "size": 44,
+    "y": 430
+   },
+   {
+    "kind": "pill",
+    "on": "d45",
+    "off": "dl",
+    "text": "45 days to pick the new property",
+    "fill": [
+     255,
+     255,
+     255
+    ],
+    "size": 38,
+    "y": 400
+   },
+   {
+    "kind": "pill",
+    "on": "d180",
+    "off": "dl",
+    "text": "180 days to close",
+    "fill": [
+     255,
+     255,
+     255
+    ],
+    "size": 38,
+    "y": 500
+   },
+   {
+    "kind": "title",
+    "on": "dl",
+    "off": "pro",
+    "text": "Delayed, *not erased.*"
+   },
+   {
+    "kind": "pill",
+    "on": "pro",
+    "text": "Strict rules: work with a tax pro",
+    "fill": [
+     201,
+     168,
+     76
+    ],
+    "size": 40,
+    "y": 430
+   }
+  ]
+ },
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "Sell a rental, and delay the tax bill. It's called a {ten thirty-one|1031} exchange.",
+     "do": [
+      "sub~it's"
+     ],
+     "pause": 0.15
+    }
+   ]
+  },
+  {
+   "lines": [
+    {
+     "voice": "Normally, when you *sell* a rental for a profit, you owe *tax* on the gain.",
+     "do": [
+      "sold~sell",
+      "tax~tax"
+     ]
+    },
+    {
+     "voice": "But with a {ten thirty-one|1031} exchange, the *money* goes to a *middleman*, not you, and buys your *next* property.",
+     "do": [
+      "money~money",
+      "mid~middleman",
+      "nx~next"
+     ]
+    },
+    {
+     "voice": "You have *forty-five* days to pick it, and *a hundred eighty* to close.",
+     "do": [
+      "d45~forty-five",
+      "d180~a"
+     ]
+    },
+    {
+     "voice": "The tax isn't gone. It's *delayed*, so more of your money keeps working.",
+     "do": [
+      "dl~delayed"
+     ]
+    },
+    {
+     "voice": "The rules are strict, so work with a tax *pro*.",
+     "do": [
+      "pro~rules"
+     ],
+     "pause": 0.3
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie helps you size up your next property in seconds. We read the greens. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "Sell a rental and delay the tax bill. It's called a 1031 exchange.\n\nNormally, when you sell a rental for a profit, you owe tax on the gain.\n\nWith a 1031 exchange, the sale money goes to a qualified intermediary (a middleman), not you, and buys your next investment property.\n\nThe clock: 45 days to identify the new property, 180 days to close.\n\nThe tax isn't erased, it's deferred, so more of your money keeps working.\n\nThe rules are strict. This is education, not tax advice: work with a tax professional.\n\n#realestateinvesting #realestateexplained #rentalproperty #1031exchange",
+ "style": "cartoon",
+ "voice_speed": 1.22
+}

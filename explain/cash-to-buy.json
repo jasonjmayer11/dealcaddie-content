@@ -1,0 +1,238 @@
+{
+ "hook": {
+  "text": "How much cash do you *really need?*",
+  "sub": "Hint: it's not just the down payment."
+ },
+ "post_title": "How much cash do you really need to buy a rental?",
+ "example": "Example: $300K rental · numbers vary by lender and property",
+ "stage": {
+  "items": [
+   {
+    "id": "you",
+    "kind": "person",
+    "x": 130,
+    "shirt": [
+     10,
+     90,
+     50
+    ],
+    "hair_style": "long"
+   },
+   {
+    "id": "bag",
+    "kind": "bag",
+    "x": 250,
+    "size": 190,
+    "scale_keys": [
+     [
+      "dp",
+      1.0
+     ],
+     [
+      "dp",
+      0.55
+     ],
+     [
+      "cc",
+      0.45
+     ],
+     [
+      "rp",
+      0.37
+     ],
+     [
+      "rs",
+      0.25
+     ]
+    ],
+    "hook": false
+   },
+   {
+    "id": "bank",
+    "kind": "bank",
+    "x": 450,
+    "size": 150,
+    "on": "dp",
+    "label": "Down",
+    "label_y": 1378,
+    "label_size": 28,
+    "hook": true
+   },
+   {
+    "id": "env",
+    "kind": "envelope",
+    "x": 630,
+    "y": 1320,
+    "size": 140,
+    "text": "CLOSING",
+    "on": "cc",
+    "label": "Closing",
+    "label_y": 1378,
+    "label_size": 28,
+    "hook": true
+   },
+   {
+    "id": "tb",
+    "kind": "toolbox",
+    "x": 800,
+    "size": 130,
+    "on": "rp",
+    "label": "Repairs",
+    "label_y": 1378,
+    "label_size": 28,
+    "hook": true
+   },
+   {
+    "id": "pig",
+    "kind": "piggy",
+    "x": 960,
+    "size": 140,
+    "on": "rs",
+    "label": "Reserves",
+    "label_y": 1378,
+    "label_size": 28,
+    "hook": true
+   }
+  ],
+  "flights": [
+   {
+    "on": "dp",
+    "from": "bag",
+    "to": "bank",
+    "from_dy": -100,
+    "to_dy": -140,
+    "n": 6,
+    "size": 80,
+    "stagger": 0.15
+   },
+   {
+    "on": "cc",
+    "from": "bag",
+    "to": "env",
+    "from_dy": -100,
+    "to_dy": -120,
+    "n": 3,
+    "size": 70,
+    "stagger": 0.2
+   },
+   {
+    "on": "rp",
+    "from": "bag",
+    "to": "tb",
+    "from_dy": -100,
+    "to_dy": -100,
+    "n": 3,
+    "size": 70,
+    "stagger": 0.2
+   },
+   {
+    "on": "rs",
+    "from": "bag",
+    "to": "pig",
+    "from_dy": -100,
+    "to_dy": -110,
+    "n": 3,
+    "size": 70,
+    "stagger": 0.2
+   }
+  ],
+  "overlays": [
+   {
+    "kind": "counter",
+    "on": "dp",
+    "off": "tt",
+    "label": "Cash you need",
+    "keys": [
+     [
+      "dp",
+      0
+     ],
+     [
+      "dp",
+      75000
+     ],
+     [
+      "cc",
+      84000
+     ],
+     [
+      "rp",
+      90000
+     ],
+     [
+      "rs",
+      100000
+     ]
+    ],
+    "y": 360,
+    "tone": "ink"
+   },
+   {
+    "kind": "title",
+    "on": "tt",
+    "text": "Plan for *all of it.*",
+    "y": 350
+   }
+  ]
+ },
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "How much cash do you really need to buy a rental? Hint: it's not just the down payment.",
+     "do": [
+      "sub~hint"
+     ],
+     "pause": 0.15
+    }
+   ]
+  },
+  {
+   "lines": [
+    {
+     "voice": "Say the house is {three hundred thousand|$300K}. First, the *down* payment. For a rental, often twenty to twenty-five percent. About {seventy-five thousand|$75K}.",
+     "do": [
+      "dp~down",
+      "dp2~$75K"
+     ]
+    },
+    {
+     "voice": "Then *closing* costs, a few percent more.",
+     "do": [
+      "cc~closing"
+     ]
+    },
+    {
+     "voice": "Money for *repairs*, because something always needs fixing.",
+     "do": [
+      "rp~repairs"
+     ]
+    },
+    {
+     "voice": "And *reserves*: cash in the bank for surprises. Many lenders require it.",
+     "do": [
+      "rs~reserves"
+     ]
+    },
+    {
+     "voice": "All in? Closer to {a hundred thousand|$100K}. Plan for all of it.",
+     "do": [
+      "tt~plan"
+     ],
+     "pause": 0.3
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie shows your total cash to close on any listing. We read the greens. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "How much cash do you really need to buy a rental? Hint: it's not just the down payment.\n\nExample, $300K rental:\nDown payment (often 20 to 25% for a rental): ~$75K\nClosing costs (a few percent): ~$9K\nRepairs: ~$6K\nReserves (cash for surprises, often required by lenders): ~$10K\nAll in: closer to $100K\n\nPlan for all of it.\n\nExample numbers for illustration; your lender and property will differ.\n\n#realestateinvesting #realestateexplained #rentalproperty #firsttimeinvestor #downpayment",
+ "style": "cartoon",
+ "voice_speed": 1.22
+}

@@ -1,0 +1,273 @@
+{
+ "hook": {
+  "text": "Airbnb, or a *long-term tenant?*",
+  "sub": "Same house. Two very different jobs."
+ },
+ "post_title": "Airbnb or a long-term tenant? Same house, two very different jobs.",
+ "stage": {
+  "items": [
+   {
+    "id": "hL",
+    "kind": "house",
+    "x": 290,
+    "size": 380,
+    "label": "Long-term",
+    "label_y": 1378,
+    "label_fill": [
+     70,
+     110,
+     168
+    ],
+    "label_color": [
+     255,
+     255,
+     255
+    ]
+   },
+   {
+    "id": "hR",
+    "kind": "house",
+    "x": 790,
+    "size": 380,
+    "label": "Short-term",
+    "label_y": 1378,
+    "label_fill": [
+     201,
+     168,
+     76
+    ]
+   },
+   {
+    "id": "ten",
+    "kind": "person",
+    "x": -160,
+    "on": "lt",
+    "shirt": [
+     70,
+     110,
+     168
+    ],
+    "moves": [
+     {
+      "on": "lt",
+      "x": 290,
+      "dur": 1.6
+     }
+    ],
+    "hook": true,
+    "x_hook": 290
+   },
+   {
+    "id": "g1",
+    "kind": "person",
+    "x": 1260,
+    "on": "g1",
+    "shirt": [
+     150,
+     90,
+     170
+    ],
+    "hair_style": "long",
+    "hold": "suitcase",
+    "moves": [
+     {
+      "on": "g1",
+      "x": 790,
+      "dur": 1.2
+     },
+     {
+      "on": "g1o",
+      "x": 1300,
+      "dur": 1.4
+     }
+    ],
+    "hook": false
+   },
+   {
+    "id": "g2",
+    "kind": "person",
+    "x": 1260,
+    "on": "g2",
+    "shirt": [
+     226,
+     120,
+     60
+    ],
+    "hold": "suitcase",
+    "moves": [
+     {
+      "on": "g2",
+      "x": 820,
+      "dur": 1.2
+     },
+     {
+      "on": "g2o",
+      "x": 1300,
+      "dur": 1.4
+     }
+    ],
+    "hook": false
+   },
+   {
+    "id": "cl",
+    "kind": "person",
+    "x": 1000,
+    "on": "cl",
+    "shirt": [
+     120,
+     160,
+     150
+    ],
+    "hair_style": "long",
+    "hold": "mop",
+    "facing": -1,
+    "hook": false
+   }
+  ],
+  "overlays": [
+   {
+    "kind": "calendar",
+    "on": "cal1",
+    "off": "st",
+    "title": "Long-term: about the same rent every month",
+    "heights": [
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "color": [
+     70,
+     110,
+     168
+    ],
+    "foot": "Jan  ·  ·  ·  Dec"
+   },
+   {
+    "kind": "calendar",
+    "on": "cal2",
+    "off": "rules",
+    "title": "Short-term: busy months, slow months",
+    "heights": [
+     0.35,
+     0.45,
+     0.7,
+     0.85,
+     1,
+     1,
+     1,
+     0.95,
+     0.7,
+     0.5,
+     0.35,
+     0.6
+    ],
+    "color": [
+     201,
+     168,
+     76
+    ],
+    "foot": "Jan  ·  ·  ·  Dec"
+   },
+   {
+    "kind": "pill",
+    "on": "rules",
+    "off": "tt",
+    "text": "Many cities limit short-term rentals. Check first.",
+    "fill": [
+     226,
+     78,
+     66
+    ],
+    "color": [
+     255,
+     255,
+     255
+    ],
+    "size": 36
+   },
+   {
+    "kind": "title",
+    "on": "tt",
+    "text": "More money, or *less work?*",
+    "confetti": false
+   }
+  ]
+ },
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "Airbnb, or a long-term tenant? Same house, two very different jobs.",
+     "do": [
+      "sub~same"
+     ],
+     "pause": 0.15
+    }
+   ]
+  },
+  {
+   "lines": [
+    {
+     "voice": "Option one: a *long-term* tenant. They sign a lease, move in, and pay about the same rent every month.",
+     "do": [
+      "lt~long-term",
+      "cal1~same"
+     ]
+    },
+    {
+     "voice": "Simple and steady, but usually less money."
+    },
+    {
+     "voice": "Option two: *short-term*, like Airbnb. *Guests* come and *go*, and pay more per night.",
+     "do": [
+      "st~short-term",
+      "g1~guests",
+      "g1o~go",
+      "g2~pay"
+     ]
+    },
+    {
+     "voice": "But *busy* months and slow months swing your income. And you're paying for *cleaning*, furniture and supplies.",
+     "do": [
+      "cal2~busy",
+      "g2o~slow",
+      "cl~cleaning"
+     ]
+    },
+    {
+     "voice": "Plus, many cities limit short-term rentals, so check the *rules* first.",
+     "do": [
+      "rules~many"
+     ]
+    },
+    {
+     "voice": "More money, or less work? That's the trade-off.",
+     "do": [
+      "tt~more"
+     ],
+     "pause": 0.3
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie compares both on any listing. We read the greens. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "Airbnb or a long-term tenant? Same house, two very different jobs.\n\nLong-term: a tenant signs a lease and pays about the same rent every month. Simple and steady, but usually less money.\n\nShort-term: guests come and go and usually pay more per night. But busy and slow months swing your income, and you pay for cleaning, furniture and supplies.\n\nMany cities limit short-term rentals, so check your local rules first.\n\nMore money, or less work? That's the trade-off.\n\n#realestateinvesting #realestateexplained #rentalproperty #airbnb #shorttermrental",
+ "style": "cartoon",
+ "voice_speed": 1.22
+}

@@ -1012,9 +1012,180 @@ def world(now, final=False):
         if fix > 1.4: place(f, bubble(M["world"]["maya_says"], 40), 400, GROUND - 560, min(1, (fix - 1.4) / 0.3))
     return f
 
+# ------------------------------------------------------------------ generic cartoon stage: items, moves, money flights, overlays (all keyed to spoken words)
+def prop(kind, s, text=None):
+    key = ("prop", kind, s, text)
+    if key in _sc: return _sc[key]
+    if kind == "suitcase":
+        w, h = int(s * .7), s; im = _canvas(w, h); g = ImageDraw.Draw(im); k = SS
+        g.rounded_rectangle([.30 * w * k, 0, .70 * w * k, .2 * h * k], radius=6 * k, outline=(60, 60, 70, 255), width=int(.05 * w * k))
+        g.rounded_rectangle([0, .15 * h * k, w * k, .92 * h * k], radius=.12 * w * k, fill=(226, 78, 66, 255))
+        g.line([(.5 * w * k, .2 * h * k), (.5 * w * k, .88 * h * k)], fill=(190, 50, 40, 255), width=int(.04 * w * k))
+        for xx in (.2, .8): g.ellipse([(xx - .08) * w * k, .9 * h * k, (xx + .08) * w * k, h * k - 1], fill=(40, 40, 40, 255))
+        out = _down(im, w, h)
+    elif kind == "mop":
+        w, h = int(s * .45), s; im = _canvas(w, h); g = ImageDraw.Draw(im); k = SS
+        g.line([(.5 * w * k, 0), (.5 * w * k, .8 * h * k)], fill=(170, 120, 70, 255), width=int(.12 * w * k))
+        g.rounded_rectangle([0, .78 * h * k, w * k, h * k], radius=8 * k, fill=(120, 170, 220, 255)); out = _down(im, w, h)
+    elif kind == "briefcase":
+        w, h = s, int(s * .75); im = _canvas(w, h); g = ImageDraw.Draw(im); k = SS
+        g.rounded_rectangle([.3 * w * k, 0, .7 * w * k, .25 * h * k], radius=5 * k, outline=(60, 40, 30, 255), width=int(.06 * w * k))
+        g.rounded_rectangle([0, .18 * h * k, w * k, h * k - 1], radius=.1 * w * k, fill=(110, 70, 40, 255)); out = _down(im, w, h)
+    elif kind == "toolbox":
+        w, h = s, int(s * .66); im = _canvas(w, h); g = ImageDraw.Draw(im); k = SS
+        g.rectangle([.33 * w * k, 0, .67 * w * k, .25 * h * k], outline=(120, 30, 30, 255), width=int(.06 * w * k))
+        g.rounded_rectangle([0, .2 * h * k, w * k, h * k - 1], radius=.08 * w * k, fill=(214, 60, 50, 255)); out = _down(im, w, h)
+    elif kind == "envelope":
+        w, h = s, int(s * .66); im = _canvas(w, h); g = ImageDraw.Draw(im); k = SS
+        g.rounded_rectangle([0, 0, w * k - 1, h * k - 1], radius=10 * k, fill=WHITE + (255,), outline=(200, 60, 50, 255), width=int(.03 * w * k))
+        g.line([(0, 0), (.5 * w * k, .55 * h * k), (w * k, 0)], fill=(200, 60, 50, 255), width=int(.03 * w * k))
+        out = _down(im, w, h)
+        if text: l = T(text, F_NUM, int(s * .16), (200, 60, 50), 0.06); out.alpha_composite(l, ((w - l.width) // 2, int(h * .62)))
+    elif kind == "piggy":
+        w, h = s, int(s * .8); im = _canvas(w, h); g = ImageDraw.Draw(im); k = SS
+        g.ellipse([.05 * w * k, .12 * h * k, .9 * w * k, .88 * h * k], fill=(244, 160, 180, 255))
+        g.ellipse([.8 * w * k, .38 * h * k, w * k - 1, .62 * h * k], fill=(232, 140, 160, 255))
+        for xx in (.22, .62): g.rectangle([xx * w * k, .8 * h * k, (xx + .1) * w * k, h * k - 1], fill=(232, 140, 160, 255))
+        g.polygon([(.55 * w * k, .2 * h * k), (.65 * w * k, 0), (.72 * w * k, .22 * h * k)], fill=(232, 140, 160, 255))
+        g.rectangle([.38 * w * k, .14 * h * k, .55 * w * k, .2 * h * k], fill=(150, 70, 90, 255)); g.ellipse([.68 * w * k, .36 * h * k, .74 * w * k, .43 * h * k], fill=(40, 40, 40, 255))
+        out = _down(im, w, h)
+    elif kind == "tower":
+        b = building("apartment"); out = b.resize((int(b.width * s / b.height), s), Image.LANCZOS)
+        if text:
+            out = out.copy(); ImageDraw.Draw(out).rectangle([0, 0, out.width, 40], fill=(0, 0, 0, 0))
+            l = pill(text, fill=WHITE, color=INK, size=22, track=0.08); out.alpha_composite(l, ((out.width - l.width) // 2, 0))
+    elif kind == "house":
+        out = sprite("house", s)
+    elif kind == "fixer":
+        out = jsprite("fixer", s)
+    elif kind == "bank":
+        out = sprite("bank", s)
+    elif kind == "bag":
+        out = sprite("bag", s)
+    elif kind == "duplex":
+        b = building("duplex", (True, True)); out = b.resize((int(b.width * s / b.height), s), Image.LANCZOS)
+    else:
+        raise SystemExit(f"unknown prop {kind}")
+    _sc[key] = out; return out
+
+def stage_world(now, final=False):
+    ST = M["stage"]
+    def ws(k):
+        if k is None: return 99.0
+        if final: return 99.0
+        return since(k, now)
+    f = world_bg().copy()
+    for i, (x0, y, s, sp) in enumerate(((100, 560, 90, 14), (600, 680, 70, 9), (900, 540, 110, 11))):
+        cloud(f, (x0 + now * sp) % (W + 300) - 150, y, s)
+    pos = {}
+    for it in ST["items"]:
+        if final and it.get("hook") is False: continue
+        if not final and it.get("hook_only"): continue
+        on, off = ws(it.get("on")), ws(it.get("off")) if it.get("off") else None
+        if on is None or (off is not None and not final): continue
+        if final and it.get("off") and it.get("hook") is not True: continue
+        x, y = it["x"], it.get("y", GROUND); moving = False; dirx = it.get("facing", 1)
+        for mv in it.get("moves", []):
+            s_ = ws(mv["on"])
+            if s_ is None: break
+            if final: x, y = mv.get("x", x), mv.get("y", y); continue
+            nx, ny = mv.get("x", x), mv.get("y", y); d = mv.get("dur", 1.2)
+            if s_ < d: moving = True; dirx = 1 if nx > x else -1
+            x, y = tween(x, nx, s_, d), tween(y, ny, s_, d)
+            if s_ >= d and "face" in mv: dirx = mv["face"]
+        pos[it["id"]] = (x, y)
+        a, sc = (1, 1) if final or it.get("on") is None else pop(it["on"], now, 0.45)
+        kind = it["kind"]
+        if kind == "person":
+            wv = any(ws(w0) is not None and (ws(w1) is None if w1 else ws(w0) < 2.5) for w0, w1 in it.get("waves", []))
+            spr = person(it.get("size", 360), tuple(it.get("shirt", (70, 110, 168))), tuple(it.get("hair", (40, 30, 25))), now, walk=moving, wave=wv or (final and it.get("hook_wave")),
+                         facing=dirx, hair_style=it.get("hair_style", "short"))
+            stand(f, spr, x, y + 70, a, abs(math.sin(now * 9)) * 6 if moving else 0)
+            hold = it.get("hold")
+            for hk in it.get("holds", []):
+                if ws(hk["on"]) is not None and (hk.get("off") is None or ws(hk["off"]) is None or final): hold = hk["kind"]
+            if hold:
+                hs = {"suitcase": 120, "mop": 200, "briefcase": 80, "toolbox": 90}[hold]; ps = prop(hold, hs)
+                place(f, ps, x + dirx * it.get("size", 360) * .3, y + 70 - ps.height - (it.get("size", 360) * .18 if hold in ("briefcase", "toolbox") else 0), a)
+        else:
+            s = it.get("size", 300)
+            if "scale_keys" in it:
+                v = it["scale_keys"][0][1]; prev = v
+                for ev, val in it["scale_keys"]:
+                    s_ = ws(ev)
+                    if s_ is None: break
+                    v = prev + (val - prev) * (1 if final else ease_in_out(s_ / 1.0)); prev = val
+                s = max(30, int(s * v))
+            ps = prop(kind, s, it.get("text"))
+            bob = 0
+            if it.get("drop") and it.get("on") and not final:
+                s_ = ws(it["on"]); bob = -(1 - ease_out(min(1, s_ / 0.6))) * 900
+                a, sc = 1, 1
+            place(f, ps, x, y - ps.height + 6 + bob, a, sc)
+        if it.get("label") and (it.get("label_on") is None or ws(it["label_on"]) is not None):
+            la, lsc = (1, 1) if final or not it.get("label_on") else pop(it["label_on"], now, 0.4)
+            ly = it.get("label_y", y + 14)
+            place(f, pill(it["label"], fill=tuple(it.get("label_fill", WHITE)), color=tuple(it.get("label_color", INK)), size=it.get("label_size", 32), track=0.02, padx=24, pady=14), x, ly, la, lsc)
+    if not final:
+        for fl in ST.get("flights", []):
+            if ws(fl["on"]) is None: continue
+            a_ = pos.get(fl["from"], (0, 0)) if isinstance(fl["from"], str) else fl["from"]
+            b_ = pos.get(fl["to"], (0, 0)) if isinstance(fl["to"], str) else fl["to"]
+            dy0, dy1 = fl.get("from_dy", -200), fl.get("to_dy", -200)
+            fly(f, fl["on"], now, (a_[0], a_[1] + dy0), (b_[0], b_[1] + dy1), n=fl.get("n", 5), size=fl.get("size", 86), arc=fl.get("arc", -140), stagger=fl.get("stagger", 0.25),
+                dur=fl.get("dur", 0.75))
+    for ov in ST.get("overlays", []):
+        if final and not ov.get("hook"): continue
+        s_ = ws(ov.get("on")); off = ws(ov["off"]) if ov.get("off") else None
+        if s_ is None or (off is not None and not final): continue
+        a, sc = (1, 1) if final else pop(ov["on"], now, 0.45)
+        k_ = ov["kind"]; y = ov.get("y", 330)
+        if k_ == "bubble":
+            p_ = pos.get(ov["at"], (CX, GROUND)); place(f, bubble(ov["text"], 40), p_[0] + ov.get("dx", 0), p_[1] - ov.get("above", 560), a, sc)
+        elif k_ == "title":
+            lay = rich(ov["text"], F_NUM, ov.get("size", 96), FOREST, GOLD_D, 960); plate, pad = card(lay.width + 60, lay.height + 40)
+            plate.alpha_composite(lay, (pad + 30, pad + 26)); place(f, plate, CX, y - pad, a, sc)
+            if ov.get("confetti") and not final: confetti(f, s_)
+        elif k_ == "pill":
+            place(f, pill(ov["text"], fill=tuple(ov.get("fill", WHITE)), color=tuple(ov.get("color", INK)), size=ov.get("size", 38), track=0.02, padx=30, pady=18), ov.get("x", CX), y, a, sc)
+        elif k_ == "counter":
+            v = ov["keys"][0][1]; prev = v
+            for ev, val in ov["keys"]:
+                s2 = ws(ev)
+                if s2 is None: break
+                v = prev + (val - prev) * (1 if final else ease_in_out(s2 / ov.get("dur", 1.0))); prev = val
+            txt = (ov.get("prefix", "") + (money(v) if ov.get("fmt", "$") == "$" else f"{int(round(v))}") + ov.get("suffix", ""))
+            c, pad = card(ov.get("w", 700), 150); c.alpha_composite(T(ov["label"], F_SEMI, 36, MUTED), (pad + 36, pad + 52))
+            vl = T(txt, F_NUM, 70, TONE[ov.get("tone", "ink")], -0.02); c.alpha_composite(vl, (pad + ov.get("w", 700) - 36 - vl.width, pad + (150 - vl.height) // 2 + 4))
+            place(f, c, ov.get("x", CX), y - pad, a)
+        elif k_ == "meter":
+            c, pad = card(900, 200); place(f, c, CX, y - 30 - pad, a)
+            place(f, T(ov["title"], F_SEMI, 38, MUTED), CX, y - 8, a)
+            x0, x1, y0 = CX - 410, CX + 410, y + 56; g = ImageDraw.Draw(f)
+            g.rounded_rectangle([x0, y0, x1, y0 + 74], radius=20, fill=(233, 229, 218)); xx = x0
+            for seg in ov["segs"]:
+                s3 = ws(seg["on"])
+                if s3 is None: continue
+                w_ = int((x1 - x0) * seg["frac"] * (1 if final else ease_out(s3 / 0.9)))
+                if w_ > 24: g.rounded_rectangle([xx, y0, xx + w_, y0 + 74], radius=20, fill=tuple(seg["color"]))
+                if w_ > 150: place(f, T(seg["text"], F_NUM, 30, WHITE), xx + w_ // 2, y0 + 20, min(1, (s3 if not final else 9) / 0.5))
+                xx += w_
+        elif k_ == "calendar":
+            c, pad = card(900, 250); place(f, c, ov.get("x", CX), y - pad, a)
+            place(f, T(ov["title"], F_SEMI, 34, MUTED), ov.get("x", CX), y + 18, a)
+            g = ImageDraw.Draw(f); cw = 62; x0 = ov.get("x", CX) - (12 * cw + 11 * 8) // 2
+            for i in range(12):
+                k3 = 1 if final else ease_out((s_ - i * ov.get("step", 0.12)) / 0.3)
+                if k3 <= 0: continue
+                hgt = ov["heights"][i] if "heights" in ov else 1.0
+                col = tuple(ov.get("color", (70, 110, 168))); bh = int(130 * hgt * min(1, k3))
+                g.rounded_rectangle([x0 + i * (cw + 8), y + 205 - bh, x0 + i * (cw + 8) + cw, y + 205], radius=10, fill=col)
+            place(f, T(ov.get("foot", ""), F_SEMI, 28, MUTED), ov.get("x", CX), y + 214, a)
+    return f
+
 def cartoon_frame(now):
     final = now < HOOK_END
-    f = world(now, final=final)
+    f = stage_world(now, final=final) if "stage" in M else world(now, final=final)
     place(f, LOGO_S, CX, 150, 0.95)
     if final:                                              # the hook: the end result first, then "here's how"
         dim = Image.new("RGBA", (W, H), (10, 52, 31, 120)); f.alpha_composite(dim)
@@ -1029,7 +1200,7 @@ def cartoon_frame(now):
         if s_ < 0.35:                                      # quick white flash = rewind to the start of the story
             fl = Image.new("RGBA", (W, H), (255, 255, 255, int(255 * (1 - s_ / 0.35)))); f.alpha_composite(fl)
     if M.get("example") and not final:
-        place(f, pill(M["example"], fill=(255, 255, 255, 220), color=MUTED, size=24, track=0.02, padx=20, pady=10), CX, GROUND + 60)
+        place(f, pill(M["example"], fill=(255, 255, 255, 220), color=MUTED, size=24, track=0.02, padx=20, pady=10), CX, 272)
     # captions on a soft plate over the road
     i = scene_at(now); sc_ = scenes[i]; cu = None
     for units in sc_["_units"]:
