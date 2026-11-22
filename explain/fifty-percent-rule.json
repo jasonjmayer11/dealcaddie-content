@@ -149,7 +149,12 @@
    "end": true,
    "lines": [
     {
-     "voice": "DealCaddie runs the full numbers on any listing, in seconds. We read the greens. You take the shot."
+     "voice": "DealCaddie runs the full numbers on any listing, in seconds.",
+     "pause": 0.25
+    },
+    {
+     "voice": "We read the green. You take the shot.",
+     "beat": 0.2
     }
    ]
   }

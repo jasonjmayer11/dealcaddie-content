@@ -341,7 +341,7 @@ def render_stat_beat(spec, dur):
         return f.convert("RGB")
     return frame
 
-def render_end_beat(dur, line="Every number. In seconds.", sub="We read the greens. You take the shot.", extra=None):
+def render_end_beat(dur, line="Every number. In seconds.", sub="We read the green. You take the shot.", extra=None):
     logo = logo_layer(720)
     line = text_layer(line, F_HEAD, fit_size(line, F_HEAD, 62, 900, 38), INK)
     sub = text_layer(sub, F_MED, fit_size(sub, F_MED, 38, 900, 28), (122, 95, 23))     # gold-brown tagline

@@ -26,7 +26,7 @@ _onnx = _pipe = _tok = None
 # an explicit {spoken|Shown} group always wins.
 SAY = [(r"(?i)\bairbnb", "Air-bee-en-bee"),
        (r"\b(?:St\.?|Saint) Louis\b", "{Saint Lewis|\\g<0>}"),
-       (r"\b[Rr]ead(?= the greens)", "{reed|\\g<0>}")]       # tagline: "we READ the greens", not "red"
+       (r"\b[Rr]ead(?= the green)", "{reed|\\g<0>}")]       # tagline: "we READ the greens", not "red"
 
 def parse(voice):
     """-> spoken text, units [(spoken_words[], show, accent)]"""

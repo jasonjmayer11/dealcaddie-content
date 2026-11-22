@@ -112,7 +112,7 @@ def say_names(t):
     t = re.sub(r"\b(?:St\.?|Saint) Louis\b", "Saint Lewis", t)   # "Lewis", never "Louie"
     t = re.sub(r"(?<!\[)\bHUD\b(?!\])", "hud", t)       # said as a word, not H-U-D
     t = re.sub(r"(?<!\[)\bZIP\b(?!\])", "zip", t)
-    t = re.sub(r"\b([Rr])ead(?= the greens)", r"\1eed", t)   # tagline: READ the greens, not "red"
+    t = re.sub(r"\b([Rr])ead(?= the green)", r"\1eed", t)   # tagline: READ the greens, not "red"
     return t
 
 if STORY:

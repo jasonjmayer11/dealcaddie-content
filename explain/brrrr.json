@@ -131,7 +131,12 @@
    "end": true,
    "lines": [
     {
-     "voice": "DealCaddie runs the {burr|BRRRR} numbers on any listing, so you find the deals that work. We read the greens. You take the shot."
+     "voice": "DealCaddie runs the {burr|BRRRR} numbers on any listing, so you find the deals that work.",
+     "pause": 0.25
+    },
+    {
+     "voice": "We read the green. You take the shot.",
+     "beat": 0.2
     }
    ]
   }

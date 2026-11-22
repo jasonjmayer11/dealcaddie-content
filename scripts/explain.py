@@ -816,7 +816,7 @@ def _badges():
     row = Image.new("RGBA", (a.width + g.width + 32, BADGE_H), (0, 0, 0, 0)); row.alpha_composite(a, (0, 0)); row.alpha_composite(g, (a.width + 32, 0))
     return row
 END_LOGO = logo_layer(520)
-END_LINE = rich(scenes[-1].get("end_line", "We read the greens.\nYou take the *shot.*"), F_NUM, 66, INK, GOLD_D, 900, line_h=1.12)
+END_LINE = rich(scenes[-1].get("end_line", "We read the green.\nYou take the *shot.*"), F_NUM, 66, INK, GOLD_D, 900, line_h=1.12)
 END_AVAIL = T("AVAILABLE ON", F_SEMI, 26, MUTED, 0.24)
 END_BADGES = _badges()
 END_SITE = T("dealcaddie.ai", F_SEMI, 36, MUTED)
@@ -985,9 +985,10 @@ def world(now, final=False):
     mb = None if final else ws("meter")
     if mb is not None and fix is None:
         mt_ = M["world"]["meter"]; a = min(1, mb / 0.4)
-        c, pad = card(900, 200); place(f, c, CX, 300 - pad, a)
-        place(f, T(mt_["title"], F_SEMI, 38, MUTED), CX, 322, a)
-        x0, x1, y0 = CX - 410, CX + 410, 386; g = ImageDraw.Draw(f)
+        EXO = 80 if M.get("example") else 0
+        c, pad = card(900, 200); place(f, c, CX, 300 + EXO - pad, a)
+        place(f, T(mt_["title"], F_SEMI, 38, MUTED), CX, 322 + EXO, a)
+        x0, x1, y0 = CX - 410, CX + 410, 386 + EXO; g = ImageDraw.Draw(f)
         g.rounded_rectangle([x0, y0, x1, y0 + 74], radius=20, fill=(233, 229, 218))
         kt = ease_out(mb / 1.0); tw = int((x1 - x0) * mt_["tenant_frac"] * kt)
         if tw > 30: g.rounded_rectangle([x0, y0, x0 + tw, y0 + 74], radius=20, fill=(70, 110, 168))
@@ -1005,7 +1006,7 @@ def world(now, final=False):
     if tt is not None and fix is None and not final:
         a, sc = pop(E["title"], now, 0.5); lay = rich(M["world"]["title"], F_NUM, 104, FOREST, GOLD_D, 960)
         plate, pad = card(lay.width + 60, lay.height + 40, fill=(255, 255, 255)); plate.alpha_composite(lay, (pad + 30, pad + 26))
-        place(f, plate, CX, 320 - pad, a, sc); confetti(f, tt)
+        place(f, plate, CX, 320 + (80 if M.get("example") else 0) - pad, a, sc); confetti(f, tt)
     if fix is not None and not final:
         a, sc = pop(E["catch"], now, 0.4)
         place(f, bubble(M["world"]["tenant_says"], 40), 774, GROUND - 560, a, sc)
@@ -1139,7 +1140,7 @@ def stage_world(now, final=False):
         s_ = ws(ov.get("on")); off = ws(ov["off"]) if ov.get("off") else None
         if s_ is None or (off is not None and not final): continue
         a, sc = (1, 1) if final else pop(ov["on"], now, 0.45)
-        k_ = ov["kind"]; y = ov.get("y", 330)
+        k_ = ov["kind"]; y = ov.get("y", 330) + (80 if M.get("example") else 0)      # clear the example note under the header
         if k_ == "bubble":
             p_ = pos.get(ov["at"], (CX, GROUND)); place(f, bubble(ov["text"], 40), p_[0] + ov.get("dx", 0), p_[1] - ov.get("above", 560), a, sc)
         elif k_ == "title":

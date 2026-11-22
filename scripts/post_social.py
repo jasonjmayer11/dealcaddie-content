@@ -39,6 +39,19 @@ def tracked(text, source, medium):
     url = f"https://www.dealcaddie.ai/?utm_source={source}&utm_medium={medium}&utm_campaign=reels&utm_content={tag}"
     out, n = re.subn(r"(?<![\w/.#@])dealcaddie\.ai(?![\w/])", url, text, count=1)
     return out if n else text + "\n\n" + url
+# Every DealCaddie post carries a one-line disclaimer (added here so no post can forget it).
+DISC_LONG = "Education only. Not financial, tax or legal advice."
+DISC_SHORT = "Not financial advice."
+def disc(text, limit, short=False, fit=lambda t: t):
+    if user != "dealcaddie" or "not financial" in text.lower(): return text
+    for d in ([DISC_SHORT] if short else [DISC_LONG, DISC_SHORT]):
+        t = text.rstrip() + "\n\n" + d
+        if len(fit(t)) <= limit: return t
+    return text
+caption = disc(caption, 2200)
+for _p, _lim, _src in (("x", 280, None), ("threads", 500, "threads"), ("linkedin", 3000, "linkedin")):
+    if copy.get(_p):
+        copy[_p] = disc(copy[_p], _lim, short=(_p == "x"), fit=(lambda t, s=_src: tracked(t, s, "video")) if _src else (lambda t: t))
 fields = [("user", user)] + [("platform[]", p) for p in platforms] + [
     ("title", short),
     ("description", caption),
