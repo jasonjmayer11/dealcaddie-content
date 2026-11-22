@@ -65,7 +65,7 @@ elif sys.argv[1] == "analytics":
         j = a.json(); title = ((j.get("post") or {}).get("post_title") or "")[:50]; ts = (j.get("post") or {}).get("upload_timestamp", "")
         for pf, v in (j.get("platforms") or {}).items():
             m = (v or {}).get("post_metrics") or {}
-            print("\t".join([str(ts)[:16], pf, rid[:44], json.dumps(m)[:220], title]))
+            print("J " + json.dumps({"ts": str(ts), "pf": pf, "rid": rid, "user": x.get("profile_username"), "title": title, "m": {k: v2 for k, v2 in m.items() if not isinstance(v2, (list, dict))}}))
 elif sys.argv[1] == "cancelmany":
     for jid in [x.strip() for x in sys.argv[2].split(",") if x.strip()]:
         r = requests.delete(f"{API}/{jid}", headers=H, timeout=60); print(jid, r.status_code, r.text[:120])
