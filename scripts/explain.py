@@ -905,7 +905,10 @@ def person(h, shirt, hair, now, walk=0.0, wave=False, facing=1, skin=(240, 196, 
     g.rounded_rectangle([P(cx - h * .019, top + h * .11), P(cx + h * .019, sh_y + h * .01)], radius=h * .01 * k, fill=dk(skin, 18) + (255,))
     hc = (cx + facing * h * .006, top + h * .068); rx, ry = h * .05, h * .058
     if hair_style == "long":
-        g.rounded_rectangle([P(hc[0] - rx * 1.18, hc[1] - ry * .7), P(hc[0] + rx * 1.18, hc[1] + ry * 1.75)], radius=rx * .9 * k, fill=hair + (255,))
+        g.ellipse([P(hc[0] - rx * 1.16, hc[1] - ry * 1.1), P(hc[0] + rx * 1.16, hc[1] + ry * .5)], fill=hair + (255,))
+        for sg in (-1, 1):                                        # side strands to the shoulders, nothing under the chin
+            xa, xb = sorted((hc[0] + sg * rx * 1.16, hc[0] + sg * rx * .62))
+            g.rounded_rectangle([P(xa, hc[1] - ry * .2), P(xb, hc[1] + ry * 1.55)], radius=rx * .25 * k, fill=hair + (255,))
     if hair_style == "bun":
         g.ellipse([P(hc[0] - facing * rx * .6 - rx * .55, hc[1] - ry * 1.55), P(hc[0] - facing * rx * .6 + rx * .55, hc[1] - ry * .5)], fill=hair + (255,))
     g.ellipse([P(hc[0] - rx, hc[1] - ry), P(hc[0] + rx, hc[1] + ry)], fill=skin + (255,))
@@ -993,11 +996,11 @@ def world(now, final=False):
     # Maya: walks in, pays rent, moves to her door, waves; later holds the toolbox
     mt = ws("maya"); mx = tween(-140, 190, mt, 1.6)
     mv = ws("movein")
-    if mv is not None: mx = tween(190, 426, mv, 1.2)
+    if mv is not None: mx = tween(190, 318, mv, 1.2)
     walking = (mt is not None and mt < 1.6) or (mv is not None and mv < 1.2)
     fix = None if final else ws("catch")
     if mt is not None or final:
-        if final: mx = 426
+        if final: mx = 318
         sp_ = person(430, FOREST, (60, 40, 30), now, walk=walking, wave=(final or (ws("title") is not None and ws("title") < 3)), facing=1, hair_style="long", hold="toolbox" if fix is not None else None)
         stand(f, sp_, mx, GROUND + 70, 1, abs(math.sin(now * 9)) * 6 if walking else 0)
     rent = ws("rentpay")
@@ -1005,14 +1008,14 @@ def world(now, final=False):
     # tenant walks in to the right unit
     tn = ws("tenant")
     if tn is not None or final:
-        tx = 774 if final else tween(1260, 774, tn, 1.4)
+        tx = 885 if final else tween(1260, 885, tn, 1.4)
         sp_ = person(420, (70, 110, 168), (30, 30, 30), now, walk=(tn is not None and tn < 1.4 and not final), facing=-1)
         stand(f, sp_, tx, GROUND + 70)
     # rent goes from the tenant's side to the bank; the mortgage bar fills
     bl = ws("bills")
     if bl is not None or final:
         bk = sprite("bank", 190); place(f, bk, 960, GROUND - 860, min(1, (bl or 9) / 0.4))
-        if not final: fly(f, E["bills"], now, (790, GROUND - 330), (960, GROUND - 760), n=6, size=90, arc=-120, stagger=0.3)
+        if not final: fly(f, E["bills"], now, (885, GROUND - 330), (960, GROUND - 760), n=6, size=90, arc=-120, stagger=0.3)
     mb = None if final else ws("meter")
     if mb is not None and fix is None:
         mt_ = M["world"]["meter"]; a = min(1, mb / 0.4)
@@ -1040,8 +1043,8 @@ def world(now, final=False):
         place(f, plate, CX, 320 + (110 if M.get("example") else 0) - pad, a, sc); confetti(f, tt)
     if fix is not None and not final:
         a, sc = pop(E["catch"], now, 0.4)
-        place(f, bubble(M["world"]["tenant_says"], 40), 774, GROUND - 560, a, sc)
-        if fix > 1.4: place(f, bubble(M["world"]["maya_says"], 40), 400, GROUND - 560, min(1, (fix - 1.4) / 0.3))
+        place(f, bubble(M["world"]["tenant_says"], 40), 800, GROUND - 600, a, sc)
+        if fix > 1.4: place(f, bubble(M["world"]["maya_says"], 40), 318, GROUND - 600, min(1, (fix - 1.4) / 0.3))
     return f
 
 # ------------------------------------------------------------------ generic cartoon stage: items, moves, money flights, overlays (all keyed to spoken words)
