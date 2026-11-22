@@ -862,63 +862,69 @@ def cloud(im, x, y, s):
         g.ellipse([(ox - r) * s * k, (oy - r) * s * k, (ox + r) * s * k, (oy + r) * s * k], fill=(255, 255, 255, 235))
     place(im, _down(c, int(s * 2.2), s), x, y)
 
-def person(h, shirt, hair, now, walk=0.0, wave=False, facing=1, skin=(234, 192, 158), hair_style="short", hold=None, jump=0.0, pants=(48, 58, 80)):
-    """A friendly, human-proportioned flat character (about 7 heads tall), with a two-joint walk cycle."""
-    w = int(h * .7); hh = int(h * 1.04); im = _canvas(w, hh); g = ImageDraw.Draw(im); k = SS
-    cx = w / 2; top = h * .03
+def person(h, shirt, hair, now, walk=0.0, wave=False, facing=1, skin=(240, 196, 160), hair_style="short", hold=None, jump=0.0, pants=(52, 64, 110)):
+    """Modern flat-illustration character: ~8 heads tall, long tapered limbs, two-tone shading, simple face."""
+    w = int(h * .62); hh = int(h * 1.03); im = _canvas(w, hh); g = ImageDraw.Draw(im); k = SS
+    cx = w / 2; top = h * .02
     def P(x, y): return (x * k, y * k)
-    def limb(p0, a1, l1, a2, l2, width, col, cap=None):
-        x1, y1 = p0[0] + math.sin(a1) * l1, p0[1] + math.cos(a1) * l1
-        x2, y2 = x1 + math.sin(a2) * l2, y1 + math.cos(a2) * l2
-        g.line([P(*p0), P(x1, y1), P(x2, y2)], fill=col + (255,), width=int(width * k), joint="curve")
-        for px, py in (p0, (x1, y1)): g.ellipse([P(px - width / 2, py - width / 2), P(px + width / 2, py + width / 2)], fill=col + (255,))
-        return x2, y2
-    ph = now * 8.5 if walk else 0; sw = math.sin(ph) * (0.45 if walk else 0)
-    skin_d = tuple(max(0, c - 28) for c in skin); shirt_d = tuple(max(0, c - 30) for c in shirt)
-    hip = (cx, top + h * .53); thigh, shin = h * .235, h * .225
-    # far arm (behind the body), then legs
-    sh_y = top + h * .2
+    def seg(p0, p1, w0, w1, col):
+        dx, dy = p1[0] - p0[0], p1[1] - p0[1]; L = math.hypot(dx, dy) or 1; nx, ny = -dy / L, dx / L
+        g.polygon([P(p0[0] + nx * w0 / 2, p0[1] + ny * w0 / 2), P(p1[0] + nx * w1 / 2, p1[1] + ny * w1 / 2),
+                   P(p1[0] - nx * w1 / 2, p1[1] - ny * w1 / 2), P(p0[0] - nx * w0 / 2, p0[1] - ny * w0 / 2)], fill=col + (255,))
+        for (px, py), ww in ((p0, w0), (p1, w1)): g.ellipse([P(px - ww / 2, py - ww / 2), P(px + ww / 2, py + ww / 2)], fill=col + (255,))
+    def at(p, a, L): return (p[0] + math.sin(a) * L, p[1] + math.cos(a) * L)
+    dk = lambda c, d=26: tuple(max(0, v - d) for v in c)
+    ph = now * 8.5 if walk else 0; sw = math.sin(ph) * (0.42 if walk else 0)
+    sh_y = top + h * .17; waist = top + h * .45; hipy = top + h * .5
     def arm(sgn, far):
+        col = dk(shirt, 34) if far else shirt; sk = dk(skin, 22) if far else skin; s0 = (cx + sgn * h * .088, sh_y + h * .02)
         if wave and sgn == facing:
-            a1 = math.radians(160) * sgn; a2 = math.radians(160 + 25 * math.sin(now * 10)) * sgn
+            a1 = math.radians(165) * sgn; a2 = math.radians(150 + 25 * math.sin(now * 10)) * sgn
         else:
-            a1 = -sgn * sw * .8 + .08 * sgn; a2 = a1 - .25 * facing
-        col = shirt_d if far else shirt
-        ex, ey = limb((cx + sgn * h * .1, sh_y), a1, h * .16, a2, h * .15, h * .052, col)
-        g.ellipse([P(ex - h * .028, ey - h * .028), P(ex + h * .028, ey + h * .028)], fill=(skin_d if far else skin) + (255,))
+            a1 = -sgn * sw * .75 + .06 * sgn; a2 = a1 - .3 * facing - .1 * sgn
+        e = at(s0, a1, h * .15); wr = at(e, a2, h * .14)
+        seg(s0, e, h * .05, h * .04, col); seg(e, wr, h * .036, h * .026, sk)
+        g.ellipse([P(wr[0] - h * .019, wr[1] - h * .012), P(wr[0] + h * .019, wr[1] + h * .026)], fill=sk + (255,))
     arm(-facing, True)
-    for sgn in (1, -1):
-        a = sgn * sw; knee = max(0, -math.sin(ph + (0 if sgn > 0 else math.pi))) * .55 if walk else 0
-        col = tuple(max(0, c - (18 if sgn < 0 else 0)) for c in pants)
-        fx, fy = limb((hip[0] + sgn * h * .035, hip[1]), a, thigh, a - knee, shin, h * .072, col)
-        g.ellipse([P(fx - h * .045 + facing * h * .02, fy - h * .022), P(fx + h * .045 + facing * h * .02, fy + h * .025)], fill=(38, 36, 40, 255))
-    # torso: shoulders taper to the waist, belt line
-    g.polygon([P(cx - h * .125, sh_y - h * .01), P(cx + h * .125, sh_y - h * .01), P(cx + h * .1, top + h * .5), P(cx - h * .1, top + h * .5)], fill=shirt + (255,))
-    g.ellipse([P(cx - h * .13, sh_y - h * .018), P(cx - h * .085, sh_y + h * .03)], fill=shirt + (255,)); g.ellipse([P(cx + h * .085, sh_y - h * .018), P(cx + h * .13, sh_y + h * .03)], fill=shirt + (255,))
-    g.rounded_rectangle([P(cx - h * .102, top + h * .47), P(cx + h * .102, top + h * .56)], radius=h * .02 * k, fill=pants + (255,))
-    g.polygon([P(cx - h * .03, sh_y - h * .01), P(cx + h * .03, sh_y - h * .01), P(cx, sh_y + h * .04)], fill=shirt_d + (255,))    # collar
+    for sgn in (-facing, facing):                                   # far leg first
+        lead = 1 if sgn > 0 else -1; a = lead * sw
+        knee = max(0, -math.sin(ph + (0 if lead > 0 else math.pi))) * .6 if walk else 0
+        col = dk(pants, 22) if sgn == -facing else pants; hp = (cx + sgn * h * .04, hipy - h * .01)
+        kn = at(hp, a, h * .245); an = at(kn, a - knee, h * .235)
+        seg(hp, kn, h * .078, h * .056, col); seg(kn, an, h * .054, h * .036, col)
+        g.ellipse([P(an[0] - h * .022 - (facing < 0) * h * .035, an[1] - h * .018), P(an[0] + h * .022 + (facing > 0) * h * .035, an[1] + h * .02)], fill=(40, 38, 50, 255))
+    # pants top / hips
+    g.rounded_rectangle([P(cx - h * .085, waist - h * .01), P(cx + h * .085, hipy + h * .02)], radius=h * .03 * k, fill=pants + (255,))
+    # torso with two-tone shading (light from the facing side)
+    tor = [P(cx - h * .106, sh_y + h * .04), P(cx + h * .106, sh_y + h * .04), P(cx + h * .082, waist + h * .01), P(cx - h * .082, waist + h * .01)]
+    g.polygon(tor, fill=shirt + (255,))
+    g.rounded_rectangle([P(cx - h * .108, sh_y - h * .008), P(cx + h * .108, sh_y + h * .09)], radius=h * .04 * k, fill=shirt + (255,))
+    s2 = -facing; g.polygon([P(cx + s2 * h * .02, sh_y + h * .02), P(cx + s2 * h * .1, sh_y + h * .01), P(cx + s2 * h * .082, waist + h * .01), P(cx + s2 * h * .03, waist + h * .01)], fill=dk(shirt, 18) + (255,))
+    g.polygon([P(cx - h * .028, sh_y - h * .004), P(cx + h * .028, sh_y - h * .004), P(cx, sh_y + h * .035)], fill=skin + (255,))    # v-neck
     # neck + head
-    g.rectangle([P(cx - h * .024, top + h * .13), P(cx + h * .024, sh_y)], fill=skin_d + (255,))
-    hc = (cx + facing * h * .005, top + h * .085); rx, ry = h * .062, h * .074
+    g.rounded_rectangle([P(cx - h * .019, top + h * .11), P(cx + h * .019, sh_y + h * .01)], radius=h * .01 * k, fill=dk(skin, 18) + (255,))
+    hc = (cx + facing * h * .006, top + h * .068); rx, ry = h * .05, h * .058
     if hair_style == "long":
-        g.rounded_rectangle([P(hc[0] - rx * 1.15, hc[1] - ry * .9), P(hc[0] + rx * 1.15, hc[1] + ry * 1.9)], radius=rx * k, fill=hair + (255,))
-    g.ellipse([P(hc[0] - rx * 1.12 , hc[1] - ry * .1), P(hc[0] - rx * .8, hc[1] + ry * .3)], fill=skin_d + (255,))
-    g.ellipse([P(hc[0] + rx * .8, hc[1] - ry * .1), P(hc[0] + rx * 1.12, hc[1] + ry * .3)], fill=skin_d + (255,))
+        g.rounded_rectangle([P(hc[0] - rx * 1.18, hc[1] - ry * .7), P(hc[0] + rx * 1.18, hc[1] + ry * 1.75)], radius=rx * .9 * k, fill=hair + (255,))
+    if hair_style == "bun":
+        g.ellipse([P(hc[0] - facing * rx * .6 - rx * .55, hc[1] - ry * 1.55), P(hc[0] - facing * rx * .6 + rx * .55, hc[1] - ry * .5)], fill=hair + (255,))
     g.ellipse([P(hc[0] - rx, hc[1] - ry), P(hc[0] + rx, hc[1] + ry)], fill=skin + (255,))
-    g.chord([P(hc[0] - rx * 1.04, hc[1] - ry * 1.08), P(hc[0] + rx * 1.04, hc[1] + ry * (.25 if hair_style == "long" else .05))], 180, 360, fill=hair + (255,))
-    if hair_style == "long":
-        g.pieslice([P(hc[0] - rx * 1.1, hc[1] - ry * 1.0), P(hc[0] + rx * .3, hc[1] + ry * .6)], 180, 270, fill=hair + (255,))
-    # face: brows, eyes (blink), nose, smile — set toward the facing side
-    fx0 = hc[0] + facing * rx * .12; ey = hc[1] + ry * .08; blink = (now % 3.4) < 0.12
-    for dx in (-.36, .36):
+    g.ellipse([P(hc[0] - facing * rx * .95 - rx * .16, hc[1] - ry * .02), P(hc[0] - facing * rx * .95 + rx * .16, hc[1] + ry * .34)], fill=dk(skin, 18) + (255,))   # ear
+    # hair cap with a side swoop
+    g.chord([P(hc[0] - rx * 1.08, hc[1] - ry * 1.12), P(hc[0] + rx * 1.08, hc[1] + ry * .55)], 180, 360, fill=hair + (255,))
+    g.polygon([P(hc[0] - facing * rx * 1.05, hc[1] - ry * .1), P(hc[0] + facing * rx * .2, hc[1] - ry * .95), P(hc[0] + facing * rx * 1.0, hc[1] - ry * .35),
+               P(hc[0] + facing * rx * .35, hc[1] - ry * .3)], fill=hair + (255,))
+    if hair_style != "long":                                      # sideburn on the back of the head
+        xa, xb = sorted((hc[0] - facing * rx * 1.04, hc[0] - facing * rx * .78)); g.rectangle([P(xa, hc[1] - ry * .3), P(xb, hc[1] + ry * .15)], fill=hair + (255,))
+    # face: dot eyes (blink), little nose, smile, blush
+    fx0 = hc[0] + facing * rx * .22; ey = hc[1] + ry * .1; blink = (now % 3.6) < 0.12
+    for dx in (-.32, .32):
         x0 = fx0 + dx * rx
-        g.line([P(x0 - rx * .16, ey - ry * .2), P(x0 + rx * .16, ey - ry * .23)], fill=tuple(max(0, c - 10) for c in hair) + (255,), width=max(1, int(h * .006 * k)))
-        if blink: g.line([P(x0 - rx * .11, ey), P(x0 + rx * .11, ey)], fill=(50, 40, 40, 255), width=max(1, int(h * .005 * k)))
-        else:
-            g.ellipse([P(x0 - rx * .11, ey - ry * .09), P(x0 + rx * .11, ey + ry * .09)], fill=(250, 250, 250, 255))
-            g.ellipse([P(x0 - rx * .07 + facing * rx * .03, ey - ry * .07), P(x0 + rx * .07 + facing * rx * .03, ey + ry * .07)], fill=(55, 45, 40, 255))
-    g.line([P(fx0 + facing * rx * .05, ey + ry * .1), P(fx0 + facing * rx * .14, ey + ry * .32), P(fx0, ey + ry * .34)], fill=skin_d + (255,), width=max(1, int(h * .005 * k)))
-    g.arc([P(fx0 - rx * .28, ey + ry * .3), P(fx0 + rx * .28, ey + ry * .62)], 15, 165, fill=(170, 80, 70, 255), width=max(1, int(h * .007 * k)))
+        if blink: g.line([P(x0 - rx * .08, ey), P(x0 + rx * .08, ey)], fill=(45, 35, 40, 255), width=max(1, int(h * .004 * k)))
+        else: g.ellipse([P(x0 - rx * .075, ey - ry * .08), P(x0 + rx * .075, ey + ry * .08)], fill=(45, 35, 40, 255))
+    g.arc([P(fx0 + facing * rx * .25 - rx * .14, ey + ry * .05), P(fx0 + facing * rx * .25 + rx * .14, ey + ry * .32)], 290 if facing > 0 else 110, 70 if facing > 0 else 250, fill=dk(skin, 40) + (255,), width=max(1, int(h * .004 * k)))
+    g.arc([P(fx0 - rx * .26, ey + ry * .3), P(fx0 + rx * .26, ey + ry * .58)], 20, 160, fill=(180, 80, 80, 255), width=max(1, int(h * .005 * k)))
+    g.ellipse([P(fx0 + facing * rx * .52 - rx * .12, ey + ry * .2), P(fx0 + facing * rx * .52 + rx * .12, ey + ry * .38)], fill=(245, 160, 150, 110))
     arm(facing, False)
     return _down(im, w, hh)
 
