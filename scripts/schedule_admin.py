@@ -17,6 +17,8 @@ if sys.argv[1] == "list":
         if off >= j.get("total", 0): break
     for p in sorted(items, key=lambda p: p.get("scheduled_date") or ""):
         print(f"{p.get('scheduled_date')}\t{p.get('job_id')}\t{p.get('source_filename') or ''}\t{(p.get('title') or '')[:70]}")
+        if len(sys.argv) > 2 and sys.argv[2] == "json":
+            print("J " + json.dumps({k: v for k, v in p.items() if k not in ("description", "caption")}, default=str)[:1500])
     print(f"{len(items)} scheduled")
 elif sys.argv[1] == "cancel":
     r = requests.delete(f"{API}/{sys.argv[2]}", headers=H, timeout=60); print(r.status_code, r.text); r.raise_for_status()
