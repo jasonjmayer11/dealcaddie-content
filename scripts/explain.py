@@ -35,6 +35,29 @@ LEAD, GAP, LEADIN = 0.2, 0.06, 0.04
 t = LEAD; clips = []; events = {}; scenes = []
 for si, sc in enumerate(M["scenes"]):
     sc["_t0"] = t; sc["_units"] = []
+    one = (len(sc["lines"]) > 1 and M.get("one_take", True) and not any("beat" in l for l in sc["lines"]))
+    if one:
+        # the whole scene is read in ONE take, so the voice flows like a person talking instead of resetting every line
+        from wordtime import parse as _wparse
+        a_, allu = speak_timed(" ".join(l["voice"] for l in sc["lines"]))
+        for u in allu: u["t0"] += t; u["t1"] += t
+        clips.append((t, a_)); pos = 0
+        for ln in sc["lines"]:
+            n = len(_wparse(ln["voice"])[1]); units = allu[pos:pos + n]; pos += n
+            sc["_units"].append(units); cursor = 0
+            lt0 = units[0]["t0"] if units else t; lt1 = units[-1]["t1"] if units else t
+            for ev in ln.get("do", []):
+                if "~" in ev:
+                    k, _, w_ = ev.partition("~")
+                    hit = [i for i, u in enumerate(units) if i >= cursor and u["show"].lower().lstrip("$−-").startswith(w_.lower().lstrip("$−-"))]
+                    if not hit: sys.exit(f"event {ev}: nothing from #{cursor} starts with {w_!r} in {[u['show'] for u in units]}")
+                    cursor = hit[0]; events[k] = units[cursor]["t0"]
+                elif "#" in ev:
+                    k, _, n_ = ev.partition("#"); events[k] = units[min(int(n_), len(units) - 1)]["t0"]
+                else:
+                    k, _, f = ev.partition("@"); events[k] = lt0 + (lt1 - lt0) * float(f or 0)
+        t += len(a_) / SR + GAP + sc["lines"][-1].get("pause", 0.12)
+        sc["_t1"] = t; scenes.append(sc); continue
     for ln in sc["lines"]:
         # each sentence is its own take, with a short beat after it, so a new idea never runs into the last one
         parts, depth, cur_ = [], 0, ""
