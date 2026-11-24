@@ -1,0 +1,211 @@
+{
+ "hook": {
+  "text": "Fixer-upper or *move-in ready?*",
+  "sub": "Two ways to buy a rental."
+ },
+ "post_title": "Fixer-upper or move-in ready? Two ways to buy a rental.",
+ "stage": {
+  "items": [
+   {
+    "id": "fx",
+    "kind": "fixer",
+    "x": 280,
+    "size": 380,
+    "label": "Fixer-upper",
+    "label_y": 1378,
+    "label_fill": [
+     226,
+     120,
+     60
+    ],
+    "label_color": [
+     255,
+     255,
+     255
+    ]
+   },
+   {
+    "id": "tk",
+    "kind": "house",
+    "x": 800,
+    "size": 380,
+    "label": "Turnkey",
+    "label_y": 1378,
+    "label_fill": [
+     3,
+     144,
+     58
+    ],
+    "label_color": [
+     255,
+     255,
+     255
+    ]
+   },
+   {
+    "id": "bld",
+    "kind": "person",
+    "x": -150,
+    "on": "work",
+    "shirt": [
+     226,
+     120,
+     60
+    ],
+    "hold": "toolbox",
+    "moves": [
+     {
+      "on": "work",
+      "x": 110,
+      "dur": 1.4
+     }
+    ],
+    "hook": true
+   },
+   {
+    "id": "ten",
+    "kind": "person",
+    "x": 1260,
+    "on": "rent",
+    "shirt": [
+     70,
+     110,
+     168
+    ],
+    "hair_style": "long",
+    "moves": [
+     {
+      "on": "rent",
+      "x": 975,
+      "dur": 1.4
+     }
+    ],
+    "hook": true
+   }
+  ],
+  "overlays": [
+   {
+    "kind": "pill",
+    "on": "low",
+    "off": "tt",
+    "text": "Lower price, needs work",
+    "fill": [
+     226,
+     120,
+     60
+    ],
+    "color": [
+     255,
+     255,
+     255
+    ],
+    "size": 38,
+    "y": 330
+   },
+   {
+    "kind": "pill",
+    "on": "time",
+    "off": "tt",
+    "text": "Repairs take time + surprises",
+    "fill": [
+     255,
+     255,
+     255
+    ],
+    "size": 36,
+    "y": 420
+   },
+   {
+    "kind": "pill",
+    "on": "rent",
+    "off": "tt",
+    "text": "Rent it out right away",
+    "fill": [
+     3,
+     144,
+     58
+    ],
+    "color": [
+     255,
+     255,
+     255
+    ],
+    "size": 38,
+    "y": 520
+   },
+   {
+    "kind": "pill",
+    "on": "more",
+    "off": "tt",
+    "text": "Pay more up front",
+    "fill": [
+     255,
+     255,
+     255
+    ],
+    "size": 36,
+    "y": 610
+   },
+   {
+    "kind": "title",
+    "on": "tt",
+    "text": "Your time, or *your money?*"
+   }
+  ]
+ },
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "Fixer-upper, or move-in ready? Two ways to buy a rental.",
+     "do": [
+      "sub~two"
+     ],
+     "pause": 0.15
+    }
+   ]
+  },
+  {
+   "lines": [
+    {
+     "voice": "Option one: a fixer-upper. A *lower* price, but it needs *work*.",
+     "do": [
+      "low~lower",
+      "work~work"
+     ]
+    },
+    {
+     "voice": "You can add value, but repairs take *time*, and often cost more than planned.",
+     "do": [
+      "time~time"
+     ]
+    },
+    {
+     "voice": "Option two: turnkey. Move-in ready, so you can *rent* it right away. But you pay *more* up front.",
+     "do": [
+      "rent~rent",
+      "more~more"
+     ]
+    },
+    {
+     "voice": "Fixers reward time and know-how. Turnkey buys convenience. Your time, or your money?",
+     "do": [
+      "tt~your"
+     ],
+     "pause": 0.25
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie runs the numbers on both, on any listing. We read the green. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "Fixer-upper or move-in ready? Two ways to buy a rental.\n\nFixer-upper: lower price, but it needs work. You can add value, but repairs take time and often cost more than planned.\n\nTurnkey: move-in ready, so you can rent it right away, but you pay more up front.\n\nFixers reward time and know-how. Turnkey buys convenience. Your time, or your money?\n\n#realestateinvesting #realestateexplained #rentalproperty #fixerupper #turnkey",
+ "style": "cartoon",
+ "voice_speed": 1.22
+}

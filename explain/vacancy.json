@@ -1,0 +1,183 @@
+{
+ "hook": {
+  "text": "The cost nobody *budgets for.*",
+  "sub": "Vacancy, explained."
+ },
+ "post_title": "The cost nobody budgets for: vacancy, explained.",
+ "example": "Example numbers for illustration",
+ "stage": {
+  "items": [
+   {
+    "id": "you",
+    "kind": "person",
+    "x": 140,
+    "shirt": [
+     10,
+     90,
+     50
+    ],
+    "hair_style": "long"
+   },
+   {
+    "id": "h",
+    "kind": "house",
+    "x": 600,
+    "size": 430
+   },
+   {
+    "id": "ten",
+    "kind": "person",
+    "x": 720,
+    "shirt": [
+     70,
+     110,
+     168
+    ],
+    "off": "out",
+    "moves": [],
+    "hook": false
+   },
+   {
+    "id": "tenout",
+    "kind": "person",
+    "x": 720,
+    "on": "out",
+    "shirt": [
+     70,
+     110,
+     168
+    ],
+    "moves": [
+     {
+      "on": "out",
+      "x": 1300,
+      "dur": 1.8
+     }
+    ],
+    "hook": false
+   }
+  ],
+  "flights": [
+   {
+    "on": "fix",
+    "from": "you",
+    "to": "h",
+    "from_dy": -260,
+    "to_dy": -250,
+    "n": 4,
+    "size": 76,
+    "stagger": 0.25
+   }
+  ],
+  "overlays": [
+   {
+    "kind": "pill",
+    "on": "out",
+    "off": "tt",
+    "text": "FOR RENT",
+    "fill": [
+     226,
+     78,
+     66
+    ],
+    "color": [
+     255,
+     255,
+     255
+    ],
+    "size": 48,
+    "y": 560
+   },
+   {
+    "kind": "counter",
+    "on": "cnt",
+    "off": "tt",
+    "label": "Rent this year",
+    "keys": [
+     [
+      "cnt",
+      24000
+     ],
+     [
+      "gone",
+      22000
+     ]
+    ],
+    "y": 330,
+    "tone": "ink"
+   },
+   {
+    "kind": "pill",
+    "on": "fix",
+    "off": "tt",
+    "text": "+ cleaning, paint, repairs",
+    "fill": [
+     255,
+     255,
+     255
+    ],
+    "size": 38,
+    "y": 470
+   },
+   {
+    "kind": "title",
+    "on": "tt",
+    "text": "Budget for *empty months.*"
+   }
+  ]
+ },
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "Here's the cost new investors forget to budget for: vacancy.",
+     "do": [
+      "sub~vacancy"
+     ],
+     "pause": 0.15
+    }
+   ]
+  },
+  {
+   "lines": [
+    {
+     "voice": "When a tenant *moves* out, the rent stops.",
+     "do": [
+      "out~moves"
+     ]
+    },
+    {
+     "voice": "On {two thousand|$2,000} a month, one empty month is {two thousand|$2,000} *gone*. That's about eight percent of the year.",
+     "do": [
+      "cnt~on",
+      "gone~gone"
+     ]
+    },
+    {
+     "voice": "Then add cleaning, paint, and *repairs* before the next tenant moves in.",
+     "do": [
+      "fix~repairs"
+     ]
+    },
+    {
+     "voice": "So budget for it. Many investors set aside five to eight percent of the rent for empty months.",
+     "do": [
+      "tt~budget"
+     ],
+     "pause": 0.25
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie builds vacancy into every analysis. We read the green. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "The cost new investors forget to budget for: vacancy.\n\nWhen a tenant moves out, the rent stops. On $2,000/month, one empty month = $2,000 gone, about 8% of the year. Then add cleaning, paint and repairs before the next tenant.\n\nMany investors budget 5 to 8% of rent for vacancy. Your market may differ.\n\nExample numbers for illustration.\n\n#realestateinvesting #realestateexplained #rentalproperty #vacancy #landlord",
+ "style": "cartoon",
+ "voice_speed": 1.22
+}

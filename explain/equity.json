@@ -1,0 +1,186 @@
+{
+ "hook": {
+  "text": "What is *equity?*",
+  "sub": "The part of the house that's actually yours."
+ },
+ "post_title": "What is equity? The part of the house that's actually yours.",
+ "example": "Example numbers for illustration",
+ "stage": {
+  "items": [
+   {
+    "id": "you",
+    "kind": "person",
+    "x": 150,
+    "shirt": [
+     10,
+     90,
+     50
+    ],
+    "hook_wave": true
+   },
+   {
+    "id": "h",
+    "kind": "house",
+    "x": 560,
+    "size": 430
+   },
+   {
+    "id": "bank",
+    "kind": "bank",
+    "x": 950,
+    "size": 190,
+    "label": "Your loan",
+    "label_y": 1378
+   }
+  ],
+  "flights": [
+   {
+    "on": "pay",
+    "from": "you",
+    "to": "bank",
+    "from_dy": -260,
+    "to_dy": -160,
+    "n": 6,
+    "size": 80,
+    "stagger": 0.2,
+    "arc": -200
+   }
+  ],
+  "overlays": [
+   {
+    "kind": "meter",
+    "on": "m1",
+    "off": "m2",
+    "title": "House worth $300K",
+    "segs": [
+     {
+      "on": "m1",
+      "frac": 0.8,
+      "color": [
+       64,
+       78,
+       72
+      ],
+      "text": "You owe $240K"
+     },
+     {
+      "on": "m1b",
+      "frac": 0.2,
+      "color": [
+       201,
+       168,
+       76
+      ],
+      "text": "Yours $60K"
+     }
+    ]
+   },
+   {
+    "kind": "pill",
+    "on": "ways",
+    "off": "m2",
+    "text": "Paydown · Value growth · Upgrades",
+    "fill": [
+     255,
+     255,
+     255
+    ],
+    "size": 38,
+    "y": 540
+   },
+   {
+    "kind": "meter",
+    "on": "m2",
+    "off": "tt",
+    "title": "Years later: worth $360K",
+    "segs": [
+     {
+      "on": "m2",
+      "frac": 0.64,
+      "color": [
+       64,
+       78,
+       72
+      ],
+      "text": "Owe $230K"
+     },
+     {
+      "on": "m2",
+      "frac": 0.36,
+      "color": [
+       201,
+       168,
+       76
+      ],
+      "text": "Yours $130K"
+     }
+    ]
+   },
+   {
+    "kind": "title",
+    "on": "tt",
+    "text": "Equity = *what you own.*"
+   }
+  ]
+ },
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "What is equity? It's the part of the house that's actually yours.",
+     "do": [
+      "sub~it's"
+     ],
+     "pause": 0.15
+    }
+   ]
+  },
+  {
+   "lines": [
+    {
+     "voice": "Say the house is worth {three hundred thousand|$300K}, and you *owe* {two forty|$240K}.",
+     "do": [
+      "m1~owe"
+     ]
+    },
+    {
+     "voice": "Your *equity* is the difference: {sixty thousand|$60K}.",
+     "do": [
+      "m1b~equity"
+     ]
+    },
+    {
+     "voice": "It grows three *ways*. Each *payment* shrinks the loan. The value can rise. And upgrades can add value.",
+     "do": [
+      "ways~ways",
+      "pay~payment"
+     ]
+    },
+    {
+     "voice": "A few *years* later, you could have well over a hundred thousand in equity.",
+     "do": [
+      "m2~years"
+     ]
+    },
+    {
+     "voice": "And you can tap it to buy your next property. Equity is what you own.",
+     "do": [
+      "tt~equity"
+     ],
+     "pause": 0.25
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie projects your equity for thirty years on any listing. We read the green. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "What is equity? The part of the house that's actually yours.\n\nEquity = what the house is worth − what you owe.\nExample: worth $300K, owe $240K → $60K equity.\n\nIt grows three ways: each payment shrinks the loan, the value can rise, and upgrades can add value.\n\nYears later (worth $360K, owe $230K) that's $130K, and you can tap it to buy your next property.\n\nExample numbers for illustration; values can also fall.\n\n#realestateinvesting #realestateexplained #rentalproperty #equity",
+ "style": "cartoon",
+ "voice_speed": 1.22
+}

@@ -1,0 +1,195 @@
+{
+ "hook": {
+  "text": "Between Airbnb *and a lease.*",
+  "sub": "Medium-term rentals, explained."
+ },
+ "post_title": "The rental between Airbnb and a lease: medium-term rentals, explained.",
+ "stage": {
+  "items": [
+   {
+    "id": "you",
+    "kind": "person",
+    "x": 140,
+    "shirt": [
+     10,
+     90,
+     50
+    ],
+    "hair_style": "long",
+    "hook_wave": true
+   },
+   {
+    "id": "h",
+    "kind": "house",
+    "x": 600,
+    "size": 430,
+    "label": "Furnished",
+    "label_y": 1378,
+    "label_on": "fur",
+    "label_fill": [
+     201,
+     168,
+     76
+    ]
+   },
+   {
+    "id": "nurse",
+    "kind": "person",
+    "x": 1260,
+    "on": "nur",
+    "shirt": [
+     40,
+     150,
+     150
+    ],
+    "hair_style": "bun",
+    "hold": "suitcase",
+    "moves": [
+     {
+      "on": "nur",
+      "x": 905,
+      "dur": 1.4
+     }
+    ],
+    "hook": true
+   }
+  ],
+  "overlays": [
+   {
+    "kind": "calendar",
+    "on": "fur",
+    "off": "more",
+    "title": "One guest for 1 to 6 months",
+    "heights": [
+     1,
+     1,
+     1,
+     0.9,
+     0.9,
+     0.9,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1
+    ],
+    "color": [
+     40,
+     150,
+     150
+    ],
+    "foot": "Fewer move-ins than Airbnb"
+   },
+   {
+    "kind": "pill",
+    "on": "more",
+    "off": "tt",
+    "text": "More rent than a yearly lease",
+    "fill": [
+     3,
+     144,
+     58
+    ],
+    "color": [
+     255,
+     255,
+     255
+    ],
+    "size": 40,
+    "y": 330
+   },
+   {
+    "kind": "pill",
+    "on": "few",
+    "off": "tt",
+    "text": "Fewer turnovers than Airbnb",
+    "fill": [
+     255,
+     255,
+     255
+    ],
+    "size": 40,
+    "y": 430
+   },
+   {
+    "kind": "pill",
+    "on": "rules",
+    "off": "tt",
+    "text": "30+ day stays: check local rules",
+    "fill": [
+     201,
+     168,
+     76
+    ],
+    "size": 38,
+    "y": 530
+   },
+   {
+    "kind": "title",
+    "on": "tt",
+    "text": "The *middle ground.*"
+   }
+  ]
+ },
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "There's a rental in between Airbnb and a yearly lease. Here's how it works.",
+     "do": [
+      "sub~here's"
+     ],
+     "pause": 0.15
+    }
+   ]
+  },
+  {
+   "lines": [
+    {
+     "voice": "A medium-term rental is a *furnished* home, rented for one to six months at a time.",
+     "do": [
+      "fur~furnished"
+     ]
+    },
+    {
+     "voice": "Think traveling *nurses*, workers on assignment, or families between homes.",
+     "do": [
+      "nur~nurses"
+     ]
+    },
+    {
+     "voice": "It often rents for *more* than a yearly lease, with far *fewer* turnovers than Airbnb.",
+     "do": [
+      "more~more",
+      "few~fewer"
+     ]
+    },
+    {
+     "voice": "And stays of thirty days or more can fall under different *rules* than short-term rentals, so check your city.",
+     "do": [
+      "rules~rules"
+     ]
+    },
+    {
+     "voice": "The trade-off: furniture, utilities, and gaps between guests. It's the middle ground.",
+     "do": [
+      "tt~middle"
+     ],
+     "pause": 0.25
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie runs medium-term rental numbers on any listing. We read the green. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "There's a rental in between Airbnb and a yearly lease: the medium-term rental.\n\nA furnished home rented for 1 to 6 months at a time, to traveling nurses, workers on assignment, or families between homes.\n\nIt often rents for more than a yearly lease, with far fewer turnovers than Airbnb. Stays of 30+ days may fall under different rules than short-term rentals, so check your city.\n\nThe trade-off: furniture, utilities and gaps between guests.\n\n#realestateinvesting #realestateexplained #rentalproperty #midtermrental #travelnurse",
+ "style": "cartoon",
+ "voice_speed": 1.22
+}

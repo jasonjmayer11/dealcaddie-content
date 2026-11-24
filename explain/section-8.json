@@ -1,0 +1,207 @@
+{
+ "hook": {
+  "text": "The government *pays part of the rent.*",
+  "sub": "Section 8, explained."
+ },
+ "post_title": "The government pays part of the rent: Section 8, explained.",
+ "example": "How it usually works · rules vary by housing authority",
+ "stage": {
+  "items": [
+   {
+    "id": "you",
+    "kind": "person",
+    "x": 140,
+    "shirt": [
+     10,
+     90,
+     50
+    ],
+    "hook_wave": true
+   },
+   {
+    "id": "h",
+    "kind": "house",
+    "x": 520,
+    "size": 400
+   },
+   {
+    "id": "ha",
+    "kind": "tower",
+    "x": 930,
+    "size": 420,
+    "text": "HOUSING AUTHORITY"
+   },
+   {
+    "id": "ten",
+    "kind": "person",
+    "x": -150,
+    "on": "ten",
+    "shirt": [
+     70,
+     110,
+     168
+    ],
+    "hair_style": "long",
+    "moves": [
+     {
+      "on": "ten",
+      "x": 360,
+      "dur": 1.6
+     }
+    ],
+    "hook": true
+   },
+   {
+    "id": "insp",
+    "kind": "person",
+    "x": 1260,
+    "on": "insp",
+    "shirt": [
+     90,
+     100,
+     110
+    ],
+    "hold": "briefcase",
+    "moves": [
+     {
+      "on": "insp",
+      "x": 700,
+      "dur": 1.3,
+      "face": -1
+     }
+    ],
+    "hook": false
+   }
+  ],
+  "flights": [
+   {
+    "on": "pay1",
+    "from": "ten",
+    "to": "you",
+    "from_dy": -260,
+    "to_dy": -260,
+    "n": 3,
+    "size": 76,
+    "stagger": 0.3
+   },
+   {
+    "on": "pay2",
+    "from": "ha",
+    "to": "you",
+    "from_dy": -300,
+    "to_dy": -260,
+    "n": 7,
+    "size": 86,
+    "stagger": 0.15,
+    "arc": -220
+   }
+  ],
+  "overlays": [
+   {
+    "kind": "meter",
+    "on": "pay1",
+    "off": "insp",
+    "title": "Monthly rent",
+    "segs": [
+     {
+      "on": "pay1",
+      "frac": 0.32,
+      "color": [
+       70,
+       110,
+       168
+      ],
+      "text": "Tenant"
+     },
+     {
+      "on": "pay2",
+      "frac": 0.68,
+      "color": [
+       3,
+       144,
+       58
+      ],
+      "text": "Housing authority"
+     }
+    ]
+   },
+   {
+    "kind": "pill",
+    "on": "rr",
+    "off": "tt",
+    "text": "Rent must fit local limits",
+    "fill": [
+     255,
+     255,
+     255
+    ],
+    "size": 38
+   },
+   {
+    "kind": "title",
+    "on": "tt",
+    "text": "Steady checks. *More paperwork.*"
+   }
+  ]
+ },
+ "scenes": [
+  {
+   "lines": [
+    {
+     "voice": "The government pays part of the rent. It's called Section 8.",
+     "do": [
+      "sub~it's"
+     ],
+     "pause": 0.15
+    }
+   ]
+  },
+  {
+   "lines": [
+    {
+     "voice": "Meet Sam. He owns a rental, and his *tenant* has a Section 8 voucher.",
+     "do": [
+      "ten~tenant"
+     ]
+    },
+    {
+     "voice": "Each month, the tenant pays *part* of the rent, usually about thirty percent of their income.",
+     "do": [
+      "pay1~part"
+     ]
+    },
+    {
+     "voice": "The local *housing* authority pays the rest, straight to Sam.",
+     "do": [
+      "pay2~housing"
+     ]
+    },
+    {
+     "voice": "The catch? The home has to pass an *inspection*, and the rent has to be *reasonable* for the area.",
+     "do": [
+      "insp~inspection",
+      "rr~reasonable"
+     ]
+    },
+    {
+     "voice": "Steady checks, more paperwork. That's Section 8.",
+     "do": [
+      "tt~steady"
+     ],
+     "pause": 0.25
+    }
+   ]
+  },
+  {
+   "end": true,
+   "lines": [
+    {
+     "voice": "DealCaddie estimates Section 8 rent on any listing. We read the green. You take the shot."
+    }
+   ]
+  }
+ ],
+ "caption": "The government pays part of the rent. It's called Section 8 (the Housing Choice Voucher program).\n\nThe tenant pays part of the rent, usually about 30% of their income. The local housing authority pays the rest directly to the landlord.\n\nThe catch: the home has to pass an inspection, and the rent has to be reasonable for the area.\n\nSteady checks, more paperwork. Rules vary by housing authority.\n\n#realestateinvesting #realestateexplained #rentalproperty #section8",
+ "style": "cartoon",
+ "voice_speed": 1.22
+}
